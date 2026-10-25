@@ -42,6 +42,12 @@ export default function HomePage() {
         <p>Welcome back to Eventra!</p>
         <ul>
           <li><Link href="/profile">Go to your Profile</Link></li>
+          {(user.role === 'organiser' || user.role === 'admin') && (
+            <>
+              <li><Link href="/my-events">Manage My Events</Link></li>
+              <li><Link href="/events/create">Create New Event</Link></li>
+            </>
+          )}
           {user.role === 'admin' && (
             <li><Link href="/admin">Go to Admin Panel</Link></li>
           )}

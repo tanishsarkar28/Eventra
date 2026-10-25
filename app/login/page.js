@@ -42,42 +42,62 @@ export default function LoginPage() {
   }
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div style={{ maxWidth: '400px', margin: '20px auto' }}>
+      <h2>Login to Eventra</h2>
 
       {errorMessage && (
-        <p style={{ color: 'red' }}>{errorMessage}</p>
+        <div
+          style={{
+            backgroundColor: '#ffebee',
+            color: '#c62828',
+            padding: '10px 12px',
+            borderRadius: '6px',
+            marginBottom: '16px',
+            fontSize: '14px',
+            border: '1px solid #ffcdd2',
+          }}
+        >
+          {errorMessage}
+        </div>
       )}
 
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Email:</label>
+        <div style={{ marginBottom: '14px' }}>
+          <label>Email Address:</label>
           <br />
           <input
             type="email"
             required
+            placeholder="you@campus.edu"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            style={{ width: '100%' }}
           />
         </div>
 
-        <div style={{ marginBottom: '10px' }}>
+        <div style={{ marginBottom: '18px' }}>
           <label>Password:</label>
           <br />
           <input
             type="password"
             required
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            style={{ width: '100%' }}
           />
         </div>
 
-        <button type="submit" disabled={isLoading}>
+        <button
+          type="submit"
+          disabled={isLoading}
+          style={{ width: '100%', marginTop: '6px' }}
+        >
           {isLoading ? 'Logging in...' : 'Login'}
         </button>
       </form>
 
-      <p>
+      <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#666' }}>
         Don't have an account yet? <Link href="/register">Register here</Link>
       </p>
     </div>

@@ -1,10 +1,10 @@
-# Eventra - Module 1: Testing Guide & Architecture Explanation
+# Eventra - Module 1 & Module 2: Testing Guide & Architecture Explanation
 
 ---
 
 ## 4. Manual Testing Steps
 
-Follow these step-by-step instructions to test all features of Module 1:
+Follow these step-by-step instructions to test all features of Module 1 and Module 2:
 
 ### Step 1: Register a Student
 1. Open your browser and navigate to: [http://localhost:3000/register](http://localhost:3000/register)
@@ -34,7 +34,7 @@ Follow these step-by-step instructions to test all features of Module 1:
 ---
 
 ### Step 3: Create an Admin by editing `data/users.json`
-1. Open the file [data/users.json](file:///c:/Users/sarka/OneDrive/Documents/Codes/Projects/Eventra/data/users.json) in your code editor.
+1. Open the file `data/users.json` in your code editor.
 2. Find Alice's user entry.
 3. Change `"role": "student"` to `"role": "admin"`.
 4. Save the file.
@@ -73,11 +73,67 @@ Follow these step-by-step instructions to test all features of Module 1:
    - **Year:** 3rd Year
    - **Interests:** Robotics, AI, IoT
 3. Click **Save Changes**.
-4. **Expected Result:** The profile details update immediately on screen and are persisted in [data/users.json](file:///c:/Users/sarka/OneDrive/Documents/Codes/Projects/Eventra/data/users.json).
+4. **Expected Result:** The profile details update immediately on screen and are persisted in `data/users.json`.
 
 ---
 
-## 5. How Login Works (in 5 Simple Lines)
+### Step 7: Create an Event as Organiser (Module 2)
+1. While logged in as Bob (verified organiser), click **My Events** in the top navigation bar (or visit [http://localhost:3000/my-events](http://localhost:3000/my-events)).
+2. Click **+ Create New Event** (or visit [http://localhost:3000/events/create](http://localhost:3000/events/create)).
+3. Fill in the event form:
+   - **Title:** Annual Robotics Showcase
+   - **Description:** An exhibition of autonomous robots built by students.
+   - **Category:** Technical
+   - **Tags:** robotics, ai, coding
+   - **Date:** 2026-11-20
+   - **Start Time:** 10:00
+   - **End Time:** 16:00
+   - **Venue:** Main Auditorium
+   - **Capacity:** 100
+   - **Registration Deadline:** 2026-11-19
+   - **Pricing:** Free
+   - **Poster:** (Optionally upload an image or enter a URL)
+4. Click **Save as Draft**.
+5. **Expected Result:** Redirects back to My Events. The new event is listed with status `Draft`.
+
+---
+
+### Step 8: Edit and Submit Event for Approval (Module 2)
+1. On the My Events page, click **Edit** next to "Annual Robotics Showcase".
+2. Update the capacity to `150` and click **Save Changes**.
+3. On My Events, click **Submit for Approval**.
+4. **Expected Result:** The event status updates to `Pending Approval`.
+
+---
+
+### Step 9: Admin Review & Module 4 Venue Validation (Module 2 & 4 Integration)
+1. Log out and log back in as Alice (the Admin user).
+2. Visit [http://localhost:3000/admin](http://localhost:3000/admin).
+3. Scroll down to **Pending Events for Approval (Module 2 & 4 Integration)**.
+4. You will see Bob's event listed.
+5. Click **Approve & Publish**.
+6. **Expected Result:** Module 4 validates that the venue "Main Auditorium" is valid and that there are no overlapping events at that venue/date/time. The event is approved and published!
+7. *(Conflict Test)*: If another event requests the same venue on the same date with an overlapping time range, clicking "Approve & Publish" will be rejected by Module 4 validation and display an error explaining the conflict.
+
+---
+
+### Step 10: Cancel Event (Module 2)
+1. Log back in as Bob (organiser).
+2. Go to [http://localhost:3000/my-events](http://localhost:3000/my-events).
+3. Click **Cancel Event** next to an event and confirm.
+4. **Expected Result:** The event status is changed to `Cancelled`.
+
+---
+
+## 5. Automated Testing Script
+You can run the complete automated test suite covering all Module 1 and Module 2 APIs:
+```bash
+node scripts/test-module2.js
+```
+
+---
+
+## 6. How Login Works (in 5 Simple Lines)
 
 1. **User Submits Form:** The browser sends the user's email and password to `POST /api/auth/login`.
 2. **Server Validates Password:** The server finds the user in `data/users.json` and uses `bcrypt.compare` to check if the password matches.
