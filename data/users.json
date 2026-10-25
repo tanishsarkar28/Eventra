@@ -1,1 +1,40 @@
-[]
+[
+  {
+    "id": "1792920816445",
+    "name": "rishi",
+    "email": "rishiraj18sep2005@gmail.com",
+    "password": "$2a$10$jobqBJulvtv5yhgDJBLKiu328IvUsmYv1N/SZMlY52FKs0uSy1UM6",
+    "role": "organiser",
+    "branch": "Cse",
+    "year": "3rd",
+    "interests": [
+      "Esports"
+    ],
+    "clubName": "Meow Club",
+    "isVerified": true
+  },
+  {
+    "id": "admin_default",
+    "name": "Administrator",
+    "email": "admin@eventra.edu",
+    "password": "$2a$10$hZYkGZYzqDv4V3rX0Km8y.9gaaadnWTcJn7gNYZo7Z8POGwXr5VAG",
+    "role": "admin",
+    "branch": "Admin",
+    "year": "N/A",
+    "interests": [],
+    "clubName": "",
+    "isVerified": true
+  },
+  {
+    "id": "1792921156058",
+    "name": "xyz",
+    "email": "rishiraj18sep2003@gmail.com",
+    "password": "$2a$10$UZCCLoNEBMZqmu/iXIW/6Oq/FHShrgyaMSmNdAVfb2QObxpToyWTm",
+    "role": "student",
+    "branch": "",
+    "year": "",
+    "interests": [],
+    "clubName": "",
+    "isVerified": true
+  }
+]

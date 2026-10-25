@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1792921081004",
+    "title": "Hackathon 2026",
+    "description": "heuhne",
+    "poster": "",
+    "category": "Cultural",
+    "tags": [
+      "dss"
+    ],
+    "date": "2026-10-28",
+    "startTime": "01:06",
+    "endTime": "03:08",
+    "venue": "sdma",
+    "capacity": 100,
+    "registrationDeadline": "2026-10-21",
+    "isPaid": true,
+    "ticketPrice": 499,
+    "status": "Published",
+    "organiserId": "1792920816445",
+    "organiserName": "rishi",
+    "clubName": "Meow Club",
+    "createdAt": "2026-10-25T09:38:01.004Z",
+    "updatedAt": "2026-10-25T09:38:27.407Z"
+  }
+]
