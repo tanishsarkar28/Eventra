@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { readEvents, saveEvents } from '@/lib/db';
+import { readEvents, saveEvents, readVenues, readBookings, saveBookings } from '@/lib/db';
 import { getLoggedInUser } from '@/lib/auth';
 import { validateVenueAndTime } from '@/lib/venueValidation';
 
@@ -89,6 +89,51 @@ export async function PATCH(request, { params }) {
 
     events[eventIndex] = event;
     saveEvents(events);
+
+    // 8. synchronize with Module 3 Venue Bookings
+    try {
+      const venues = readVenues();
+      const matchedVenue = venues.find(
+        (v) => v.name.trim().toLowerCase() === (event.venue || '').trim().toLowerCase()
+      );
+      if (matchedVenue) {
+        const bookings = readBookings();
+        const existingBookingIndex = bookings.findIndex((b) => b.eventId === event.id);
+
+        if (targetStatus === 'Published') {
+          if (existingBookingIndex !== -1) {
+            bookings[existingBookingIndex].status = 'Confirmed';
+            bookings[existingBookingIndex].updatedAt = new Date().toISOString();
+          } else {
+            bookings.push({
+              id: Date.now().toString(),
+              venueId: matchedVenue.id,
+              venueName: matchedVenue.name,
+              type: 'booking',
+              date: event.date,
+              startTime: event.startTime,
+              endTime: event.endTime,
+              title: event.title,
+              reason: '',
+              note: `Published Event: ${event.title}`,
+              eventId: event.id,
+              requestedBy: event.organiserId,
+              requestedByName: event.organiserName,
+              status: 'Confirmed',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+          }
+          saveBookings(bookings);
+        } else if (targetStatus === 'Cancelled' && existingBookingIndex !== -1) {
+          bookings[existingBookingIndex].status = 'Cancelled';
+          bookings[existingBookingIndex].updatedAt = new Date().toISOString();
+          saveBookings(bookings);
+        }
+      }
+    } catch (bookingSyncError) {
+      console.error('Error synchronizing event with venue bookings:', bookingSyncError);
+    }
 
     return NextResponse.json(
       {

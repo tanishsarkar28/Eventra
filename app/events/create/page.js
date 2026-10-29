@@ -21,14 +21,15 @@ export default function CreateEventPage() {
 
   // 2. auxiliary states
   const [categories, setCategories] = useState([]);
+  const [venuesList, setVenuesList] = useState([]);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // 3. fetch categories on mount
+  // 3. fetch categories and venues on mount
   useEffect(() => {
-    async function loadCategories() {
+    async function loadInitialData() {
       try {
         const res = await fetch('/api/categories');
         if (res.ok) {
@@ -43,8 +44,18 @@ export default function CreateEventPage() {
         setCategories(['Technical', 'Cultural', 'Sports', 'Academic', 'Workshop', 'Seminar']);
         setCategory('Technical');
       }
+
+      try {
+        const vRes = await fetch('/api/venues');
+        if (vRes.ok) {
+          const vData = await vRes.json();
+          setVenuesList(vData.venues || (Array.isArray(vData) ? vData : []));
+        }
+      } catch (vErr) {
+        // ignore
+      }
     }
-    loadCategories();
+    loadInitialData();
   }, []);
 
   // 4. handle poster file upload
@@ -254,11 +265,19 @@ export default function CreateEventPage() {
           <input
             type="text"
             required
+            list="venue-suggestions"
             style={{ width: '100%', maxWidth: '400px' }}
             value={venue}
             onChange={(e) => setVenue(e.target.value)}
-            placeholder="e.g. Main Auditorium, Lab 3"
+            placeholder="Select from college venues or enter custom"
           />
+          <datalist id="venue-suggestions">
+            {venuesList.map((v) => (
+              <option key={v.id} value={v.name}>
+                {v.name} ({v.type}, Cap: {v.capacity}, {v.location})
+              </option>
+            ))}
+          </datalist>
         </div>
 
         <div style={{ marginBottom: '10px' }}>

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "venue_auditorium_1",
+    "name": "Main Auditorium",
+    "type": "Auditorium",
+    "capacity": 500,
+    "location": "Block A, Ground Floor",
+    "facilities": ["AC", "Projector", "Microphone", "Sound System", "WiFi", "Stage Lighting"],
+    "availableDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "availableFrom": "08:00",
+    "availableTo": "20:00",
+    "requiresApproval": true,
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "venue_seminar_1",
+    "name": "Seminar Hall 1",
+    "type": "Seminar Hall",
+    "capacity": 150,
+    "location": "Block B, First Floor",
+    "facilities": ["AC", "Projector", "Microphone", "Whiteboard", "WiFi"],
+    "availableDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "availableFrom": "09:00",
+    "availableTo": "18:00",
+    "requiresApproval": true,
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "venue_cs_lab_1",
+    "name": "Computer Science Lab 1",
+    "type": "Lab",
+    "capacity": 60,
+    "location": "Block C, Second Floor",
+    "facilities": ["AC", "Projector", "WiFi", "Whiteboard"],
+    "availableDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "availableFrom": "08:30",
+    "availableTo": "17:30",
+    "requiresApproval": false,
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "venue_playground_1",
+    "name": "Main Sports Ground",
+    "type": "Playground",
+    "capacity": 1000,
+    "location": "Behind Block D",
+    "facilities": ["Sound System", "Stage Lighting"],
+    "availableDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "availableFrom": "06:00",
+    "availableTo": "19:00",
+    "requiresApproval": true,
+    "isActive": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-01T00:00:00.000Z"
+  }
+]

@@ -136,7 +136,23 @@ export default function AdminPage() {
   // 7. render pending organisers table
   return (
     <div>
-      <h2>Admin Panel</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h2 style={{ margin: 0 }}>Admin Panel</h2>
+        <Link
+          href="/venues"
+          style={{
+            padding: '6px 14px',
+            background: '#2563eb',
+            color: '#ffffff',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            fontSize: '14px',
+            fontWeight: 500,
+          }}
+        >
+          Manage Venues &amp; Schedules →
+        </Link>
+      </div>
 
       <h3>Pending Organisers</h3>
       {message && <p style={{ color: 'green' }}>{message}</p>}

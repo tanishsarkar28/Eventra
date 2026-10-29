@@ -24,13 +24,14 @@ export default function EditEventPage({ params }) {
 
   // 2. auxiliary states
   const [categories, setCategories] = useState([]);
+  const [venuesList, setVenuesList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // 3. fetch categories and event details on mount
+  // 3. fetch categories, venues, and event details on mount
   useEffect(() => {
     async function loadData() {
       try {
@@ -39,6 +40,13 @@ export default function EditEventPage({ params }) {
         if (catRes.ok) {
           const catData = await catRes.json();
           setCategories(catData.categories || []);
+        }
+
+        // fetch venues
+        const vRes = await fetch('/api/venues');
+        if (vRes.ok) {
+          const vData = await vRes.json();
+          setVenuesList(vData.venues || (Array.isArray(vData) ? vData : []));
         }
 
         // fetch event details
@@ -289,10 +297,19 @@ export default function EditEventPage({ params }) {
             <input
               type="text"
               required
+              list="venue-suggestions"
               style={{ width: '100%', maxWidth: '400px' }}
               value={venue}
               onChange={(e) => setVenue(e.target.value)}
+              placeholder="Select or enter venue"
             />
+            <datalist id="venue-suggestions">
+              {venuesList.map((v) => (
+                <option key={v.id} value={v.name}>
+                  {v.name} ({v.type}, Cap: {v.capacity}, {v.location})
+                </option>
+              ))}
+            </datalist>
           </div>
 
           <div style={{ marginBottom: '10px' }}>

@@ -19,6 +19,7 @@ export default function RootLayout({ children }) {
               <Link href="/login">Login</Link>
               <Link href="/profile">Profile</Link>
               <Link href="/my-events">My Events</Link>
+              <Link href="/venues">Venues</Link>
               <Link href="/admin">Admin</Link>
             </nav>
           </header>
