@@ -124,6 +124,7 @@ export async function PUT(request, { params }) {
       endTime: newEndTime.trim(),
       venue: body.venue !== undefined ? body.venue.trim() : currentEvent.venue,
       capacity: body.capacity !== undefined ? Number(body.capacity) : currentEvent.capacity,
+      targetAudience: body.targetAudience !== undefined ? body.targetAudience.trim() : (currentEvent.targetAudience || 'All Students'),
       registrationDeadline: body.registrationDeadline !== undefined ? body.registrationDeadline.trim() : currentEvent.registrationDeadline,
       isPaid: isPaid,
       ticketPrice: ticketPrice,

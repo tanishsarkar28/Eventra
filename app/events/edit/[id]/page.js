@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 export default function EditEventPage({ params }) {
@@ -11,6 +11,7 @@ export default function EditEventPage({ params }) {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [tags, setTags] = useState('');
+  const [targetAudience, setTargetAudience] = useState('All Students');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
@@ -31,25 +32,29 @@ export default function EditEventPage({ params }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // 3. fetch categories, venues, and event details on mount
+  // 3. Module 4 Real-Time Clash Detection & Suggestions state
+  const [clashResult, setClashResult] = useState(null);
+  const [isCheckingClash, setIsCheckingClash] = useState(false);
+  const [suggestions, setSuggestions] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const clashTimerRef = useRef(null);
+
+  // 4. fetch categories, venues, and event details on mount
   useEffect(() => {
     async function loadData() {
       try {
-        // fetch categories
         const catRes = await fetch('/api/categories');
         if (catRes.ok) {
           const catData = await catRes.json();
           setCategories(catData.categories || []);
         }
 
-        // fetch venues
         const vRes = await fetch('/api/venues');
         if (vRes.ok) {
           const vData = await vRes.json();
           setVenuesList(vData.venues || (Array.isArray(vData) ? vData : []));
         }
 
-        // fetch event details
         const eventRes = await fetch(`/api/events/${id}`);
         if (!eventRes.ok) {
           setIsError(true);
@@ -65,6 +70,7 @@ export default function EditEventPage({ params }) {
         setDescription(ev.description || '');
         setCategory(ev.category || '');
         setTags(Array.isArray(ev.tags) ? ev.tags.join(', ') : '');
+        setTargetAudience(ev.targetAudience || 'All Students');
         setDate(ev.date || '');
         setStartTime(ev.startTime || '');
         setEndTime(ev.endTime || '');
@@ -86,7 +92,88 @@ export default function EditEventPage({ params }) {
     loadData();
   }, [id]);
 
-  // 4. handle poster file upload
+  // 5. Module 4: Real-time clash check with debounce
+  useEffect(() => {
+    if (!date || !startTime || !endTime || !venue) {
+      setClashResult(null);
+      return;
+    }
+
+    if (startTime >= endTime) {
+      setClashResult(null);
+      return;
+    }
+
+    if (clashTimerRef.current) {
+      clearTimeout(clashTimerRef.current);
+    }
+
+    setIsCheckingClash(true);
+
+    clashTimerRef.current = setTimeout(async () => {
+      try {
+        const payload = {
+          id, // exclude this event from clashing with itself
+          venue,
+          date,
+          startTime,
+          endTime,
+          capacity: Number(capacity) || 100,
+          targetAudience,
+          title: title || 'Updated Event',
+        };
+
+        const res = await fetch('/api/clash/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setClashResult(data);
+          if (data.hasClash) {
+            fetchSuggestions();
+          } else {
+            setSuggestions(null);
+            setShowSuggestions(false);
+          }
+        }
+      } catch (err) {
+        console.error('Clash check network error:', err);
+      } finally {
+        setIsCheckingClash(false);
+      }
+    }, 400);
+
+    return () => {
+      if (clashTimerRef.current) clearTimeout(clashTimerRef.current);
+    };
+  }, [id, date, startTime, endTime, venue, capacity, targetAudience]);
+
+  async function fetchSuggestions() {
+    if (!venue || !date) return;
+    try {
+      const params = new URLSearchParams({
+        venue,
+        date,
+        startTime: startTime || '10:00',
+        endTime: endTime || '12:00',
+        capacity: capacity || '100',
+        targetAudience: targetAudience || '',
+      });
+
+      const res = await fetch(`/api/clash/suggestions?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSuggestions(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch suggestions:', err);
+    }
+  }
+
+  // 6. handle poster file upload
   async function handleFileUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -120,7 +207,7 @@ export default function EditEventPage({ params }) {
     }
   }
 
-  // 5. handle form submission
+  // 7. handle form submission
   async function handleSubmit(e) {
     e.preventDefault();
     setMessage('');
@@ -146,6 +233,7 @@ export default function EditEventPage({ params }) {
         description,
         category,
         tags,
+        targetAudience,
         date,
         startTime,
         endTime,
@@ -201,6 +289,153 @@ export default function EditEventPage({ params }) {
         </p>
       )}
 
+      {/* MODULE 4 CLASH DETECTION STATUS */}
+      <div
+        style={{
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          padding: '16px',
+          marginBottom: '20px',
+          background: isCheckingClash
+            ? '#f8fafc'
+            : clashResult && clashResult.hasClash
+            ? '#fef2f2'
+            : clashResult && !clashResult.hasClash
+            ? '#f0fdf4'
+            : '#f8fafc',
+          borderColor: isCheckingClash
+            ? '#cbd5e1'
+            : clashResult && clashResult.hasClash
+            ? '#fca5a5'
+            : clashResult && !clashResult.hasClash
+            ? '#86efac'
+            : '#e2e8f0',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <strong style={{ fontSize: '15px' }}>
+            ⚡ Module 4: Real-Time Clash &amp; Schedule Validator
+          </strong>
+          {isCheckingClash && (
+            <span style={{ fontSize: '13px', color: '#64748b' }}>
+              Checking schedule conflicts...
+            </span>
+          )}
+        </div>
+
+        {clashResult && !clashResult.hasClash && !isCheckingClash && (
+          <div style={{ marginTop: '10px' }}>
+            <span style={{ color: '#16a34a', fontWeight: 'bold', fontSize: '14px' }}>
+              ✅ All Clear! No venue, capacity, organiser, audience, or blackout conflicts detected.
+            </span>
+          </div>
+        )}
+
+        {clashResult && clashResult.hasClash && !isCheckingClash && (
+          <div style={{ marginTop: '10px' }}>
+            <span style={{ color: '#dc2626', fontWeight: 'bold', fontSize: '14px' }}>
+              ⚠️ Conflict Alert: {clashResult.clashCount} Clash(es) Found!
+            </span>
+            <ul style={{ margin: '6px 0 10px 0', paddingLeft: '20px', fontSize: '13px' }}>
+              {clashResult.clashes.map((c, idx) => (
+                <li key={idx} style={{ marginBottom: '6px' }}>
+                  <span
+                    style={{
+                      background: c.severity === 'CRITICAL' ? '#ef4444' : c.severity === 'HIGH' ? '#f97316' : '#eab308',
+                      color: '#ffffff',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      marginRight: '6px',
+                    }}
+                  >
+                    {c.type.toUpperCase()}
+                  </span>
+                  <strong>{c.title}:</strong> {c.message}
+                </li>
+              ))}
+            </ul>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowSuggestions(!showSuggestions);
+                if (!suggestions) fetchSuggestions();
+              }}
+              style={{
+                background: '#2563eb',
+                color: '#ffffff',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '13px',
+              }}
+            >
+              {showSuggestions ? 'Hide Alternatives' : '💡 View Alternative Slots & Venues'}
+            </button>
+          </div>
+        )}
+
+        {showSuggestions && suggestions && (
+          <div style={{ marginTop: '15px', padding: '12px', background: '#ffffff', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+            <strong style={{ fontSize: '13px' }}>🎯 Recommendations:</strong>
+            {suggestions.alternativeSlots && suggestions.alternativeSlots.length > 0 && (
+              <div style={{ marginTop: '6px' }}>
+                <span style={{ fontSize: '12px', color: '#475569' }}>Available Slots Today: </span>
+                {suggestions.alternativeSlots.map((slot, sIdx) => (
+                  <button
+                    key={sIdx}
+                    type="button"
+                    onClick={() => {
+                      setStartTime(slot.startTime);
+                      setEndTime(slot.endTime);
+                    }}
+                    style={{
+                      background: '#eff6ff',
+                      color: '#1d4ed8',
+                      border: '1px solid #bfdbfe',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      marginRight: '6px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {slot.startTime} - {slot.endTime}
+                  </button>
+                ))}
+              </div>
+            )}
+            {suggestions.alternativeVenues && suggestions.alternativeVenues.length > 0 && (
+              <div style={{ marginTop: '6px' }}>
+                <span style={{ fontSize: '12px', color: '#475569' }}>Available Alternative Venues: </span>
+                {suggestions.alternativeVenues.map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => setVenue(v.name)}
+                    style={{
+                      background: '#f0fdf4',
+                      color: '#15803d',
+                      border: '1px solid #bbf7d0',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      marginRight: '6px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {v.name} (Cap: {v.capacity})
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {currentStatus === 'Cancelled' ? (
         <p style={{ color: 'red' }}>
           This event has been cancelled and cannot be edited.
@@ -245,6 +480,28 @@ export default function EditEventPage({ params }) {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div style={{ marginBottom: '10px' }}>
+            <label><strong>Target Audience (Module 4 Audience Clash Check):</strong></label>
+            <br />
+            <input
+              type="text"
+              list="audience-suggestions"
+              style={{ width: '100%', maxWidth: '400px' }}
+              value={targetAudience}
+              onChange={(e) => setTargetAudience(e.target.value)}
+              placeholder="e.g. 3rd-year CSE, 1st-year All, Mechanical Engineering, All Students"
+            />
+            <datalist id="audience-suggestions">
+              <option value="All Students" />
+              <option value="3rd-year CSE" />
+              <option value="4th-year CSE" />
+              <option value="2nd-year CSE" />
+              <option value="1st-year All" />
+              <option value="Computer Science" />
+              <option value="Mechanical Engineering" />
+            </datalist>
           </div>
 
           <div style={{ marginBottom: '10px' }}>
@@ -301,7 +558,6 @@ export default function EditEventPage({ params }) {
               style={{ width: '100%', maxWidth: '400px' }}
               value={venue}
               onChange={(e) => setVenue(e.target.value)}
-              placeholder="Select or enter venue"
             />
             <datalist id="venue-suggestions">
               {venuesList.map((v) => (
@@ -313,7 +569,7 @@ export default function EditEventPage({ params }) {
           </div>
 
           <div style={{ marginBottom: '10px' }}>
-            <label><strong>Capacity (Number of attendees) *:</strong></label>
+            <label><strong>Capacity *:</strong></label>
             <br />
             <input
               type="number"
@@ -392,23 +648,12 @@ export default function EditEventPage({ params }) {
               value={posterUrl}
               onChange={(e) => setPosterUrl(e.target.value)}
             />
-            {posterUrl && (
-              <div style={{ marginTop: '5px' }}>
-                <p>Poster Preview:</p>
-                <img
-                  src={posterUrl}
-                  alt="Poster preview"
-                  style={{ width: '150px', height: '100px', objectFit: 'cover', border: '1px solid #ccc' }}
-                />
-              </div>
-            )}
           </div>
 
           <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
             <button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+              {isSubmitting ? 'Updating...' : 'Update Event'}
             </button>
-
             <Link href="/my-events" style={{ marginLeft: '10px', alignSelf: 'center' }}>
               Cancel
             </Link>

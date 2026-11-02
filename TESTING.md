@@ -200,6 +200,54 @@ Follow these step-by-step instructions to test all features of Module 1 and Modu
 
 ---
 
+### Step 9: Manual Testing Walkthrough for Module 4 (Venue & Clash Management)
+
+#### A. Test Real-Time Conflict Detection on Create Form
+1. Log in as a verified Organiser (`rishiraj18sep2005@gmail.com` or your verified organiser account).
+2. Navigate to **My Events** -> click **+ Create New Event** (or visit [http://localhost:3000/events/create](http://localhost:3000/events/create)).
+3. Watch the top **⚡ Module 4: Real-Time Clash & Schedule Validator** card.
+4. Set **Date:** `2026-11-20`, **Start Time:** `10:00`, **End Time:** `14:00`, **Venue:** `Main Auditorium`.
+5. Notice that if another published event is on that date/time/venue, it instantly turns **Red** showing:
+   > *"⚠️ Conflict Alert: 1 Clash(es) Found! [VENUE CLASH (CRITICAL)] Venue 'Main Auditorium' is already occupied..."*
+
+#### B. Test Capacity Clash Detection
+1. In the same create form, change the venue to **Seminar Hall 1** (Maximum capacity: 150).
+2. Set **Capacity (Expected Attendees):** `250`.
+3. Notice the live alert dynamically updates to:
+   > *"[CAPACITY CLASH (HIGH)] Expected attendees (250) exceed 'Seminar Hall 1' maximum capacity (150) by 100 seats."*
+
+#### C. Test Smart Suggestions
+1. With the capacity or venue conflict displayed, click the blue button **"💡 View Alternative Slots & Venues"**.
+2. The panel opens showing:
+   - Available open time windows today.
+   - Alternate campus venues with capacity $\ge 250$ that are free at this hour.
+   - Alternate dates in the upcoming week.
+3. Click any alternative slot or venue button — the form fields update instantly!
+
+#### D. Test Audience Clash & Organiser Clash
+1. Set **Club:** `Meow Club` (or your club), **Target Audience:** `3rd-year CSE`, **Date:** `2026-10-28`, **Time:** `01:30` - `02:30`.
+2. Notice the system detects:
+   - **Organiser clash:** if your club already has an event running at that hour.
+   - **Audience clash:** if another event is competing for `3rd-year CSE` students at the exact same hour!
+
+#### E. Test Admin Override with Reason
+1. Submit an event with a conflict for approval (`status: 'Pending Approval'`).
+2. Log in as System Admin (`admin@eventra.edu` / `admin123`) and open `/admin`.
+3. Locate the pending event. Clicking **Approve & Publish** will reject it and highlight the conflict.
+4. Click **⚡ Override & Publish**.
+5. An override prompt appears asking for justification. Enter:
+   > *"Approved by Dean of Student Affairs for Annual College Fest"*
+6. Click **Confirm Admin Override & Publish**.
+7. **Expected Result:** The event is successfully published! The override reason and admin name are recorded.
+
+#### F. View Campus Clash Audit Report
+1. Click **Clash Report** in the top navigation bar (or visit [http://localhost:3000/clash/report](http://localhost:3000/clash/report)).
+2. Inspect the live KPI summary cards: Total Clashes, Venue Clashes, Capacity Clashes, Organiser Clashes, Audience Clashes, and Blackout Clashes.
+3. Use the filter tabs to isolate critical incidents or specific clash categories.
+4. Click **🔄 Refresh Scan** to trigger a fresh scan of all events and bookings.
+
+---
+
 ## 5. Automated Testing Scripts
 You can run the complete automated test suites:
 ```bash
@@ -208,6 +256,9 @@ node scripts/test-module2.js
 
 # Run Module 3 Venue Management tests (24 checks)
 node scripts/test-module3.js
+
+# Run Module 4 Venue & Clash Management tests (19 checks)
+node scripts/test-module4.js
 ```
 
 ---

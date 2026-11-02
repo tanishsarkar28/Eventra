@@ -61,15 +61,29 @@ export async function PATCH(request, { params }) {
       }
 
       // 5. integrate with Module 4: validate venue and time schedule before publishing
-      const validationResult = validateVenueAndTime(event, events);
+      const { adminOverride, overrideReason } = body;
+      const validationResult = validateVenueAndTime(event, events, {
+        adminOverride: Boolean(adminOverride),
+        overrideReason: overrideReason || '',
+      });
+
       if (!validationResult.isValid) {
         return NextResponse.json(
           {
             message: validationResult.message,
             reason: 'Module 4 validation failed.',
+            clashes: validationResult.clashes || [],
+            canOverride: isAdmin,
           },
           { status: 400 }
         );
+      }
+
+      if (validationResult.isOverridden) {
+        event.adminOverride = true;
+        event.overrideReason = overrideReason;
+        event.overriddenBy = user.name || user.email;
+        event.overriddenAt = new Date().toISOString();
       }
     }
 

@@ -10,7 +10,7 @@ The repository is built following a clean, modular structure with zero complex a
 
 | Student | Assigned Modules | Current Status |
 | :--- | :--- | :--- |
-| **Student 1** | **Module 1** (Auth & User Management), **Module 4** (Venue Scheduling), **Module 7** | Module 1 Completed ✅ |
+| **Student 1 (Tanish)** | **Module 1** (Auth & User Management), **Module 4** (Venue & Clash Management), **Module 7** | Module 1 Completed ✅, Module 4 Completed ✅ |
 | **Student 2 (Rishi)** | **Module 2** (Event Management), **Module 5** (Registration/Ticketing), **Module 8** | Module 2 Completed ✅ |
 | **Student 3 (Anush)** | **Module 3** (Venue Management), **Module 6**, **Module 9** | Module 3 Completed ✅ |
 
@@ -540,6 +540,180 @@ All endpoints support dual-path access (`/api/venues/...` as well as direct `/ve
 
 ---
 
+## 🛡️ Comprehensive Breakdown of Module 4: Venue & Clash Management (Problem Module 3)
+
+### 1. Purpose & Scope
+Module 4 is the core **validation engine** of Eventra. Acting as an intelligent campus "traffic controller", it proactively identifies, warns about, and prevents scheduling collisions before events are approved and published.
+
+It unifies event schedules, venue reservations, expected attendance numbers, club commitments, student audience demographics, and college blackout dates into a single validation framework.
+
+---
+
+### 2. How to Explain Module 4 "Like You're Explaining to a 5-Year-Old" 👶
+| Problem in Real Life | The Baby-Simple Story | Eventra Rule Enforced |
+| :--- | :--- | :--- |
+| **Venue Clash** | Two kids try to slide down the playground slide at the exact same time. **BOOM!** | Only one event can use a room at a time. |
+| **Capacity Clash** | You invite 500 friends into a tiny treehouse built for only 50 kids. **The floor will crack!** | Expected attendees cannot exceed venue capacity. |
+| **Organiser Clash** | The Coding Club President tries to run a coding contest in Hall A and a robotics demo in Hall B at 2:00 PM. **A person cannot be in two places at once!** | One club cannot host two different events at the same hour. |
+| **Audience Clash** | Two different clubs throw parties for "3rd-Year CSE students" at the exact same hour on Friday. **Students cannot cut themselves in half!** | Two events cannot target the exact same student group at the same time. |
+| **Blackout Clash** | A club wants to have a dance party in the auditorium while semester final exams or ceiling painting are happening. **NO WAY!** | No events allowed during official exam or maintenance blackout dates. |
+
+---
+
+### 3. The Core Logic: The Golden Interval Overlap Rule
+How does the computer know when two time periods overlap?
+
+$$\text{Overlap} = (\text{start}_1 < \text{end}_2) \land (\text{start}_2 < \text{end}_1)$$
+
+```text
+Event 1:  [start1 = 10:00 ──────────────── end1 = 12:00]
+Event 2:               [start2 = 11:00 ──────────────── end2 = 13:00]
+```
+
+#### Why does this work so cleanly?
+1. Event 1 starts **before** Event 2 finishes: `(10:00 < 13:00)` is **TRUE**.
+2. Event 2 starts **before** Event 1 finishes: `(11:00 < 12:00)` is **TRUE**.
+3. Because **both conditions are true**, their time intervals crash into each other!
+4. If Event 2 started at `12:00` (right when Event 1 finishes), `(12:00 < 12:00)` is **FALSE**, correctly indicating no overlap!
+
+---
+
+### 4. The 5 Clash Types & Severity Hierarchy
+| Clash Type | Severity | Description | Remedy / Action |
+| :--- | :--- | :--- | :--- |
+| **Venue clash** | `CRITICAL` | Same venue booked for overlapping hours on the same date. | Move event to open time slot or alternate campus venue. |
+| **Capacity clash** | `HIGH` | Expected attendees exceed maximum seating capacity of the venue. | Reduce attendee limit or move to a larger facility (e.g. Auditorium). |
+| **Organiser clash** | `HIGH` | The same club hosting two events at the exact same time. | Reschedule one event so club staff can manage both. |
+| **Audience clash** | `MEDIUM` | Two events competing for the same student group (e.g. 3rd-year CSE). | Adjust timing so students can attend both events. |
+| **Blackout clash** | `CRITICAL` | Event scheduled during exams, campus holidays, or maintenance. | Move event to a date after the blackout period ends. |
+
+---
+
+### 5. Core Functional Features Implemented
+
+1. **Real-Time Validation on Event Forms (`/events/create` and `/events/edit/:id`):**
+   - As an organiser enters Date, Time, Venue, Capacity, and Target Audience, a live debounced checker automatically calls `POST /clash/check`.
+   - Displays a dynamic status panel:
+     - 🟢 **All Clear:** *"No venue, capacity, organiser, audience, or blackout conflicts detected."*
+     - 🔴 **Conflict Alert:** Lists each detected clash with severity badge, message, conflicting event details, and remedial tip.
+2. **Alternative Slot, Venue & Date Suggestions (`GET /clash/suggestions`):**
+   - When a clash occurs, clicking **"💡 View Alternative Slots & Venues"** computes:
+     - **Free Slots Today:** Open windows at the requested venue with click-to-apply buttons.
+     - **Alternative Venues:** Other campus facilities with sufficient capacity that are free at that exact hour.
+     - **Alternative Nearby Dates:** Dates in the upcoming week when the requested venue and slot are completely open.
+3. **Admin Override with Reason:**
+   - In `/admin`, administrators reviewing pending events with clashes can click **"⚡ Override & Publish"**.
+   - Prompts for an official administrative justification (e.g. *"Approved by Dean for Annual College Fest"*).
+   - Records `adminOverride: true`, `overrideReason`, `overriddenBy`, and `overriddenAt` directly onto the event record.
+4. **Clash Report View (`/clash/report`):**
+   - An interactive system-wide audit dashboard scanning all events and bookings.
+   - Provides summary KPI cards, category filter tabs (All, Critical, Venue, Capacity, Organiser, Audience, Blackout), detailed conflict breakdown per event, and live re-scanning.
+
+---
+
+### 6. Module 4 API Specifications
+
+#### A. `POST /clash/check` (Real-Time Conflict Checker)
+- **Description:** Checks an event payload against venues, bookings, and existing published events for all 5 clash types.
+- **Sample Request:**
+  ```http
+  POST /clash/check HTTP/1.1
+  Host: localhost:3000
+  Content-Type: application/json
+
+  {
+    "venue": "Main Auditorium",
+    "date": "2026-11-20",
+    "startTime": "10:00",
+    "endTime": "12:00",
+    "capacity": 600,
+    "targetAudience": "3rd-year CSE",
+    "clubName": "Coding Club"
+  }
+  ```
+- **Sample Response (HTTP 200 OK):**
+  ```json
+  {
+    "hasClash": true,
+    "hasCriticalClash": true,
+    "clashCount": 2,
+    "clashes": [
+      {
+        "type": "Capacity clash",
+        "severity": "HIGH",
+        "title": "Venue Capacity Exceeded",
+        "message": "Expected attendees (600) exceed 'Main Auditorium' maximum capacity (500) by 100 seats.",
+        "remedy": "Reduce event capacity to 500 or move to a larger venue."
+      },
+      {
+        "type": "Venue clash",
+        "severity": "CRITICAL",
+        "title": "Venue Collision with Published Event",
+        "message": "Venue 'Main Auditorium' is already occupied on 2026-11-20 from 10:00 to 14:00 by event 'Hackathon 2026'.",
+        "remedy": "Choose an open slot before 10:00 or after 14:00."
+      }
+    ],
+    "summary": { "critical": 1, "high": 1, "medium": 0, "total": 2 }
+  }
+  ```
+
+#### B. `GET /clash/suggestions` (Alternative Slots & Venues)
+- **Description:** Suggests alternative clash-free slots on the same date, alternative venues with sufficient capacity, and alternative dates.
+- **Sample Request:**
+  ```http
+  GET /clash/suggestions?venue=Main+Auditorium&date=2026-11-20&startTime=10:00&endTime=12:00&capacity=100 HTTP/1.1
+  Host: localhost:3000
+  Accept: application/json
+  ```
+- **Sample Response (HTTP 200 OK):**
+  ```json
+  {
+    "requested": { "venue": "Main Auditorium", "date": "2026-11-20", "startTime": "10:00", "endTime": "12:00" },
+    "alternativeSlots": [
+      { "startTime": "14:00", "endTime": "16:00", "venue": "Main Auditorium", "note": "Available slot (14:00 - 20:00)" }
+    ],
+    "alternativeVenues": [
+      { "id": "venue_seminar_1", "name": "Seminar Hall 1", "capacity": 150, "location": "Block B" }
+    ],
+    "alternativeDates": [
+      { "date": "2026-11-21", "dayOfWeek": "Saturday", "venue": "Main Auditorium" }
+    ]
+  }
+  ```
+
+#### C. `GET /clash/report` (System Clash Audit Report)
+- **Description:** Scans all events in the system and returns a complete health audit with breakdown metrics and conflict logs.
+- **Sample Request:**
+  ```http
+  GET /clash/report HTTP/1.1
+  Host: localhost:3000
+  Accept: application/json
+  ```
+- **Sample Response (HTTP 200 OK):**
+  ```json
+  {
+    "generatedAt": "2026-11-02T16:00:00.000Z",
+    "totalEventsChecked": 4,
+    "eventsWithClashesCount": 1,
+    "totalClashesFound": 1,
+    "breakdownByType": {
+      "venueClashes": 1,
+      "capacityClashes": 0,
+      "organiserClashes": 0,
+      "audienceClashes": 0,
+      "blackoutClashes": 0
+    },
+    "breakdownBySeverity": {
+      "critical": 1,
+      "high": 0,
+      "medium": 0
+    },
+    "reports": [ ... ]
+  }
+  ```
+
+---
+
 ## 📂 Project Directory Structure
 
 ```text
@@ -553,10 +727,14 @@ Eventra/
 │   │   │   ├── logout/route.js     # POST /api/auth/logout
 │   │   │   └── register/route.js   # POST /api/auth/register
 │   │   ├── categories/route.js     # GET, POST /api/categories
+│   │   ├── clash/
+│   │   │   ├── check/route.js      # POST /api/clash/check (Module 4 Clash Engine)
+│   │   │   ├── report/route.js     # GET /api/clash/report (Module 4 Audit Report)
+│   │   │   └── suggestions/route.js# GET /api/clash/suggestions (Smart Alternatives)
 │   │   ├── events/
 │   │   │   ├── [id]/
 │   │   │   │   ├── route.js        # GET, PUT, DELETE /api/events/:id
-│   │   │   │   └── status/route.js # PATCH /api/events/:id/status (Module 4 check)
+│   │   │   │   └── status/route.js # PATCH /api/events/:id/status (Module 4 validation & Admin override)
 │   │   │   ├── mine/route.js       # GET /api/events/mine
 │   │   │   └── route.js            # GET, POST /api/events
 │   │   ├── organisers/
@@ -574,16 +752,20 @@ Eventra/
 │   │       │   └── route.js              # GET, PUT, DELETE /api/venues/:id
 │   │       ├── bookings/route.js         # GET /api/venues/bookings
 │   │       └── route.js                  # GET, POST /api/venues
+│   ├── clash/
+│   │   ├── check/route.js          # Direct route alias for POST /clash/check
+│   │   ├── report/page.js          # Module 4 Clash Audit Report View Page
+│   │   └── suggestions/route.js    # Direct route alias for GET /clash/suggestions
 │   ├── events/
 │   │   ├── [id]/
 │   │   │   ├── route.js            # Alias handler for /events/:id
 │   │   │   └── status/route.js     # Alias handler for /events/:id/status
-│   │   ├── create/page.js          # Create Event Form Page
-│   │   ├── edit/[id]/page.js       # Edit Event Form Page
+│   │   ├── create/page.js          # Create Event Form (Live Module 4 validation & suggestions)
+│   │   ├── edit/[id]/page.js       # Edit Event Form (Live Module 4 validation)
 │   │   ├── mine/route.js           # Alias handler for /events/mine
 │   │   └── route.js                # Alias handler for /events
 │   ├── globals.css                 # Simple, modern responsive stylesheet
-│   ├── layout.js                   # Root HTML shell & top navigation bar
+│   ├── layout.js                   # Root HTML shell & top navigation bar (with Clash Report)
 │   ├── login/page.js               # User Login Page
 │   ├── my-events/page.js           # Organiser Event Management Dashboard
 │   ├── page.js                     # Home Landing Page with dynamic role greeting
@@ -603,14 +785,16 @@ Eventra/
 │   └── venues.json                 # Campus venues database
 ├── lib/
 │   ├── auth.js                     # Bcrypt hashing & JWT token verification helpers
+│   ├── clashEngine.js              # Module 4 Clash Engine (interval logic, 5 clashes, suggestions, report)
 │   ├── db.js                       # Safe atomic JSON read/write persistence functions
-│   └── venueValidation.js          # Module 3 & 4 Venue & Schedule Validation adapter
-├── middleware.js                   # Dual-path routing & API rewrite middleware
+│   └── venueValidation.js          # Module 3 & 4 Venue, Clash, & Admin Override adapter
+├── middleware.js                   # Dual-path routing for Venues and Clash APIs
 ├── public/
 │   └── uploads/                    # Local storage directory for uploaded posters
 ├── scripts/
 │   ├── test-module2.js             # Automated Module 1 & 2 integration test suite
-│   └── test-module3.js             # Automated 24-point Module 3 venue management test suite
+│   ├── test-module3.js             # Automated 24-point Module 3 venue management test suite
+│   └── test-module4.js             # Automated 19-point Module 4 clash management test suite
 ├── package.json                    # Project dependencies & scripts
 ├── README.md                       # Comprehensive documentation
 └── TESTING.md                      # Detailed manual testing guide
@@ -674,6 +858,9 @@ node scripts/test-module2.js
 
 # Run Module 3 Venue Management tests (24 checks)
 node scripts/test-module3.js
+
+# Run Module 4 Venue & Clash Management tests (19 checks)
+node scripts/test-module4.js
 ```
 
 ### Method B: Manual Testing Walkthrough (Module 3)
