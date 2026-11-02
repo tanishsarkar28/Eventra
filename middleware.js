@@ -1,39 +1,36 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Middleware to support dual-access to Module 3 Venue APIs and UI Pages:
- * - Browser requests (Accept: text/html) to /venues, /venues/create, /venues/edit/:id, /venues/:id
- *   render the user-friendly frontend pages.
- * - API requests (Accept: application/json, POST, PUT, DELETE, or curl/test clients)
- *   to /venues, /venues/:id/availability, /venues/:id/blackouts, etc.
- *   are routed directly to the corresponding /api/venues handlers.
+ * Eventra Dual-Path Middleware
+ * 
+ * Supports both UI and REST API paths:
+ * 1. /venues and /venues/:id -> routes HTML to UI page, or JSON/PUT/DELETE to /api/venues
+ * 2. /events and /events/:id -> routes HTML to UI page (Event Detail / Create / Edit),
+ *    or JSON/POST/PUT/DELETE to /api/events handlers.
+ * 3. /discover -> routes HTML to UI feed, or JSON to /api/discover.
  */
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   const accept = request.headers.get('accept') || '';
   const isHtml = accept.includes('text/html');
 
-  // 1. Root /venues route
+  // ==========================================================
+  // A. VENUES ROUTING
+  // ==========================================================
   if (pathname === '/venues') {
-    // If it's a browser requesting HTML, render the Venue Dashboard UI
     if (request.method === 'GET' && isHtml) {
       return NextResponse.next();
     }
-
-    // Otherwise, handle as API request (e.g. POST /venues or GET /venues via fetch/curl)
     const url = request.nextUrl.clone();
     url.pathname = '/api/venues';
     return NextResponse.rewrite(url);
   }
 
-  // 2. Subpaths under /venues/
   if (pathname.startsWith('/venues/')) {
-    // Allow explicit UI pages through
     if (pathname === '/venues/create' || pathname.startsWith('/venues/edit/')) {
       return NextResponse.next();
     }
 
-    // Sub-resource API endpoints: /venues/:id/availability, /venues/:id/blackouts, /venues/:id/bookings
     if (
       pathname.endsWith('/availability') ||
       pathname.endsWith('/blackouts') ||
@@ -44,15 +41,66 @@ export function middleware(request) {
       return NextResponse.rewrite(url);
     }
 
-    // For /venues/:id:
-    // If browser requesting HTML, render the Venue Detail UI page
     if (request.method === 'GET' && isHtml) {
       return NextResponse.next();
     }
 
-    // Otherwise handle as API (GET /venues/:id, PUT /venues/:id, DELETE /venues/:id)
     const url = request.nextUrl.clone();
     url.pathname = '/api' + pathname;
+    return NextResponse.rewrite(url);
+  }
+
+  // ==========================================================
+  // B. EVENTS ROUTING (/events/:id, /events/:id/bookmark)
+  // ==========================================================
+  if (pathname.startsWith('/events/')) {
+    // UI creation & editing pages stay as HTML pages
+    if (pathname === '/events/create' || pathname.startsWith('/events/edit/')) {
+      return NextResponse.next();
+    }
+
+    // Bookmark API endpoint: /events/:id/bookmark
+    if (pathname.endsWith('/bookmark')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/api' + pathname;
+      return NextResponse.rewrite(url);
+    }
+
+    // Status endpoint: /events/:id/status
+    if (pathname.endsWith('/status')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/api' + pathname;
+      return NextResponse.rewrite(url);
+    }
+
+    // Search endpoint: /events/search
+    if (pathname === '/events/search') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/api/events/search';
+      return NextResponse.rewrite(url);
+    }
+
+    // For /events/:id
+    // If browser requesting HTML page -> serve app/events/[id]/page.js (Event Detail)
+    if (request.method === 'GET' && isHtml) {
+      return NextResponse.next();
+    }
+
+    // If API client (fetch/POST/PUT/DELETE) -> rewrite to /api/events/:id
+    const url = request.nextUrl.clone();
+    url.pathname = '/api' + pathname;
+    return NextResponse.rewrite(url);
+  }
+
+  // ==========================================================
+  // C. DISCOVER ROUTING (/discover)
+  // ==========================================================
+  if (pathname === '/discover') {
+    if (request.method === 'GET' && isHtml) {
+      return NextResponse.next();
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = '/api/discover';
     return NextResponse.rewrite(url);
   }
 
@@ -60,5 +108,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/venues', '/venues/:path*'],
+  matcher: ['/venues', '/venues/:path*', '/events', '/events/:path*', '/discover'],
 };

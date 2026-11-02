@@ -41,15 +41,17 @@ export default function HomePage() {
         <h2>Hello, {user.name} ({user.role})</h2>
         <p>Welcome back to Eventra!</p>
         <ul>
-          <li><Link href="/profile">Go to your Profile</Link></li>
+          <li><Link href="/discover">🔍 Discover Campus Events (Feed & Bookmarks)</Link></li>
+          <li><Link href="/profile">👤 Go to your Profile</Link></li>
           {(user.role === 'organiser' || user.role === 'admin') && (
             <>
-              <li><Link href="/my-events">Manage My Events</Link></li>
-              <li><Link href="/events/create">Create New Event</Link></li>
+              <li><Link href="/my-events">🎪 Manage My Events</Link></li>
+              <li><Link href="/events/create">➕ Create New Event</Link></li>
             </>
           )}
+          <li><Link href="/venues">🏛️ Browse Campus Venues</Link></li>
           {user.role === 'admin' && (
-            <li><Link href="/admin">Go to Admin Panel</Link></li>
+            <li><Link href="/admin">⚙️ Go to Admin Panel</Link></li>
           )}
         </ul>
       </div>
@@ -60,10 +62,12 @@ export default function HomePage() {
   return (
     <div>
       <h2>Welcome to Eventra</h2>
-      <p>Please log in or create a new account to continue.</p>
+      <p>Campus event discovery, scheduling, and management made simple.</p>
       <ul>
-        <li><Link href="/login">Login to your account</Link></li>
-        <li><Link href="/register">Register as a Student or Organiser</Link></li>
+        <li><Link href="/discover">🔍 Browse & Discover Upcoming Events</Link></li>
+        <li><Link href="/login">🔑 Login to your account</Link></li>
+        <li><Link href="/register">📝 Register as a Student or Organiser</Link></li>
+        <li><Link href="/venues">🏛️ View Campus Venues</Link></li>
       </ul>
     </div>
   );
