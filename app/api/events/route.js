@@ -144,6 +144,7 @@ export async function POST(request) {
       endTime: endTime.trim(),
       venue: venue.trim(),
       capacity: Number(capacity),
+      targetAudience: body.targetAudience ? body.targetAudience.trim() : 'All Students',
       registrationDeadline: registrationDeadline.trim(),
       isPaid: isPaid,
       ticketPrice: ticketPrice,
