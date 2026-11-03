@@ -11,7 +11,7 @@ The repository is built following a clean, modular structure with zero complex a
 | Student | Assigned Modules | Current Status |
 | :--- | :--- | :--- |
 | **Student 1 (Tanish)** | **Module 1** (Auth & User Management), **Module 4** (Venue & Clash Management), **Module 7** | Module 1 Completed ✅, Module 4 Completed ✅ |
-| **Student 2 (Rishi)** | **Module 2** (Event Management), **Module 5** (Registration/Ticketing), **Module 8** | Module 2 Completed ✅ |
+| **Student 2 (Rishi)** | **Module 2** (Event Management), **Module 5** (Student Event Discovery), **Module 8** | Module 2 Completed ✅, Module 5 Completed ✅ |
 | **Student 3 (Anush)** | **Module 3** (Venue Management), **Module 6**, **Module 9** | Module 3 Completed ✅ |
 
 ---
@@ -714,6 +714,87 @@ Event 2:               [start2 = 11:00 ─────────────�
 
 ---
 
+
+---
+
+## 🔍 Comprehensive Breakdown of Module 5: Student Event Discovery (Problem Module 2)
+
+### 1. Purpose & Scope
+Module 5 solves the discovery problem for students on campus. With dozens of events organized by different clubs, departments, and societies every month, students often miss out on workshops, competitions, and seminars aligned with their career and personal interests.
+
+Module 5 provides:
+- A personalized discovery feed displaying only verified, **Published** events.
+- An intelligent, beginner-friendly **Recommendation Engine** calculating a **"Relevant to Me" Match Score (0–100%)** based on the student's profile (interests, branch, academic year, proximity, and popularity).
+- Multi-dimensional search and filters (Category, Pricing: Free/Paid, and Date).
+- A 1-click **Save / Bookmark** system for students to curate their personal event watchlist.
+- Clean, semantic event detail views with complete information.
+
+---
+
+### 2. Core Functional Features Implemented
+
+1. **Student Discovery Feed (`/discover`):**
+   - Clean, lightweight tabular view of all upcoming campus events.
+   - Filtered automatically to show only approved, `Published` events (drafts and cancelled events are excluded).
+   - Shows Category, Date & Time, Venue, Fee (Free or ₹ ticket price), and the custom **Match Score %** for each event.
+   - 1-click action buttons to View Details or Save/Bookmark directly from the feed.
+
+2. **Multi-Parameter Search & Filtering:**
+   - **Keyword Search:** Instant search matching event title, description, tags, and organizer club.
+   - **Category Filter:** Filter by Technical, Cultural, Sports, Academic, Workshop, Seminar.
+   - **Pricing Filter:** Quickly isolate Free Events vs Paid Events.
+   - **Date Filter:** Find events happening on specific campus days.
+   - **Sorting:**
+     - ⭐ **Relevant to Me (AI Relevance Rank):** Sorts events by highest match percentage first.
+     - 🔥 **Trending / Most Bookmarked:** Sorts events by popularity and bookmark count.
+     - 📅 **Date:** Chronological order (earliest first).
+
+3. **Recommendation Engine & "Relevant to Me" Score (`lib/recommendation.js`):**
+   A transparent scoring algorithm designed so any student can explain it in a viva:
+   - **Interests Match (Max 40 points):** Matches student's profile interests (e.g., Coding, AI, Robotics) against event tags, title, description, and category.
+   - **Academic & Branch Alignment (Max 25 points):** Boosts events targeting student's branch (e.g. CSE) or academic year.
+   - **Time Proximity (Max 20 points):** Events happening within the next 3 to 7 days receive a temporal boost.
+   - **Popularity Boost (Max 15 points):** Community interest based on student bookmark count and event venue capacity.
+   - **Final Output:** Normalised score between 10% and 100% displayed as a visual badge on every event.
+
+4. **Event Detail Page (`/events/:id`):**
+   - Direct, distraction-free page with poster preview, full description, schedule, venue, club name, capacity, registration deadline, fee, and tags.
+   - Single-click **Save / Bookmark** toggle button with live status updates (`Save ☆` ↔ `Saved ★`).
+
+5. **Personalized Watchlist / Bookmarking (`data/bookmarks.json`):**
+   - Students can bookmark events they plan to attend.
+   - Toggling the bookmark updates community interest in real-time.
+
+---
+
+### 3. Module 5 Database Entities
+
+#### Bookmarks Entity (`data/bookmarks.json`)
+```json
+[
+  {
+    "id": "1730000000000",
+    "userId": "1792921156058",
+    "eventId": "1792921081004",
+    "createdAt": "2026-11-03T10:00:00.000Z"
+  }
+]
+```
+
+---
+
+### 4. Module 5 API Endpoints
+All endpoints support standard `/api/...` and clean dual-path alias routes via `middleware.js`:
+
+| Method | Endpoint | Access Level | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/discover` / `/api/discover` | Public / Students | Returns published events with search query, filters, and relevance scores. |
+| `GET` | `/api/discover/recommended` | Authenticated | Returns personalized events ranked strictly by relevance score. |
+| `GET` | `/events/search?q=` / `/api/events/search?q=` | Public / Students | Direct keyword search across event titles, tags, and clubs. |
+| `POST` | `/events/:id/bookmark` / `/api/events/:id/bookmark` | Authenticated | Toggles save/bookmark state for current student on the specified event. |
+
+---
+
 ## 📂 Project Directory Structure
 
 ```text
@@ -727,7 +808,10 @@ Eventra/
 │   │   │   ├── logout/route.js     # POST /api/auth/logout
 │   │   │   └── register/route.js   # POST /api/auth/register
 │   │   ├── categories/route.js     # GET, POST /api/categories
-│   │   ├── clash/
+│   │   ├── discover/
+│   │   ├── api/route.js            # Alias handler for /discover
+│   │   └── page.js                 # Module 5 Student Event Discovery Feed UI
+│   ├── clash/
 │   │   │   ├── check/route.js      # POST /api/clash/check (Module 4 Clash Engine)
 │   │   │   ├── report/route.js     # GET /api/clash/report (Module 4 Audit Report)
 │   │   │   └── suggestions/route.js# GET /api/clash/suggestions (Smart Alternatives)

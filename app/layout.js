@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Eventra - Campus Event Management',
-  description: 'Eventra Campus Event Management - Module 1 & Module 2',
+  description: 'Eventra Campus Event Management System',
 };
 
 export default function RootLayout({ children }) {
@@ -15,6 +15,7 @@ export default function RootLayout({ children }) {
             <h1>Eventra Campus Management</h1>
             <nav>
               <Link href="/">Home</Link>
+              <Link href="/discover">Discover Events</Link>
               <Link href="/register">Register</Link>
               <Link href="/login">Login</Link>
               <Link href="/profile">Profile</Link>

@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Middleware to support dual-access to Module 3 (Venue) and Module 4 (Clash) APIs & UI Pages:
- * - Browser requests (Accept: text/html) to /venues, /venues/create, /venues/:id, /clash/report
- *   render the user-friendly frontend pages.
- * - API requests (Accept: application/json, POST, PUT, DELETE, or curl/test clients)
- *   to /venues, /clash/check, /clash/suggestions, /clash/report
- *   are routed directly to the corresponding /api/... handlers.
+ * Eventra Dual-Path Middleware
+ * 
+ * Supports both UI and REST API paths:
+ * 1. Module 3: /venues & /venues/:id -> routes HTML to UI page, or JSON/PUT/DELETE to /api/venues
+ * 2. Module 4: /clash/check, /clash/suggestions, /clash/report -> routes HTML to page, or JSON to /api/clash
+ * 3. Module 2: /events/:id -> routes HTML to UI page (Event Detail / Create / Edit),
+ *    or JSON/POST/PUT/DELETE to /api/events handlers.
+ * 4. Module 5: /discover -> routes HTML to UI feed, or JSON to /api/discover.
  */
 export function middleware(request) {
   const { pathname } = request.nextUrl;
@@ -17,12 +19,9 @@ export function middleware(request) {
   // Module 4: Clash Management Dual-Access Routing
   // =========================================================================
   if (pathname === '/clash/report') {
-    // If it's a browser requesting HTML, render the Clash Report View UI
     if (request.method === 'GET' && isHtml) {
       return NextResponse.next();
     }
-
-    // Otherwise, handle as API request (GET /clash/report via fetch/curl)
     const url = request.nextUrl.clone();
     url.pathname = '/api/clash/report';
     return NextResponse.rewrite(url);
@@ -43,18 +42,15 @@ export function middleware(request) {
   // =========================================================================
   // Module 3: Venue Management Dual-Access Routing
   // =========================================================================
-  // 1. Root /venues route
   if (pathname === '/venues') {
     if (request.method === 'GET' && isHtml) {
       return NextResponse.next();
     }
-
     const url = request.nextUrl.clone();
     url.pathname = '/api/venues';
     return NextResponse.rewrite(url);
   }
 
-  // 2. Subpaths under /venues/
   if (pathname.startsWith('/venues/')) {
     if (pathname === '/venues/create' || pathname.startsWith('/venues/edit/')) {
       return NextResponse.next();
@@ -79,9 +75,64 @@ export function middleware(request) {
     return NextResponse.rewrite(url);
   }
 
+  // =========================================================================
+  // Module 2 & 5: Events & Bookmark Routing
+  // =========================================================================
+  if (pathname.startsWith('/events/')) {
+    if (pathname === '/events/create' || pathname.startsWith('/events/edit/')) {
+      return NextResponse.next();
+    }
+
+    if (pathname.endsWith('/bookmark')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/api' + pathname;
+      return NextResponse.rewrite(url);
+    }
+
+    if (pathname.endsWith('/status')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/api' + pathname;
+      return NextResponse.rewrite(url);
+    }
+
+    if (pathname === '/events/search') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/api/events/search';
+      return NextResponse.rewrite(url);
+    }
+
+    if (request.method === 'GET' && isHtml) {
+      return NextResponse.next();
+    }
+
+    const url = request.nextUrl.clone();
+    url.pathname = '/api' + pathname;
+    return NextResponse.rewrite(url);
+  }
+
+  // =========================================================================
+  // Module 5: Discover Routing
+  // =========================================================================
+  if (pathname === '/discover') {
+    if (request.method === 'GET' && isHtml) {
+      return NextResponse.next();
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = '/api/discover';
+    return NextResponse.rewrite(url);
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/venues', '/venues/:path*', '/clash', '/clash/:path*'],
+  matcher: [
+    '/venues',
+    '/venues/:path*',
+    '/clash',
+    '/clash/:path*',
+    '/events',
+    '/events/:path*',
+    '/discover',
+  ],
 };
