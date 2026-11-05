@@ -798,166 +798,299 @@ All endpoints support standard `/api/...` and clean dual-path alias routes via `
 ## 🎟️ Comprehensive Breakdown of Module 6: Registration & Attendance
 
 ### 1. Purpose & Scope
-Module 6 bridges the gap between event discovery and actual campus participation. It converts student interest into registered attendance, enforces event capacity boundaries, manages overflow via an automatic FIFO waitlist, generates secure QR code tickets, enables real-time organiser check-ins, and exports comprehensive attendance reports for college records.
+Module 6 bridges the gap between campus event discovery and active participation. It converts student interest into registered attendance, enforces event capacity boundaries, manages registration overflow via an automated FIFO waitlist, generates secure digital QR code tickets, enables real-time organiser check-ins at venue gates, and exports formatted attendance spreadsheets (CSV) for college administration records.
 
 ---
 
-### 2. Core Functional Features Implemented
-
-1. **One-Click Registration & Cancellation (`POST` & `DELETE /events/:id/register`):**
-   - Students can register with a single click from the Event Detail page (`/events/:id`).
-   - Generates an instant digital ticket with an embedded QR code upon confirmation.
-   - Allows students to unregister at any time before the cancellation deadline.
-
-2. **Strict Capacity Enforcement:**
-   - Automatically tracks active confirmed registrations against `event.capacity`.
-   - Once all seats are filled, subsequent registration requests are seamlessly routed to the waitlist queue without throwing hard errors.
-
-3. **Waitlist with Automatic FIFO Promotion:**
-   - Over-capacity students are queued onto a transparent waitlist with real-time queue position tracking (`#1`, `#2`, `#3`...).
-   - **Auto-Promotion Engine:** When any confirmed attendee cancels their registration, the engine instantly promotes the first eligible student from the waitlist to `Confirmed` status, generates their unique QR ticket, and re-indexes remaining waitlist positions.
-
-4. **Custom Registration Form Fields & Team Support:**
-   - Supports individual or team registrations (`teamSize: 1` to `N`).
-   - Captures comma-separated team member names and emails.
-   - Records custom answers (e.g., College ID / Roll Number, special requirements, dietary choices, or technical notes).
-
-5. **Real-Time QR Ticket Generation:**
-   - Generates unique ticket codes (e.g. `EVT-1004-6058-AB3F`).
-   - Automatically renders high-contrast scannable QR Code images (Base64 PNG Data URLs) displayed directly inside the attendee's digital pass card.
-   - Includes a **Print Ticket** action for physical presentation.
-
-6. **Organiser QR Check-In Console (`POST /attendance/scan`):**
-   - Real-time scanner interface at `/events/:id/attendees`.
-   - Organisers or campus administrators can scan student QR codes using handheld scanners or type/paste ticket codes.
-   - **Protection:** Prevents duplicate scans, immediately alerting organisers if a ticket has already been checked in.
-   - Automatically stamps `checkInTime`, `scannedBy`, and `status: "Checked In"`.
-
-7. **One-Click CSV Attendance Export (`GET /events/:id/attendees?format=csv`):**
-   - Organisers can download an RFC 4180-compliant `.csv` file containing full attendee records: Registration ID, Ticket Code, Student Name, Student Email, Team Size, Attendance Status, Check-in Time, and Registration Timestamp.
-
-8. **Cancellation Window Enforcement:**
-   - Protects event organisers by preventing last-minute dropouts.
-   - Default cancellation window is enforced (e.g., must cancel at least 2 hours prior to event start time). Cancellations after this threshold are rejected.
+### 2. How to Explain Module 6 "Like You're Explaining to a 5-Year-Old" 👶
+| Problem in Real Life | The Baby-Simple Story | Eventra Rule Enforced |
+| :--- | :--- | :--- |
+| **Full Capacity** | A school bus has only 30 seats. 30 kids sit down; the 31st kid gets a yellow queue ticket. | Once `event.capacity` is reached, students join the **Waitlist** with queue positions (`#1`, `#2`...). |
+| **Empty Seat Left Behind** | Kid #5 gets sick and goes home. Kid #31 instantly jumps into seat #5 and gets a shiny gold pass! | When an attendee unregisters, the **Auto-Promotion Engine** instantly promotes the first waitlisted student and issues their QR ticket! |
+| **Clashing Schedules** | You cannot be playing football on the ground AND doing a chemistry test in the lab at 11:00 AM! | **Module 8 Schedule Clash:** Rejects registration if a student is already registered for another overlapping event on the same day. |
+| **Fake / Duplicate Tickets** | You show your ticket to the conductor, who punches it. If your friend brings a photocopy of your ticket, the alarm rings **BEEP!** | **Duplicate Scan Prevention:** A ticket code can only be used once. Scanning an already-used ticket returns a strict error with the previous check-in time. |
+| **Last-Minute No-Shows** | You can't return a movie ticket 5 minutes after the movie starts and expect someone else to rush over. | **Cancellation Window:** Cancellations are locked when within $N$ hours of event start (e.g. 2 hours before kickoff). |
 
 ---
 
-### 3. Module 8 Integration: Personal Schedule Clash Detection
+### 3. Architecture & Registration State Machine
 
-To avoid double-booking, Module 6 directly integrates with Module 8 before confirming any registration.
-
-#### Overlap Formula Enforced:
-$$\text{Schedule Conflict} = (\text{newEvent.startTime} < \text{existingEvent.endTime}) \land (\text{newEvent.endTime} > \text{existingEvent.startTime})$$
-
-- When a student attempts to register for an event, the system checks all existing confirmed registrations for that student.
-- If another confirmed event takes place on the **same date** with **overlapping hours**, registration is rejected with HTTP `409 Conflict` and a clear message:
-  > *"Module 8 Personal Schedule Clash: You are already registered for 'Hackathon 2026' on 2026-11-20 from 10:00 to 18:00."*
-- Students can review the collision and choose an explicit override (`allowClash: true`) if they intentionally plan to attend partial sessions.
+```
+                   [ Student Clicks "Register Now" ]
+                                  │
+                                  ▼
+                   ┌─────────────────────────────┐
+                   │ Module 8 Schedule Clash     │ ──(Clash Detected)──► [ Reject 409 Conflict ]
+                   │ Check (Interval Overlap)    │                         (Allow override toggle)
+                   └─────────────────────────────┘
+                                  │
+                                  │ (No Clash)
+                                  ▼
+                   ┌─────────────────────────────┐
+                   │ Capacity Check              │
+                   │ (Confirmed < Capacity?)     │
+                   └─────────────────────────────┘
+                             │           │
+                    YES      │           │ NO (Full)
+                             ▼           ▼
+                   ┌────────────────┐ ┌────────────────┐
+                   │  Registration  │ │    Waitlist    │
+                   │  [Confirmed]   │ │   [Waiting]    │
+                   └────────────────┘ └────────────────┘
+                             │                 │
+                             ▼                 │
+                   ┌────────────────┐          │
+                   │  Issue Ticket  │          │
+                   │  with QR Code  │          │
+                   └────────────────┘          │
+                             │                 │
+            ┌────────────────┴───────────────┐ │
+            │                                │ │
+            ▼ (On Event Day)                 ▼ │ (When Attendee Cancels)
+ ┌──────────────────────┐        ┌─────────────────────────┐
+ │ Organiser QR Scan    │        │ Auto-Promotion Engine   │
+ │ POST /attendance/scan│        │ Waitlist[0] ──► Confirmed│
+ └──────────────────────┘        └─────────────────────────┘
+            │                                  │
+            ▼                                  ▼
+ ┌──────────────────────┐        ┌─────────────────────────┐
+ │  Attendance Record   │        │ Ticket Auto-Generated   │
+ │  [Checked In]        │        │ Queue Re-Indexed (#1..) │
+ └──────────────────────┘        └─────────────────────────┘
+```
 
 ---
 
-### 4. Module 6 Database Schemas (`data/`)
+### 4. Golden Rules & Mathematical Logic Enforced
 
-#### Registration Entity (`data/registrations.json`)
-```json
-[
+#### A. The Golden Interval Overlap Rule (Module 8 Personal Schedule Clash)
+How does the system ensure a student cannot be in two places at once?
+
+$$\text{Clash} = (\text{eventA.startTime} < \text{eventB.endTime}) \land (\text{eventA.endTime} > \text{eventB.startTime})$$
+
+- When student requests registration for Event A on date $D$:
+  - The engine queries all `Confirmed` registrations for the student on date $D$.
+  - If any existing event overlaps in hours, registration is halted with HTTP `409 Conflict`.
+
+#### B. Capacity Boundary Equation
+$$\text{Available Seats} = \text{event.capacity} - \sum_{\text{Confirmed}} \text{Registrations}$$
+- If $\text{Available Seats} > 0 \implies \text{Confirmed Registration + Digital Ticket Generated}$.
+- If $\text{Available Seats} \le 0 \implies \text{Appended to Waitlist Queue at Position } (\text{Count}_{\text{Waiting}} + 1)$.
+
+#### C. Cancellation Window Formula
+$$\text{Cancellation Allowed} \iff \text{currentTime} \le (\text{eventDateTime} - \text{cancellationWindowHours})$$
+- Default window: 2 hours prior to scheduled start time.
+
+---
+
+### 5. Module 6 Database Entities (`data/`)
+
+#### A. Registration Entity (`data/registrations.json`)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | String | Unique registration ID (e.g. `reg_1730000000001`) |
+| `eventId` | String | Identifier of the registered event |
+| `userId` | String | Identifier of the student user |
+| `userName` | String | Student's full name |
+| `userEmail` | String | Student's campus email |
+| `ticketId` | String | Foreign key linking to the issued Ticket |
+| `ticketCode` | String | Human-readable scannable code (e.g. `EVT-1004-6058-AB3F`) |
+| `status` | String | `"Confirmed"` or `"Cancelled"` |
+| `teamSize` | Number | Registered team size (1 for individual, $>1$ for teams) |
+| `teamMembers` | Array | Names/emails of registered teammates |
+| `answers` | Object | Custom responses (Roll Number, special requirements, notes) |
+| `registeredAt`| String | ISO timestamp of registration |
+| `cancelledAt` | String/null | ISO timestamp of cancellation (or null if active) |
+
+#### B. Waitlist Entity (`data/waitlist.json`)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | String | Unique waitlist ID (e.g. `wait_1730000000001`) |
+| `eventId` | String | Identifier of the full event |
+| `userId` | String | Identifier of the waiting student |
+| `position` | Number | Current queue rank (`1`, `2`, `3`...) |
+| `status` | String | `"Waiting"` \| `"Promoted"` \| `"Cancelled"` |
+| `createdAt` | String | Timestamp when student joined the waitlist (FIFO ordering) |
+| `promotedAt`| String/null | Timestamp when student was promoted to Confirmed |
+
+#### C. Ticket Entity (`data/tickets.json`)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | String | Unique ticket record ID |
+| `ticketCode` | String | Unique scannable code (e.g. `EVT-1004-6058-AB3F`) |
+| `registrationId` | String | Reference to the parent registration |
+| `eventId` | String | Event ID |
+| `userId` | String | Student ID |
+| `qrCode` | String | High-contrast Base64 PNG Data URL (`data:image/png;base64,...`) |
+| `status` | String | `"Active"` \| `"Used"` \| `"Cancelled"` |
+| `issuedAt` | String | Issuance timestamp |
+| `usedAt` | String/null | Timestamp of gate check-in (or null) |
+
+#### D. Attendance Record Entity (`data/attendance.json`)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | String | Unique attendance record ID |
+| `eventId` | String | Event ID |
+| `ticketCode` | String | Scanned ticket code |
+| `userId` | String | Attendee student ID |
+| `userName` | String | Attendee full name |
+| `checkInTime` | String | Timestamp when ticket was scanned |
+| `scannedBy` | String | User ID of organiser/admin who scanned |
+| `status` | String | `"Checked In"` |
+
+---
+
+### 6. Detailed API Specifications & Sample Payloads
+
+#### A. `POST /events/:id/register` (One-Click Event Registration)
+- **Description:** Registers student, runs capacity check & Module 8 schedule clash check.
+- **Sample Request:**
+  ```http
+  POST /events/1792921081004/register HTTP/1.1
+  Host: localhost:3000
+  Content-Type: application/json
+  Cookie: token=eyJhbGciOi...
+
   {
-    "id": "reg_1730000000001",
-    "eventId": "m6_event_limited",
-    "eventTitle": "AI Robotics Workshop",
-    "userId": "m6_student_1",
-    "userName": "Aarav Kumar",
-    "userEmail": "aarav@campus.edu",
-    "ticketId": "tkt_1730000000001",
-    "ticketCode": "EVT-1004-6058-AB3F",
-    "status": "Confirmed",
-    "teamSize": 1,
-    "teamMembers": [],
+    "teamSize": 2,
+    "teamMembers": ["Priya Sharma"],
     "answers": {
       "rollNo": "21CS084",
-      "notes": "Bringing laptop"
+      "notes": "Bringing HDMI adapters"
+    }
+  }
+  ```
+- **Sample Response (HTTP 201 Created — Seat Confirmed):**
+  ```json
+  {
+    "success": true,
+    "status": "Confirmed",
+    "registration": {
+      "id": "reg_1793897600001",
+      "eventId": "1792921081004",
+      "userId": "1792921156058",
+      "userName": "Aarav Kumar",
+      "ticketCode": "EVT-1004-6058-AB3F",
+      "status": "Confirmed",
+      "teamSize": 2,
+      "registeredAt": "2026-11-05T17:00:00.000Z"
     },
-    "registeredAt": "2026-11-05T10:00:00.000Z",
-    "cancelledAt": null
+    "ticket": {
+      "ticketCode": "EVT-1004-6058-AB3F",
+      "qrCode": "data:image/png;base64,iVBORw0KGgo...",
+      "status": "Active"
+    },
+    "message": "Registration successful! Your ticket has been generated."
   }
-]
-```
-
-#### Waitlist Entity (`data/waitlist.json`)
-```json
-[
+  ```
+- **Sample Response (HTTP 200 OK — Queued to Waitlist):**
+  ```json
   {
-    "id": "wait_1730000000001",
-    "eventId": "m6_event_limited",
-    "eventTitle": "AI Robotics Workshop",
-    "userId": "m6_student_2",
-    "userName": "Bhavna Sharma",
-    "userEmail": "bhavna@campus.edu",
+    "success": true,
+    "status": "Waitlisted",
     "position": 1,
-    "status": "Waiting",
-    "teamSize": 1,
-    "teamMembers": [],
-    "answers": {},
-    "createdAt": "2026-11-05T10:05:00.000Z",
-    "promotedAt": null,
-    "cancelledAt": null
+    "message": "Event is at full capacity (100 seats). You have been added to the waitlist at position #1."
   }
-]
-```
+  ```
 
-#### Ticket Entity (`data/tickets.json`)
-```json
-[
+#### B. `DELETE /events/:id/register` (Cancel Registration & Auto-Promote)
+- **Description:** Unregisters student, validates cancellation window, and auto-promotes the first waitlisted candidate.
+- **Sample Response (HTTP 200 OK):**
+  ```json
   {
-    "id": "tkt_1730000000001",
-    "ticketCode": "EVT-1004-6058-AB3F",
-    "registrationId": "reg_1730000000001",
-    "eventId": "m6_event_limited",
-    "eventTitle": "AI Robotics Workshop",
-    "userId": "m6_student_1",
-    "userName": "Aarav Kumar",
-    "userEmail": "aarav@campus.edu",
-    "qrCode": "data:image/png;base64,iVBORw0KGgo...",
-    "status": "Active",
-    "issuedAt": "2026-11-05T10:00:00.000Z",
-    "usedAt": null
+    "success": true,
+    "message": "Registration successfully cancelled. Waitlisted student Bhavna Sharma was automatically promoted!",
+    "autoPromoted": {
+      "userId": "1792921156099",
+      "userName": "Bhavna Sharma",
+      "userEmail": "bhavna@campus.edu",
+      "ticketCode": "EVT-1004-6099-C2D1"
+    }
   }
-]
-```
+  ```
 
-#### Attendance Record Entity (`data/attendance.json`)
-```json
-[
+#### C. `POST /attendance/scan` (QR Ticket Check-In)
+- **Description:** Scans ticket code, checks organiser permissions, logs attendance, and rejects duplicate scans.
+- **Sample Request:**
+  ```http
+  POST /attendance/scan HTTP/1.1
+  Host: localhost:3000
+  Content-Type: application/json
+  Cookie: token=eyJhbGciOi...
+
   {
-    "id": "att_1730000000001",
-    "eventId": "m6_event_limited",
-    "eventTitle": "AI Robotics Workshop",
-    "ticketId": "tkt_1730000000001",
     "ticketCode": "EVT-1004-6058-AB3F",
-    "userId": "m6_student_1",
-    "userName": "Aarav Kumar",
-    "userEmail": "aarav@campus.edu",
-    "checkInTime": "2026-11-05T10:30:00.000Z",
-    "scannedBy": "m6_organiser_1",
-    "scannedByName": "Dev Club Organiser",
-    "method": "QR Scan",
-    "status": "Checked In"
+    "eventId": "1792921081004"
   }
-]
-```
+  ```
+- **Sample Response (HTTP 200 OK — Successful Gate Check-In):**
+  ```json
+  {
+    "success": true,
+    "message": "Attendance Verified! Welcome, Aarav Kumar.",
+    "attendee": {
+      "ticketCode": "EVT-1004-6058-AB3F",
+      "userName": "Aarav Kumar",
+      "checkInTime": "2026-11-20T10:14:22.000Z",
+      "status": "Checked In"
+    }
+  }
+  ```
+- **Sample Response (HTTP 400 Bad Request — Duplicate Scan Attempt):**
+  ```json
+  {
+    "error": "Duplicate Scan: Ticket was already used for check-in on 2026-11-20T10:14:22.000Z.",
+    "alreadyUsed": true
+  }
+  ```
+
+#### D. `GET /events/:id/attendees` (Organiser Attendees Console & CSV Export)
+- **Description:** Returns JSON dashboard metrics or direct downloadable CSV file.
+- **Sample Request (JSON):**
+  ```http
+  GET /events/1792921081004/attendees HTTP/1.1
+  Host: localhost:3000
+  Accept: application/json
+  Cookie: token=eyJhbGciOi...
+  ```
+- **Sample Response (HTTP 200 OK):**
+  ```json
+  {
+    "event": { "title": "Hackathon 2026", "capacity": 100 },
+    "summary": {
+      "totalCapacity": 100,
+      "totalRegistered": 42,
+      "totalCheckedIn": 38,
+      "totalWaitlist": 5,
+      "attendanceRate": 90
+    },
+    "attendees": [ ... ],
+    "waitlist": [ ... ]
+  }
+  ```
+- **Sample Request (CSV Download):**
+  ```http
+  GET /api/events/1792921081004/attendees?format=csv HTTP/1.1
+  Host: localhost:3000
+  Cookie: token=eyJhbGciOi...
+  ```
+- **Sample CSV Output (`attendees-Hackathon_2026-1792921081004.csv`):**
+  ```csv
+  Registration ID,Ticket Code,Student Name,Student Email,Team Size,Registration Status,Attendance Status,Check-In Time,Registered At
+  "reg_101","EVT-1004-6058-AB3F","Aarav Kumar","aarav@campus.edu",1,"Confirmed","Checked In","2026-11-20T10:14:22.000Z","2026-11-05T10:00:00.000Z"
+  "reg_102","EVT-1004-6099-C2D1","Bhavna Sharma","bhavna@campus.edu",2,"Confirmed","Not Checked In","N/A","2026-11-05T10:05:00.000Z"
+  ```
 
 ---
 
-### 5. Module 6 API Endpoints
-All endpoints provide full dual-path compatibility (`/events/...` and `/api/events/...`):
-
-| Method | Endpoint | Access Level | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/events/:id/register` / `/api/events/:id/register` | Authenticated | Registers student for event with capacity check & Module 8 clash detection. |
-| `DELETE` | `/events/:id/register` / `/api/events/:id/register` | Authenticated | Unregisters student, checks cancellation window, and auto-promotes waitlist. |
-| `GET` | `/events/:id/register` / `/api/events/:id/register` | Authenticated | Fetches current user registration status and QR ticket pass. |
-| `POST` | `/attendance/scan` / `/api/attendance/scan` | Organiser / Admin | Scans QR ticket, marks attendance, and rejects duplicate scans. |
-| `GET` | `/events/:id/attendees` / `/api/events/:id/attendees` | Organiser / Admin | Retrieves attendee dashboard data or exports CSV via `?format=csv`. |
+### 7. Viva & Evaluation Cheat Sheet 🎓
+| Viva Question Asked by Examiner | Recommended Direct Answer |
+| :--- | :--- |
+| **Q1: How does capacity enforcement prevent overbooking?** | *"When a student registers, we count active registrations with `status: 'Confirmed'`. If this count meets `event.capacity`, the student is automatically added to `waitlist.json` with a sequence position instead of creating an overbooked ticket."* |
+| **Q2: How does waitlist auto-promotion work?** | *"When an attendee unregisters, we look up the earliest entry in `waitlist.json` (`status: 'Waiting'` ordered by `createdAt`). We update that entry to `Promoted`, issue a confirmed registration with a new QR ticket, and re-index the remaining waitlist positions."* |
+| **Q3: What math prevents double-booking in Module 8?** | *"We enforce the Golden Interval Overlap rule: `(newStart < existingEnd) && (newEnd > existingStart)`. If both conditions are true on the same calendar date, a collision exists, and registration returns HTTP 409 Conflict."* |
+| **Q4: How are QR tickets generated without external web APIs?** | *"We use the standard `qrcode` library server-side to generate a high-contrast Base64 Data URL PNG string embedded directly in `tickets.json`. It renders locally in the browser with zero internet dependency and prints cleanly."* |
+| **Q5: How do organisers prevent ticket duplication at the gate?** | *"Each ticket has a unique code. When scanned via `POST /attendance/scan`, the server updates the ticket to `Used`. If someone scans the same barcode a second time, the server detects `ticket.status === 'Used'` and rejects the scan with an instant alert."* |
 
 ---
 
