@@ -76,11 +76,35 @@ export function middleware(request) {
   }
 
   // =========================================================================
-  // Module 2 & 5: Events & Bookmark Routing
+  // Module 6: Attendance QR Scan Routing
+  // =========================================================================
+  if (pathname === '/attendance/scan' || pathname.startsWith('/attendance/')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/api' + pathname;
+    return NextResponse.rewrite(url);
+  }
+
+  // =========================================================================
+  // Module 2, 5 & 6: Events, Bookmark & Registration Routing
   // =========================================================================
   if (pathname.startsWith('/events/')) {
     if (pathname === '/events/create' || pathname.startsWith('/events/edit/')) {
       return NextResponse.next();
+    }
+
+    if (pathname.endsWith('/attendees')) {
+      if (request.method === 'GET' && isHtml) {
+        return NextResponse.next();
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = '/api' + pathname;
+      return NextResponse.rewrite(url);
+    }
+
+    if (pathname.endsWith('/register')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/api' + pathname;
+      return NextResponse.rewrite(url);
     }
 
     if (pathname.endsWith('/bookmark')) {
@@ -134,5 +158,7 @@ export const config = {
     '/events',
     '/events/:path*',
     '/discover',
+    '/attendance',
+    '/attendance/:path*',
   ],
 };

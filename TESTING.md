@@ -248,6 +248,53 @@ Follow these step-by-step instructions to test all features of Module 1 and Modu
 
 ---
 
+### Step 10: Manual Testing Walkthrough for Module 6 (Registration & Attendance)
+
+#### A. One-Click Register & Instant QR Pass Generation
+1. Log in as a student (e.g. `alice@campus.edu` / `secret123` or register a new student).
+2. Go to **Discover Events** (`/discover`) and click on any published event (or navigate directly to `/events/:id`).
+3. Scroll down to the blue **🎟️ Event Registration & Ticket** panel.
+4. Enter team size (e.g. `1`), student ID/Roll No, and optional notes.
+5. Click **⚡ One-Click Register Now**.
+6. **Expected Result:** The registration is confirmed immediately! A card renders with the student's name, unique Ticket Code (e.g. `EVT-1004-6058-AB3F`), and an embedded high-resolution **QR Code Pass** ready for event day!
+
+#### B. Module 8 Personal Schedule Clash Prevention
+1. Find another published event that occurs on the **same date** with overlapping hours.
+2. Click **⚡ One-Click Register Now** on that event.
+3. **Expected Result:** The registration is blocked with a yellow alert:
+   > *"⚠️ Module 8 Personal Schedule Clash Detected: You are already registered for '[First Event]' on 2026-11-20 from 10:00 to 12:00."*
+4. Students can either cancel the request or click **Confirm Anyway (Override Clash)**.
+
+#### C. Capacity Enforcement & Automatic Waitlist Queue
+1. Have an organiser set an event's capacity to `1` seat.
+2. Register Student 1. Student 1 receives **Registration Confirmed** and a QR pass.
+3. Log in as Student 2 and visit the same event page.
+4. Click **⚡ One-Click Register Now**.
+5. **Expected Result:** Since the seat is occupied, Student 2 receives:
+   > *"🟡 You are on the Waitlist! Event capacity is full. Your current queue position is: #1."*
+
+#### D. Waitlist Auto-Promotion
+1. Log back in as Student 1 on their registered event page.
+2. Click **Cancel Registration / Unregister**.
+3. Confirm the cancellation prompt.
+4. Log back in as Student 2 and refresh the event page.
+5. **Expected Result:** Student 2's status has automatically flipped from `Waitlisted` to `🟢 Registration Confirmed!`, and an official QR ticket pass has been generated for Student 2!
+
+#### E. Organiser QR Check-In Console
+1. Log in as the club organiser for this event (`bob@campus.edu` or `rishiraj18sep2005@gmail.com`).
+2. Go to **My Events** (`/my-events`) -> click **📋 Attendees & QR** next to the published event.
+3. Review the live KPI cards (Capacity, Registered, Checked In, Attendance Rate, Waitlist).
+4. In the **📱 QR Ticket Scanner & Check-In** box, type or scan Student 2's ticket code and click **✓ Verify & Check In**.
+5. **Expected Result:** Instant green banner: *"✅ Attendance Verified! Welcome, Student 2."* The attendee table updates with `🟢 Checked In` and the check-in time, and the attendance rate KPI increases!
+6. Try scanning the same ticket code again.
+7. **Expected Result:** Red alert: *"❌ Duplicate Scan: Ticket was already used for check-in..."*
+
+#### F. One-Click Attendance Export (CSV)
+1. On the Attendees Console (`/events/:id/attendees`), click **⬇️ Export Attendance (CSV)**.
+2. **Expected Result:** Your browser downloads `attendees-[Event_Name]-[ID].csv` containing student names, emails, ticket codes, team sizes, registration statuses, and check-in timestamps.
+
+---
+
 ## 5. Automated Testing Scripts
 You can run the complete automated test suites:
 ```bash
@@ -259,6 +306,12 @@ node scripts/test-module3.js
 
 # Run Module 4 Venue & Clash Management tests (19 checks)
 node scripts/test-module4.js
+
+# Run Module 5 Student Event Discovery tests (12 checks)
+node scripts/test-module5.js
+
+# Run Module 6 Registration & Attendance tests (21 checks)
+node scripts/test-module6.js
 ```
 
 ---

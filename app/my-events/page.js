@@ -218,6 +218,15 @@ export default function MyEventsPage() {
                         Edit
                       </Link>
 
+                      {event.status === 'Published' && (
+                        <Link
+                          href={`/events/${event.id}/attendees`}
+                          style={{ color: '#0070f3', fontWeight: 'bold' }}
+                        >
+                          📋 Attendees & QR
+                        </Link>
+                      )}
+
                       {event.status === 'Draft' && (
                         <button onClick={() => handleStatusChange(event.id, 'Pending Approval')}>
                           Submit for Approval

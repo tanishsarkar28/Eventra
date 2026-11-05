@@ -12,7 +12,7 @@ The repository is built following a clean, modular structure with zero complex a
 | :--- | :--- | :--- |
 | **Student 1 (Tanish)** | **Module 1** (Auth & User Management), **Module 4** (Venue & Clash Management), **Module 7** | Module 1 Completed ✅, Module 4 Completed ✅ |
 | **Student 2 (Rishi)** | **Module 2** (Event Management), **Module 5** (Student Event Discovery), **Module 8** | Module 2 Completed ✅, Module 5 Completed ✅ |
-| **Student 3 (Anush)** | **Module 3** (Venue Management), **Module 6**, **Module 9** | Module 3 Completed ✅ |
+| **Student 3 (Anush)** | **Module 3** (Venue Management), **Module 6** (Registration & Attendance), **Module 9** | Module 3 Completed ✅, Module 6 Completed ✅ |
 
 ---
 
@@ -22,7 +22,7 @@ The repository is built following a clean, modular structure with zero complex a
 - **Language:** Plain JavaScript (`.js` files, beginner-friendly, zero TypeScript overhead)
 - **Styling:** Custom lightweight CSS (`app/globals.css`) with clean card containers, modern pill navigation, responsive tables, and status badges. Zero heavy UI frameworks (no Tailwind/Bootstrap required).
 - **Backend & APIs:** Next.js Route Handlers (`app/api/...`) with seamless dual-path compatibility (`/events/...` and `/venues/...`) powered by `middleware.js`.
-- **Database System:** File-based JSON storage inside `data/` (`users.json`, `events.json`, `categories.json`, `tags.json`, `venues.json`, `bookings.json`), accessed via safe atomic read/write functions in `lib/db.js`.
+- **Database System:** File-based JSON storage inside `data/` (`users.json`, `events.json`, `categories.json`, `tags.json`, `venues.json`, `bookings.json`, `registrations.json`, `waitlist.json`, `tickets.json`, `attendance.json`), accessed via safe atomic read/write functions in `lib/db.js`.
 - **Authentication & Security:** 
   - Password hashing using `bcryptjs` with salt.
   - Session issuing & verification using `jsonwebtoken` (JWT).
@@ -795,6 +795,173 @@ All endpoints support standard `/api/...` and clean dual-path alias routes via `
 
 ---
 
+## 🎟️ Comprehensive Breakdown of Module 6: Registration & Attendance
+
+### 1. Purpose & Scope
+Module 6 bridges the gap between event discovery and actual campus participation. It converts student interest into registered attendance, enforces event capacity boundaries, manages overflow via an automatic FIFO waitlist, generates secure QR code tickets, enables real-time organiser check-ins, and exports comprehensive attendance reports for college records.
+
+---
+
+### 2. Core Functional Features Implemented
+
+1. **One-Click Registration & Cancellation (`POST` & `DELETE /events/:id/register`):**
+   - Students can register with a single click from the Event Detail page (`/events/:id`).
+   - Generates an instant digital ticket with an embedded QR code upon confirmation.
+   - Allows students to unregister at any time before the cancellation deadline.
+
+2. **Strict Capacity Enforcement:**
+   - Automatically tracks active confirmed registrations against `event.capacity`.
+   - Once all seats are filled, subsequent registration requests are seamlessly routed to the waitlist queue without throwing hard errors.
+
+3. **Waitlist with Automatic FIFO Promotion:**
+   - Over-capacity students are queued onto a transparent waitlist with real-time queue position tracking (`#1`, `#2`, `#3`...).
+   - **Auto-Promotion Engine:** When any confirmed attendee cancels their registration, the engine instantly promotes the first eligible student from the waitlist to `Confirmed` status, generates their unique QR ticket, and re-indexes remaining waitlist positions.
+
+4. **Custom Registration Form Fields & Team Support:**
+   - Supports individual or team registrations (`teamSize: 1` to `N`).
+   - Captures comma-separated team member names and emails.
+   - Records custom answers (e.g., College ID / Roll Number, special requirements, dietary choices, or technical notes).
+
+5. **Real-Time QR Ticket Generation:**
+   - Generates unique ticket codes (e.g. `EVT-1004-6058-AB3F`).
+   - Automatically renders high-contrast scannable QR Code images (Base64 PNG Data URLs) displayed directly inside the attendee's digital pass card.
+   - Includes a **Print Ticket** action for physical presentation.
+
+6. **Organiser QR Check-In Console (`POST /attendance/scan`):**
+   - Real-time scanner interface at `/events/:id/attendees`.
+   - Organisers or campus administrators can scan student QR codes using handheld scanners or type/paste ticket codes.
+   - **Protection:** Prevents duplicate scans, immediately alerting organisers if a ticket has already been checked in.
+   - Automatically stamps `checkInTime`, `scannedBy`, and `status: "Checked In"`.
+
+7. **One-Click CSV Attendance Export (`GET /events/:id/attendees?format=csv`):**
+   - Organisers can download an RFC 4180-compliant `.csv` file containing full attendee records: Registration ID, Ticket Code, Student Name, Student Email, Team Size, Attendance Status, Check-in Time, and Registration Timestamp.
+
+8. **Cancellation Window Enforcement:**
+   - Protects event organisers by preventing last-minute dropouts.
+   - Default cancellation window is enforced (e.g., must cancel at least 2 hours prior to event start time). Cancellations after this threshold are rejected.
+
+---
+
+### 3. Module 8 Integration: Personal Schedule Clash Detection
+
+To avoid double-booking, Module 6 directly integrates with Module 8 before confirming any registration.
+
+#### Overlap Formula Enforced:
+$$\text{Schedule Conflict} = (\text{newEvent.startTime} < \text{existingEvent.endTime}) \land (\text{newEvent.endTime} > \text{existingEvent.startTime})$$
+
+- When a student attempts to register for an event, the system checks all existing confirmed registrations for that student.
+- If another confirmed event takes place on the **same date** with **overlapping hours**, registration is rejected with HTTP `409 Conflict` and a clear message:
+  > *"Module 8 Personal Schedule Clash: You are already registered for 'Hackathon 2026' on 2026-11-20 from 10:00 to 18:00."*
+- Students can review the collision and choose an explicit override (`allowClash: true`) if they intentionally plan to attend partial sessions.
+
+---
+
+### 4. Module 6 Database Schemas (`data/`)
+
+#### Registration Entity (`data/registrations.json`)
+```json
+[
+  {
+    "id": "reg_1730000000001",
+    "eventId": "m6_event_limited",
+    "eventTitle": "AI Robotics Workshop",
+    "userId": "m6_student_1",
+    "userName": "Aarav Kumar",
+    "userEmail": "aarav@campus.edu",
+    "ticketId": "tkt_1730000000001",
+    "ticketCode": "EVT-1004-6058-AB3F",
+    "status": "Confirmed",
+    "teamSize": 1,
+    "teamMembers": [],
+    "answers": {
+      "rollNo": "21CS084",
+      "notes": "Bringing laptop"
+    },
+    "registeredAt": "2026-11-05T10:00:00.000Z",
+    "cancelledAt": null
+  }
+]
+```
+
+#### Waitlist Entity (`data/waitlist.json`)
+```json
+[
+  {
+    "id": "wait_1730000000001",
+    "eventId": "m6_event_limited",
+    "eventTitle": "AI Robotics Workshop",
+    "userId": "m6_student_2",
+    "userName": "Bhavna Sharma",
+    "userEmail": "bhavna@campus.edu",
+    "position": 1,
+    "status": "Waiting",
+    "teamSize": 1,
+    "teamMembers": [],
+    "answers": {},
+    "createdAt": "2026-11-05T10:05:00.000Z",
+    "promotedAt": null,
+    "cancelledAt": null
+  }
+]
+```
+
+#### Ticket Entity (`data/tickets.json`)
+```json
+[
+  {
+    "id": "tkt_1730000000001",
+    "ticketCode": "EVT-1004-6058-AB3F",
+    "registrationId": "reg_1730000000001",
+    "eventId": "m6_event_limited",
+    "eventTitle": "AI Robotics Workshop",
+    "userId": "m6_student_1",
+    "userName": "Aarav Kumar",
+    "userEmail": "aarav@campus.edu",
+    "qrCode": "data:image/png;base64,iVBORw0KGgo...",
+    "status": "Active",
+    "issuedAt": "2026-11-05T10:00:00.000Z",
+    "usedAt": null
+  }
+]
+```
+
+#### Attendance Record Entity (`data/attendance.json`)
+```json
+[
+  {
+    "id": "att_1730000000001",
+    "eventId": "m6_event_limited",
+    "eventTitle": "AI Robotics Workshop",
+    "ticketId": "tkt_1730000000001",
+    "ticketCode": "EVT-1004-6058-AB3F",
+    "userId": "m6_student_1",
+    "userName": "Aarav Kumar",
+    "userEmail": "aarav@campus.edu",
+    "checkInTime": "2026-11-05T10:30:00.000Z",
+    "scannedBy": "m6_organiser_1",
+    "scannedByName": "Dev Club Organiser",
+    "method": "QR Scan",
+    "status": "Checked In"
+  }
+]
+```
+
+---
+
+### 5. Module 6 API Endpoints
+All endpoints provide full dual-path compatibility (`/events/...` and `/api/events/...`):
+
+| Method | Endpoint | Access Level | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/events/:id/register` / `/api/events/:id/register` | Authenticated | Registers student for event with capacity check & Module 8 clash detection. |
+| `DELETE` | `/events/:id/register` / `/api/events/:id/register` | Authenticated | Unregisters student, checks cancellation window, and auto-promotes waitlist. |
+| `GET` | `/events/:id/register` / `/api/events/:id/register` | Authenticated | Fetches current user registration status and QR ticket pass. |
+| `POST` | `/attendance/scan` / `/api/attendance/scan` | Organiser / Admin | Scans QR ticket, marks attendance, and rejects duplicate scans. |
+| `GET` | `/events/:id/attendees` / `/api/events/:id/attendees` | Organiser / Admin | Retrieves attendee dashboard data or exports CSV via `?format=csv`. |
+
+---
+
+
 ## 📂 Project Directory Structure
 
 ```text
@@ -803,23 +970,30 @@ Eventra/
 │   ├── admin/
 │   │   └── page.js                 # Admin Panel: Verify Organisers & Approve/Publish Events
 │   ├── api/
+│   │   ├── attendance/
+│   │   │   └── scan/route.js       # POST /api/attendance/scan (Organiser QR Ticket Check-In)
 │   │   ├── auth/
 │   │   │   ├── login/route.js      # POST /api/auth/login
 │   │   │   ├── logout/route.js     # POST /api/auth/logout
 │   │   │   └── register/route.js   # POST /api/auth/register
 │   │   ├── categories/route.js     # GET, POST /api/categories
 │   │   ├── discover/
-│   │   ├── api/route.js            # Alias handler for /discover
-│   │   └── page.js                 # Module 5 Student Event Discovery Feed UI
-│   ├── clash/
+│   │   │   ├── api/route.js        # Alias handler for /discover
+│   │   │   ├── recommended/route.js# GET /api/discover/recommended
+│   │   │   └── route.js            # GET /api/discover
+│   │   ├── clash/
 │   │   │   ├── check/route.js      # POST /api/clash/check (Module 4 Clash Engine)
 │   │   │   ├── report/route.js     # GET /api/clash/report (Module 4 Audit Report)
 │   │   │   └── suggestions/route.js# GET /api/clash/suggestions (Smart Alternatives)
 │   │   ├── events/
 │   │   │   ├── [id]/
-│   │   │   │   ├── route.js        # GET, PUT, DELETE /api/events/:id
-│   │   │   │   └── status/route.js # PATCH /api/events/:id/status (Module 4 validation & Admin override)
+│   │   │   │   ├── attendees/route.js # GET /api/events/:id/attendees (JSON & CSV export)
+│   │   │   │   ├── bookmark/route.js  # POST /api/events/:id/bookmark
+│   │   │   │   ├── register/route.js  # POST, DELETE, GET /api/events/:id/register
+│   │   │   │   ├── status/route.js    # PATCH /api/events/:id/status
+│   │   │   │   └── route.js           # GET, PUT, DELETE /api/events/:id
 │   │   │   ├── mine/route.js       # GET /api/events/mine
+│   │   │   ├── search/route.js     # GET /api/events/search
 │   │   │   └── route.js            # GET, POST /api/events
 │   │   ├── organisers/
 │   │   │   ├── pending/route.js    # GET /api/organisers/pending
@@ -836,17 +1010,25 @@ Eventra/
 │   │       │   └── route.js              # GET, PUT, DELETE /api/venues/:id
 │   │       ├── bookings/route.js         # GET /api/venues/bookings
 │   │       └── route.js                  # GET, POST /api/venues
+│   ├── attendance/
+│   │   └── scan/route.js           # Direct alias handler for POST /attendance/scan
 │   ├── clash/
 │   │   ├── check/route.js          # Direct route alias for POST /clash/check
 │   │   ├── report/page.js          # Module 4 Clash Audit Report View Page
 │   │   └── suggestions/route.js    # Direct route alias for GET /clash/suggestions
+│   ├── discover/
+│   │   └── page.js                 # Module 5 Student Event Discovery Feed UI
 │   ├── events/
 │   │   ├── [id]/
-│   │   │   ├── route.js            # Alias handler for /events/:id
-│   │   │   └── status/route.js     # Alias handler for /events/:id/status
+│   │   │   ├── attendees/page.js   # Module 6 Attendance Dashboard & QR Scanner
+│   │   │   ├── bookmark/route.js   # Direct alias for POST /events/:id/bookmark
+│   │   │   ├── register/route.js   # Direct alias for /events/:id/register
+│   │   │   ├── status/route.js     # Alias handler for /events/:id/status
+│   │   │   └── page.js             # Event Detail & QR Ticket Pass UI
 │   │   ├── create/page.js          # Create Event Form (Live Module 4 validation & suggestions)
 │   │   ├── edit/[id]/page.js       # Edit Event Form (Live Module 4 validation)
 │   │   ├── mine/route.js           # Alias handler for /events/mine
+│   │   ├── search/route.js         # Direct alias for GET /events/search
 │   │   └── route.js                # Alias handler for /events
 │   ├── globals.css                 # Simple, modern responsive stylesheet
 │   ├── layout.js                   # Root HTML shell & top navigation bar (with Clash Report)
@@ -861,24 +1043,34 @@ Eventra/
 │       ├── edit/[id]/page.js       # Edit Venue Form Page (Admin)
 │       └── page.js                 # Venue Management Dashboard
 ├── data/
+│   ├── attendance.json             # Event check-in and attendance records
+│   ├── bookmarks.json              # Student bookmarked events
 │   ├── bookings.json               # Venue bookings and blackout records database
 │   ├── categories.json             # Event categories database
 │   ├── events.json                 # Events database
+│   ├── registrations.json          # Student event registrations database
 │   ├── tags.json                   # Event tags database
+│   ├── tickets.json                # Digital QR tickets database
 │   ├── users.json                  # User accounts database
-│   └── venues.json                 # Campus venues database
+│   ├── venues.json                 # Campus venues database
+│   └── waitlist.json               # Event waitlist queues database
 ├── lib/
 │   ├── auth.js                     # Bcrypt hashing & JWT token verification helpers
 │   ├── clashEngine.js              # Module 4 Clash Engine (interval logic, 5 clashes, suggestions, report)
 │   ├── db.js                       # Safe atomic JSON read/write persistence functions
+│   ├── personalSchedule.js         # Module 8 Personal Schedule Clash Detection
+│   ├── recommendation.js           # Module 5 Match score algorithm
+│   ├── registrationEngine.js       # Module 6 Registration, Waitlist FIFO & QR engine
 │   └── venueValidation.js          # Module 3 & 4 Venue, Clash, & Admin Override adapter
-├── middleware.js                   # Dual-path routing for Venues and Clash APIs
+├── middleware.js                   # Dual-path routing for Venues, Clash, Events, Attendance
 ├── public/
 │   └── uploads/                    # Local storage directory for uploaded posters
 ├── scripts/
 │   ├── test-module2.js             # Automated Module 1 & 2 integration test suite
 │   ├── test-module3.js             # Automated 24-point Module 3 venue management test suite
-│   └── test-module4.js             # Automated 19-point Module 4 clash management test suite
+│   ├── test-module4.js             # Automated 19-point Module 4 clash management test suite
+│   ├── test-module5.js             # Automated 12-point Module 5 event discovery test suite
+│   └── test-module6.js             # Automated 21-point Module 6 registration & attendance test suite
 ├── package.json                    # Project dependencies & scripts
 ├── README.md                       # Comprehensive documentation
 └── TESTING.md                      # Detailed manual testing guide
@@ -945,14 +1137,19 @@ node scripts/test-module3.js
 
 # Run Module 4 Venue & Clash Management tests (19 checks)
 node scripts/test-module4.js
+
+# Run Module 5 Student Event Discovery tests (12 checks)
+node scripts/test-module5.js
+
+# Run Module 6 Registration & Attendance tests (21 checks)
+node scripts/test-module6.js
 ```
 
-### Method B: Manual Testing Walkthrough (Module 3)
-1. **View Venue Directory:** Log in as Admin (`admin@eventra.edu` / `admin123`) and click **Venues** in the navigation bar. Check the summary stats (Total Venues, Active Venues, Capacity).
-2. **Add a New Venue:** Click **+ Add New Venue**, fill in the form (Name: "Mechanical Workshop", Type: Lab, Capacity: 80, Location: "Workshop Block", select facilities and timings), and click **Create Venue**.
-3. **Inspect Availability & Conflicts:** On `/venues`, scroll to the **Venue Availability Checker**, select "Main Auditorium", choose a date, and click **Check Availability**. Notice the display of open time slots and any booked slots.
-4. **Block a Venue (Blackout Date):** Click on "Main Auditorium", navigate to **Block Venue (Blackout Dates)**, pick a date (e.g. `2026-12-15`), reason: "Exams", and click **Block Date**. Re-running availability for that date now shows **UNAVAILABLE** due to Exams.
-5. **Request a Booking & Admin Approval:** While on the venue page, submit a booking request for an open slot. Notice it starts as `Pending Approval`. As Admin, click **Approve** on the dashboard to confirm it.
-6. **Verify Event Management Conflict Prevention:** Log in as Organiser and create an event at the same venue and overlapping time. When Admin tries to **Approve & Publish** the event, the system rejects it with a clear conflict error, proving Module 3 and Module 2 are integrated.
+### Method B: Manual Testing Walkthrough (Module 6: Registration & Attendance)
+1. **Student Registration & QR Pass:** Log in as student (`rahul@campus.edu` / `pass123`), navigate to **Discover Events** (`/discover`), and click on an event to view its details (`/events/:id`). Fill in team size and optional student roll number, then click **⚡ One-Click Register Now**. The page immediately displays your **Confirmed Pass** containing your personal scannable QR ticket code!
+2. **Module 8 Schedule Clash Prevention:** Try to register for another event scheduled on the same date and overlapping hours. Notice the system blocks duplicate scheduling with a clear warning: *"Module 8 Personal Schedule Clash Detected"*.
+3. **Waitlist & Auto-Promotion:** When an event's confirmed registrations equal its venue capacity, the next student attempting to register receives a **Waitlisted (Position #1)** badge. If the registered student cancels their ticket, the waitlisted student is automatically promoted and issued a confirmed QR ticket!
+4. **Organiser QR Check-in Console:** Log in as the club organiser (`rishiraj18sep2005@gmail.com`), go to **My Events** (`/my-events`), and click **📋 Attendees & QR**. You can scan student QR passes or type their ticket code to check them in with real-time attendance rate updates.
+5. **Attendance Export (CSV):** Click **⬇️ Export Attendance (CSV)** on the attendees console to download a complete, formatted spreadsheet for college records.
 
 For full step-by-step browser testing for all modules, refer to **[TESTING.md](TESTING.md)**.
