@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { readUsers, saveUsers } from '@/lib/db';
 import { getLoggedInUser } from '@/lib/auth';
+import { emitEvent, EVENT_TYPES } from '@/lib/eventBus.js';
+import '@/lib/notifications.js';
 
 export async function POST(request) {
   try {
@@ -56,6 +58,9 @@ export async function POST(request) {
 
     // 8. save updated users back to users.json
     saveUsers(users);
+
+    // Module 7: Trigger organiser verified notification
+    emitEvent(EVENT_TYPES.ORGANISER_VERIFIED, { organiser });
 
     // 9. return success message
     return NextResponse.json(

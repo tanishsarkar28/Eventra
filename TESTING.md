@@ -295,6 +295,17 @@ Follow these step-by-step instructions to test all features of Module 1 and Modu
 
 ---
 
+
+#### G. Module 7: Notifications & Reminders Walkthrough
+1. **View In-App Notifications:** Log in as student (`rahul@campus.edu` / `pass123`) and navigate to [http://localhost:3000/notifications](http://localhost:3000/notifications) (or click **🔔 Notifications** in the navbar).
+2. **Interest-Matched Event Alert:** When an organiser or admin publishes a technical coding event, students with matching interests (e.g. `coding`) instantly see a **📢 New Event** badge in their feed!
+3. **Registration Confirmation:** Click **Discover Events** -> register for an event. Immediately return to **🔔 Notifications**: Notice the new **🎟️ Confirmed Ticket** notification with your ticket code!
+4. **Organiser Alert:** Log in as club organiser (`rishiraj18sep2005@gmail.com`) and visit **🔔 Notifications**. Notice the **👤 New Attendee** alert showing the student's name and email!
+5. **Waitlist Promotion Alert:** When an event seat opens and a waitlisted candidate is auto-promoted, visit their notifications to see the celebratory **🚀 Promoted** pass alert.
+6. **Venue & Schedule Change Alert:** When an organiser changes the venue or start time for an event, all confirmed attendees receive a **📍 Venue Changed** or **⏰ Time Changed** alert.
+7. **Run Reminders On-Demand:** Click **⏱️ Run Reminders** on the notifications page (or run `node scripts/run-reminders.js` in your terminal). The engine evaluates upcoming events and issues **⏰ 24h Reminder** and **🚨 1h Final Call** alerts!
+8. **Inspect Simulated Multi-Channel Outbox:** Click **⚙️ Preferences** -> **📬 Inspect Simulated Email/Push Outbox** to view outbound email logs and push alert transmissions!
+
 ## 5. Automated Testing Scripts
 You can run the complete automated test suites:
 ```bash
@@ -312,6 +323,9 @@ node scripts/test-module5.js
 
 # Run Module 6 Registration & Attendance tests (21 checks)
 node scripts/test-module6.js
+
+# Run Module 7 Notifications & Reminders tests (27 checks)
+node scripts/test-module7.js
 ```
 
 ---

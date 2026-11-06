@@ -10,7 +10,7 @@ The repository is built following a clean, modular structure with zero complex a
 
 | Student | Assigned Modules | Current Status |
 | :--- | :--- | :--- |
-| **Student 1 (Tanish)** | **Module 1** (Auth & User Management), **Module 4** (Venue & Clash Management), **Module 7** | Module 1 Completed ✅, Module 4 Completed ✅ |
+| **Student 1 (Tanish)** | **Module 1** (Auth & User Management), **Module 4** (Venue & Clash Management), **Module 7** (Notifications & Reminders) | Module 1 Completed ✅, Module 4 Completed ✅, Module 7 Completed ✅ |
 | **Student 2 (Rishi)** | **Module 2** (Event Management), **Module 5** (Student Event Discovery), **Module 8** | Module 2 Completed ✅, Module 5 Completed ✅ |
 | **Student 3 (Anush)** | **Module 3** (Venue Management), **Module 6** (Registration & Attendance), **Module 9** | Module 3 Completed ✅, Module 6 Completed ✅ |
 
@@ -22,7 +22,7 @@ The repository is built following a clean, modular structure with zero complex a
 - **Language:** Plain JavaScript (`.js` files, beginner-friendly, zero TypeScript overhead)
 - **Styling:** Custom lightweight CSS (`app/globals.css`) with clean card containers, modern pill navigation, responsive tables, and status badges. Zero heavy UI frameworks (no Tailwind/Bootstrap required).
 - **Backend & APIs:** Next.js Route Handlers (`app/api/...`) with seamless dual-path compatibility (`/events/...` and `/venues/...`) powered by `middleware.js`.
-- **Database System:** File-based JSON storage inside `data/` (`users.json`, `events.json`, `categories.json`, `tags.json`, `venues.json`, `bookings.json`, `registrations.json`, `waitlist.json`, `tickets.json`, `attendance.json`), accessed via safe atomic read/write functions in `lib/db.js`.
+- **Database System:** File-based JSON storage inside `data/` (`users.json`, `events.json`, `categories.json`, `tags.json`, `venues.json`, `bookings.json`, `registrations.json`, `waitlist.json`, `tickets.json`, `attendance.json`, `notifications.json`, `notification_preferences.json`, `email_outbox.json`, `push_outbox.json`), accessed via safe atomic read/write functions in `lib/db.js`.
 - **Authentication & Security:** 
   - Password hashing using `bcryptjs` with salt.
   - Session issuing & verification using `jsonwebtoken` (JWT).
@@ -1095,6 +1095,294 @@ $$\text{Cancellation Allowed} \iff \text{currentTime} \le (\text{eventDateTime} 
 ---
 
 
+
+## 🔔 Comprehensive Breakdown of Module 7: Notifications & Reminders
+
+### 1. Purpose & Scope
+Module 7 ensures the campus signal actually reaches people in real-time. It bridges the critical communication gap between event state changes and student attention.
+
+Whenever events are published, seats open up, venues change, schedules update, or cancellation occurs, the system's event-driven architecture automatically alerts attendees and club organisers across multiple channels (**In-App Notifications**, **Email Outbox**, and **Push Notifications**).
+
+Furthermore, Module 7 features an intelligent scheduled alarm engine that triggers **24-hour** and **1-hour** event reminders with strict, guaranteed deduplication.
+
+---
+
+### 2. How to Explain Module 7 "Like You're Explaining to a 5-Year-Old" 👶
+
+| Real Life Situation | The Baby-Simple Story | Eventra Rule Enforced |
+| :--- | :--- | :--- |
+| **New Events Nobody Knows About** | The ice cream truck plays catchy music 🍦. Only the kids who love ice cream hear the chime and run outside! | **Interest-Matched Alerts:** When an event is published, students whose profile interests match the event category or tags receive instant alerts. |
+| **Did My Seat Actually Get Booked?** | You buy a movie ticket at the box office and the clerk hands you a shiny gold printed pass 🎟️. | **Registration Confirmation:** A student with a confirmed seat receives immediate in-app, email, and push confirmations with their scannable ticket code. |
+| **Waking Up Late & Forgetting the Event** | Mom sets a loud alarm clock 24 hours before your school picnic, and a friendly chime 1 hour before the bus departs ⏰. | **Scheduled Reminders (24h & 1h):** Automated background job scans upcoming events and reminds attendees at $T-24\text{h}$ and $T-1\text{h}$. |
+| **Rain Moves the Picnic Indoors** | The picnic was scheduled on the open lawn, but sudden rain moves everyone into the gym 📍. | **Change Alerts:** When an organiser changes venue or timing, every confirmed and waitlisted attendee receives an instant location alert. |
+| **Circus Performance Cancelled** | The circus clown gets sick so the performance is called off. The gatekeeper tells all ticket holders: "Don't come today!" ❌ | **Cancellation Alerts:** Cancelled events trigger alerts to all registered attendees and waitlisted candidates. |
+| **Next Kid in Line Gets The Ticket** | The kid at the front of the line goes home. The next kid jumps up: "Hooray! I got the ticket!" 🚀 | **Waitlist Promotion Alert:** When an attendee cancels, the auto-promoted candidate receives a promotion notification + active QR ticket pass! |
+| **Organiser Roll Call** | Every time a student climbs on the bus, the conductor taps the teacher: "Alice has arrived!" 👤 | **Organiser Alerts:** Club organisers receive real-time notifications when students register and when their accounts/events are verified. |
+| **"Please Don't Spam My Phone"** | You tell the teacher you only want notes sent in your diary, not phone calls 🔕. | **User Preferences:** Students can toggle in-app, email, push, new event alerts, and reminders on/off at will. |
+
+---
+
+### 3. Architecture & Event-Driven Engine
+
+Module 7 operates on an asynchronous **Event-Driven Architecture (EDA)** built around a central Singleton Event Bus (`lib/eventBus.js`):
+
+```
+ ┌────────────────────────────────────────────────────────────────────────┐
+ │                         BUSINESS EVENT TRIGGERS                        │
+ ├───────────────────┬───────────────────┬───────────────────┬────────────┤
+ │ POST /register    │ DELETE /register  │ PUT /events/:id   │ Admin      │
+ │ (Seat Confirmed)  │ (Waitlist Promo)  │ (Venue Changed)   │ Approves   │
+ └─────────┬─────────┴─────────┬─────────┴─────────┬─────────┴──────┬─────┘
+           │                   │                   │                │
+           ▼                   ▼                   ▼                ▼
+ ┌────────────────────────────────────────────────────────────────────────┐
+ │                      EVENTRA EVENT BUS (Singleton)                     │
+ │   'registration:confirmed'  'waitlist:promoted'  'event:updated' ...  │
+ └───────────────────────────────────┬────────────────────────────────────┘
+                                     │
+                                     ▼
+ ┌────────────────────────────────────────────────────────────────────────┐
+ │                   FEATURE HANDLER & PREFERENCE CHECK                   │
+ │   - Verify recipient user preferences (inApp? email? push?)            │
+ │   - Filter by alert category (newEventAlerts? reminders? updates?)     │
+ └───────────────────────────────────┬────────────────────────────────────┘
+                                     │
+           ┌─────────────────────────┼────────────────────────┐
+           ▼                         ▼                        ▼
+ ┌───────────────────┐     ┌───────────────────┐    ┌───────────────────┐
+ │  IN-APP CHANNEL   │     │   EMAIL OUTBOX    │    │    PUSH OUTBOX    │
+ │ data/notifications│     │ data/email_outbox │    │ data/push_outbox  │
+ │  Bell Icon & Pass │     │  Formatted HTML   │    │  Mobile App Ping  │
+ └───────────────────┘     └───────────────────┘    └───────────────────┘
+```
+
+#### Scheduled Reminders Engine (`lib/reminders.js`):
+```
+ ┌────────────────────────┐
+ │ Scheduled Timer / Cron │ ──► checkAndSendReminders({ referenceDate })
+ └────────────────────────┘                  │
+                                             ▼
+                               ┌───────────────────────────┐
+                               │ Query all Published Events│
+                               └─────────────┬─────────────┘
+                                             │
+                                             ▼
+                               ┌───────────────────────────┐
+                               │ Time Difference Window:   │
+                               │ Δt = (EventUTC - RefUTC)  │
+                               └─────────────┬─────────────┘
+                                             │
+                       ┌─────────────────────┴────────────────────┐
+                       ▼                                          ▼
+            ┌──────────────────────┐                   ┌──────────────────────┐
+            │ Window A (24-Hour):  │                   │  Window B (1-Hour):  │
+            │  1.0h < Δt <= 25.0h  │                   │  0.0h < Δt <= 1.5h   │
+            └──────────┬───────────┘                   └──────────┬───────────┘
+                       │                                          │
+                       ▼                                          ▼
+            ┌──────────────────────┐                   ┌──────────────────────┐
+            │ Deduplication Check: │                   │ Deduplication Check: │
+            │ Already sent 24h?    │                   │ Already sent 1h?     │
+            └──────────┬───────────┘                   └──────────┬───────────┘
+                       │ (No)                                     │ (No)
+                       ▼                                          ▼
+            [ Dispatch 24h Alert ]                     [ Dispatch 1h Alert ]
+```
+
+---
+
+### 4. Golden Rules & Mathematical Logic Enforced
+
+#### A. Timezone-Independent Event Coordinate Calculation
+To avoid localized daylight saving or UTC offset bugs between server and client:
+$\Delta t = \frac{t_{\text{event}} - t_{\text{ref}}}{3.6 \times 10^6 \text{ ms/hour}}$
+
+#### B. 24-Hour Reminder Window & Deduplication Rule
+$\text{Trigger 24h} \iff (1.0 < \Delta t \le 25.0) \land \neg \text{Sent}(\text{userId}, \text{eventId}, \text{'reminder\_24h'})$
+- If an attendee was already issued a 24-hour reminder for the event, subsequent runs skip the user.
+
+#### C. 1-Hour Reminder Window & Deduplication Rule
+$\text{Trigger 1h} \iff (0.0 < \Delta t \le 1.5) \land \neg \text{Sent}(\text{userId}, \text{eventId}, \text{'reminder\_1h'})$
+- Fired when kickoff is within 90 minutes.
+
+#### D. Interest Matching Set Intersection Rule
+A student receives an automated "New Event" alert upon publication if:
+$(\text{Student.Interests} \cap \{\text{Event.Category}\}) \ne \emptyset \quad \lor \quad (\text{Student.Interests} \cap \text{Event.Tags}) \ne \emptyset$
+Case-insensitive matching ensures `"coding"` matches `"Coding"` or `"TECHNICAL"`.
+
+---
+
+### 5. Module 7 Database Entities (`data/`)
+
+#### A. Notification Entity (`data/notifications.json`)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | String | Unique notification ID (e.g. `notif_1793947200000_a1b2c`) |
+| `userId` | String | Recipient user ID |
+| `title` | String | Notification headline (e.g. `"🎟️ Registration Confirmed: Hackathon"`) |
+| `message` | String | Human-readable detailed description |
+| `type` | String | Categorical enum (`new_event`, `registration_confirmation`, `reminder_24h`, `reminder_1h`, `venue_change`, `schedule_change`, `event_updated`, `event_cancelled`, `waitlist_promotion`, `organiser_registration`, `event_approval`, `organiser_verified`) |
+| `channels` | Array | Channels used: `['in_app', 'email', 'push']` |
+| `isRead` | Boolean | Read state (`false` by default) |
+| `readAt` | String/null | ISO timestamp when read |
+| `metadata` | Object | Associated data (`eventId`, `ticketCode`, `venue`, `date`, `startTime`, `oldVenue`...) |
+| `createdAt` | String | ISO timestamp of issuance |
+
+#### B. NotificationPreference Entity (`data/notification_preferences.json`)
+| Field | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `userId` | String | — | Foreign key linking to user account |
+| `inApp` | Boolean | `true` | Receive in-app bell notifications |
+| `email` | Boolean | `true` | Receive simulated email delivery |
+| `push` | Boolean | `true` | Receive mobile push alerts |
+| `newEventAlerts` | Boolean | `true` | Alerts for new events matching interests |
+| `reminders` | Boolean | `true` | 24h & 1h event kickoff reminders |
+| `statusUpdates` | Boolean | `true` | Venue changes, schedule edits, cancellations |
+| `updatedAt` | String | — | Timestamp of last preference update |
+
+#### C. Email Outbox Entity (`data/email_outbox.json`)
+Simulated delivery log recording outbound email dispatches with `id`, `to`, `subject`, `text`, `html`, `type`, `sentAt`, and `status: "Delivered"`.
+
+#### D. Push Outbox Entity (`data/push_outbox.json`)
+Simulated mobile delivery log recording push notification payloads with `id`, `userId`, `title`, `body`, `payload`, `sentAt`, and `status: "Sent"`.
+
+---
+
+### 6. Detailed API Specifications & Sample Payloads
+
+#### A. `GET /notifications` (Fetch User Notifications)
+- **Description:** Returns all notifications for the authenticated user, unread counter, and optional filters (`?unreadOnly=true`, `?type=...`, `?limit=...`).
+- **Sample Request:**
+  ```http
+  GET /notifications?unreadOnly=true HTTP/1.1
+  Host: localhost:3000
+  Cookie: token=eyJhbGciOi...
+  ```
+- **Sample Response (HTTP 200 OK):**
+  ```json
+  {
+    "success": true,
+    "unreadCount": 2,
+    "totalCount": 8,
+    "returnedCount": 2,
+    "notifications": [
+      {
+        "id": "notif_1793947200001_8f2d",
+        "userId": "1792921156058",
+        "title": "⏰ 24-Hour Reminder: Full Stack Hackathon 2026",
+        "message": "Friendly reminder! \"Full Stack Hackathon 2026\" starts in 24 hours on 2026-11-20 at 10:00 in Main Auditorium. Don't forget your digital ticket (EVT-1004-6058-AB3F)!",
+        "type": "reminder_24h",
+        "channels": ["in_app", "email", "push"],
+        "isRead": false,
+        "readAt": null,
+        "metadata": {
+          "eventId": "1792921081004",
+          "ticketCode": "EVT-1004-6058-AB3F",
+          "date": "2026-11-20",
+          "startTime": "10:00",
+          "venue": "Main Auditorium"
+        },
+        "createdAt": "2026-11-19T10:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+#### B. `PATCH /notifications/:id/read` (Mark Notification As Read)
+- **Description:** Marks a single notification as read, or batch marks all if `:id` is `'all'`. Enforces user ownership check (HTTP 403 if attempting to alter someone else's alerts).
+- **Sample Request (Single):**
+  ```http
+  PATCH /notifications/notif_1793947200001_8f2d/read HTTP/1.1
+  Host: localhost:3000
+  Cookie: token=eyJhbGciOi...
+  ```
+- **Sample Response (HTTP 200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Notification marked as read.",
+    "notification": {
+      "id": "notif_1793947200001_8f2d",
+      "isRead": true,
+      "readAt": "2026-11-19T10:05:22.100Z"
+    }
+  }
+  ```
+
+#### C. `PUT /notifications/preferences` (Update Notification Preferences)
+- **Description:** Updates channel and alert category preferences for the logged-in user.
+- **Sample Request:**
+  ```http
+  PUT /notifications/preferences HTTP/1.1
+  Host: localhost:3000
+  Content-Type: application/json
+  Cookie: token=eyJhbGciOi...
+
+  {
+    "inApp": true,
+    "email": true,
+    "push": false,
+    "newEventAlerts": true,
+    "reminders": true,
+    "statusUpdates": true
+  }
+  ```
+- **Sample Response (HTTP 200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Notification preferences updated successfully.",
+    "preferences": {
+      "userId": "1792921156058",
+      "inApp": true,
+      "email": true,
+      "push": false,
+      "newEventAlerts": true,
+      "reminders": true,
+      "statusUpdates": true,
+      "updatedAt": "2026-11-19T10:06:00.000Z"
+    }
+  }
+  ```
+
+#### D. `POST /notifications/reminders/run` (Execute Scheduled Reminders)
+- **Description:** Triggers the reminder check on demand. Accepts optional `{ referenceDate }` for testing future time horizons.
+- **Sample Request:**
+  ```http
+  POST /notifications/reminders/run HTTP/1.1
+  Host: localhost:3000
+  Content-Type: application/json
+
+  {
+    "referenceDate": "2026-11-20T09:00:00.000Z"
+  }
+  ```
+- **Sample Response (HTTP 200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Reminder check executed. 4 reminder(s) generated.",
+    "referenceTime": "2026-11-20T09:00:00.000Z",
+    "checkedEventsCount": 3,
+    "remindersSentCount": 4,
+    "reminders": [ ... ]
+  }
+  ```
+
+---
+
+### 7. Viva & Evaluation Cheat Sheet 🎓
+
+| Viva Question Asked by Examiner | Recommended Direct Answer |
+| :--- | :--- |
+| **Q1: Why did you choose an event-driven architecture for notifications?** | *"By using an Event Bus (`EventEmitter`), we decoupled the notification system completely from registration, event editing, and admin approval workflows. When an event occurs, the caller simply emits an event, allowing multiple listeners (in-app, email, push) to react independently without cluttering core business logic."* |
+| **Q2: How do you prevent duplicate reminder notifications when the cron job runs frequently?** | *"Before dispatching a `reminder_24h` or `reminder_1h`, the engine queries `notifications.json` for an existing notification with the same `userId`, `eventId`, and `type`. If found, the reminder is skipped, ensuring students receive exactly one 24h reminder and one 1h reminder."* |
+| **Q3: How are new event alerts targeted to specific students?** | *"When an event is published, the handler inspects all student accounts and computes the set intersection between the student's `interests` array and the event's `category` and `tags`. If there is any match, the student receives an alert; otherwise, irrelevant notifications are suppressed."* |
+| **Q4: How do user preferences stop unwanted notifications?** | *"Every notification dispatch passes through `createNotification()`. It loads the recipient's `NotificationPreference` record and verifies both channel toggles (`inApp`, `email`, `push`) and category toggles (`newEventAlerts`, `reminders`, `statusUpdates`). If the user disabled that category or channel, the dispatch is cleanly suppressed."* |
+| **Q5: How can examiners test the 24h and 1h reminders without waiting for tomorrow?** | *"We exposed `POST /notifications/reminders/run` and the CLI runner `node scripts/run-reminders.js --date YYYY-MM-DDTHH:MM:SSZ`. Evaluators can pass any future target timestamp as `referenceDate`, and the engine calculates the time delta and fires the appropriate reminders instantly."* |
+
+---
+
 ## 📂 Project Directory Structure
 
 ```text
@@ -1110,6 +1398,14 @@ Eventra/
 │   │   │   ├── logout/route.js     # POST /api/auth/logout
 │   │   │   └── register/route.js   # POST /api/auth/register
 │   │   ├── categories/route.js     # GET, POST /api/categories
+│   │   ├── notifications/
+│   │   │   ├── [id]/
+│   │   │   │   └── read/route.js   # PATCH /api/notifications/:id/read
+│   │   │   ├── outbox/route.js     # GET /api/notifications/outbox
+│   │   │   ├── preferences/route.js# GET, PUT /api/notifications/preferences
+│   │   │   ├── reminders/
+│   │   │   │   └── run/route.js    # POST /api/notifications/reminders/run
+│   │   │   └── route.js            # GET, DELETE /api/notifications
 │   │   ├── discover/
 │   │   │   ├── api/route.js        # Alias handler for /discover
 │   │   │   ├── recommended/route.js# GET /api/discover/recommended
@@ -1168,6 +1464,11 @@ Eventra/
 │   ├── login/page.js               # User Login Page
 │   ├── my-events/page.js           # Organiser Event Management Dashboard
 │   ├── page.js                     # Home Landing Page with dynamic role greeting
+│   ├── notifications/
+│   │   ├── [id]/read/route.js      # Direct alias for PATCH /notifications/:id/read
+│   │   ├── preferences/route.js    # Direct alias for /notifications/preferences
+│   │   ├── reminders/run/route.js  # Direct alias for /notifications/reminders/run
+│   │   └── page.js                 # Module 7 Notifications Center UI & Preferences
 │   ├── profile/page.js             # User Profile & Edit Details Page
 │   ├── register/page.js            # User Registration Page (Student / Organiser)
 │   └── venues/
@@ -1178,9 +1479,13 @@ Eventra/
 ├── data/
 │   ├── attendance.json             # Event check-in and attendance records
 │   ├── bookmarks.json              # Student bookmarked events
+│   ├── email_outbox.json           # Simulated multi-channel email transmission outbox
 │   ├── bookings.json               # Venue bookings and blackout records database
 │   ├── categories.json             # Event categories database
 │   ├── events.json                 # Events database
+│   ├── notification_preferences.json# User notification channel & category preferences
+│   ├── notifications.json          # In-app notifications database
+│   ├── push_outbox.json            # Simulated push notification transmission outbox
 │   ├── registrations.json          # Student event registrations database
 │   ├── tags.json                   # Event tags database
 │   ├── tickets.json                # Digital QR tickets database
@@ -1191,6 +1496,9 @@ Eventra/
 │   ├── auth.js                     # Bcrypt hashing & JWT token verification helpers
 │   ├── clashEngine.js              # Module 4 Clash Engine (interval logic, 5 clashes, suggestions, report)
 │   ├── db.js                       # Safe atomic JSON read/write persistence functions
+│   ├── eventBus.js                 # Module 7 Event-driven singleton Event Bus
+│   ├── notifications.js            # Module 7 Multi-channel dispatcher & event listeners
+│   ├── reminders.js                # Module 7 Scheduled 24h & 1h reminder runner
 │   ├── personalSchedule.js         # Module 8 Personal Schedule Clash Detection
 │   ├── recommendation.js           # Module 5 Match score algorithm
 │   ├── registrationEngine.js       # Module 6 Registration, Waitlist FIFO & QR engine
@@ -1203,7 +1511,9 @@ Eventra/
 │   ├── test-module3.js             # Automated 24-point Module 3 venue management test suite
 │   ├── test-module4.js             # Automated 19-point Module 4 clash management test suite
 │   ├── test-module5.js             # Automated 12-point Module 5 event discovery test suite
-│   └── test-module6.js             # Automated 21-point Module 6 registration & attendance test suite
+│   ├── test-module6.js             # Automated 21-point Module 6 registration & attendance test suite
+│   ├── test-module7.js             # Automated 27-point Module 7 notifications & reminders test suite
+│   └── run-reminders.js            # Module 7 CLI scheduled reminder runner
 ├── package.json                    # Project dependencies & scripts
 ├── README.md                       # Comprehensive documentation
 └── TESTING.md                      # Detailed manual testing guide
@@ -1276,6 +1586,9 @@ node scripts/test-module5.js
 
 # Run Module 6 Registration & Attendance tests (21 checks)
 node scripts/test-module6.js
+
+# Run Module 7 Notifications & Reminders tests (27 checks)
+node scripts/test-module7.js
 ```
 
 ### Method B: Manual Testing Walkthrough (Module 6: Registration & Attendance)
@@ -1284,5 +1597,13 @@ node scripts/test-module6.js
 3. **Waitlist & Auto-Promotion:** When an event's confirmed registrations equal its venue capacity, the next student attempting to register receives a **Waitlisted (Position #1)** badge. If the registered student cancels their ticket, the waitlisted student is automatically promoted and issued a confirmed QR ticket!
 4. **Organiser QR Check-in Console:** Log in as the club organiser (`rishiraj18sep2005@gmail.com`), go to **My Events** (`/my-events`), and click **📋 Attendees & QR**. You can scan student QR passes or type their ticket code to check them in with real-time attendance rate updates.
 5. **Attendance Export (CSV):** Click **⬇️ Export Attendance (CSV)** on the attendees console to download a complete, formatted spreadsheet for college records.
+
+
+### Method C: Manual Testing Walkthrough (Module 7: Notifications & Reminders)
+1. **In-App Notification Bell & Center:** Open [http://localhost:3000/notifications](http://localhost:3000/notifications) (or click **🔔 Notifications** in the top navigation bar).
+2. **Notification Preferences:** Click **⚙️ Preferences** to toggle channels (In-App, Email, Push) and categories (New Event alerts, Reminders, Status changes). Click **💾 Save Preferences**.
+3. **Simulated Outbox Preview:** In the preferences panel, click **📬 Inspect Simulated Email/Push Outbox** to view recent outbound emails and push payloads.
+4. **Trigger Reminders On-Demand:** Click **⏱️ Run Reminders** to run the scheduled reminder engine immediately on upcoming events.
+5. **Mark Read / Clear:** Click **✓ Mark Read** on individual notification cards or **✓ Mark All Read** to clear unread badge counters.
 
 For full step-by-step browser testing for all modules, refer to **[TESTING.md](TESTING.md)**.

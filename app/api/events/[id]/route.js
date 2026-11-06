@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { readEvents, saveEvents } from '@/lib/db';
 import { getLoggedInUser } from '@/lib/auth';
+import { emitEvent, EVENT_TYPES } from '@/lib/eventBus.js';
+import '@/lib/notifications.js';
 
 // GET /api/events/[id] - get single event details
 export async function GET(request, { params }) {
@@ -135,6 +137,13 @@ export async function PUT(request, { params }) {
     events[eventIndex] = updatedEvent;
     saveEvents(events);
 
+    // Module 7: Trigger event-driven notification for event updates / venue changes
+    emitEvent(EVENT_TYPES.EVENT_UPDATED, {
+      event: updatedEvent,
+      previousEvent: currentEvent,
+      changes: body,
+    });
+
     return NextResponse.json(
       {
         message: 'Event updated successfully',
@@ -188,6 +197,9 @@ export async function DELETE(request, { params }) {
     event.updatedAt = new Date().toISOString();
 
     saveEvents(events);
+
+    // Module 7: Trigger event cancellation alert
+    emitEvent(EVENT_TYPES.EVENT_CANCELLED, { event });
 
     return NextResponse.json(
       {

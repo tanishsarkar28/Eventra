@@ -9,11 +9,31 @@ import { NextResponse } from 'next/server';
  * 3. Module 2: /events/:id -> routes HTML to UI page (Event Detail / Create / Edit),
  *    or JSON/POST/PUT/DELETE to /api/events handlers.
  * 4. Module 5: /discover -> routes HTML to UI feed, or JSON to /api/discover.
+ * 5. Module 6: /attendance/scan -> routes to /api/attendance/scan.
+ * 6. Module 7: /notifications -> routes HTML to UI Notifications Center, or API JSON to /api/notifications.
  */
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   const accept = request.headers.get('accept') || '';
   const isHtml = accept.includes('text/html');
+
+  // =========================================================================
+  // Module 7: Notifications & Reminders Dual-Access Routing
+  // =========================================================================
+  if (pathname === '/notifications') {
+    if (request.method === 'GET' && isHtml) {
+      return NextResponse.next();
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = '/api/notifications';
+    return NextResponse.rewrite(url);
+  }
+
+  if (pathname.startsWith('/notifications/')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/api' + pathname;
+    return NextResponse.rewrite(url);
+  }
 
   // =========================================================================
   // Module 4: Clash Management Dual-Access Routing
@@ -160,5 +180,7 @@ export const config = {
     '/discover',
     '/attendance',
     '/attendance/:path*',
+    '/notifications',
+    '/notifications/:path*',
   ],
 };

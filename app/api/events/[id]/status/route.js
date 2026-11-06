@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { readEvents, saveEvents, readVenues, readBookings, saveBookings } from '@/lib/db';
 import { getLoggedInUser } from '@/lib/auth';
 import { validateVenueAndTime } from '@/lib/venueValidation';
+import { emitEvent, EVENT_TYPES } from '@/lib/eventBus.js';
+import '@/lib/notifications.js';
 
 // PATCH /api/events/[id]/status - update event status
 export async function PATCH(request, { params }) {
@@ -103,6 +105,14 @@ export async function PATCH(request, { params }) {
 
     events[eventIndex] = event;
     saveEvents(events);
+
+    // Module 7: Trigger event-driven status change notifications
+    if (targetStatus === 'Published') {
+      emitEvent(EVENT_TYPES.EVENT_APPROVED, { event, approver: user });
+      emitEvent(EVENT_TYPES.EVENT_PUBLISHED, { event });
+    } else if (targetStatus === 'Cancelled') {
+      emitEvent(EVENT_TYPES.EVENT_CANCELLED, { event });
+    }
 
     // 8. synchronize with Module 3 Venue Bookings
     try {

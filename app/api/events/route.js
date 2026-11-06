@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { readEvents, saveEvents } from '@/lib/db';
 import { getLoggedInUser } from '@/lib/auth';
+import { emitEvent, EVENT_TYPES } from '@/lib/eventBus.js';
+import '@/lib/notifications.js';
 
 // GET /api/events - fetch events
 export async function GET(request) {
@@ -122,10 +124,12 @@ export async function POST(request) {
         .filter((t) => t.length > 0);
     }
 
-    // 7. determine initial status (organisers cannot directly publish)
+    // 7. determine initial status (organisers cannot directly publish, admins can)
     let initialStatus = 'Draft';
     if (body.status === 'Pending Approval') {
       initialStatus = 'Pending Approval';
+    } else if (body.status === 'Published' && user.role === 'admin') {
+      initialStatus = 'Published';
     }
 
     const isPaid = Boolean(body.isPaid === true || body.isPaid === 'true' || body.freeOrPaid === 'paid');
@@ -160,6 +164,11 @@ export async function POST(request) {
     const events = readEvents();
     events.push(newEvent);
     saveEvents(events);
+
+    // Module 7: If created directly as Published (e.g. by admin), alert interested students
+    if (newEvent.status === 'Published') {
+      emitEvent(EVENT_TYPES.EVENT_PUBLISHED, { event: newEvent });
+    }
 
     // 10. return created event
     return NextResponse.json(
