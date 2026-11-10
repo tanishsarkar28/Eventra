@@ -16,6 +16,7 @@ export default function RootLayout({ children }) {
             <nav>
               <Link href="/">Home</Link>
               <Link href="/discover">Discover Events</Link>
+              <Link href="/calendar">📅 My Calendar</Link>
               <Link href="/notifications">🔔 Notifications</Link>
               <Link href="/register">Register</Link>
               <Link href="/login">Login</Link>

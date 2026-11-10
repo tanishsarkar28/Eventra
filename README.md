@@ -11,7 +11,7 @@ The repository is built following a clean, modular structure with zero complex a
 | Student | Assigned Modules | Current Status |
 | :--- | :--- | :--- |
 | **Student 1 (Tanish)** | **Module 1** (Auth & User Management), **Module 4** (Venue & Clash Management), **Module 7** (Notifications & Reminders) | Module 1 Completed ✅, Module 4 Completed ✅, Module 7 Completed ✅ |
-| **Student 2 (Rishi)** | **Module 2** (Event Management), **Module 5** (Student Event Discovery), **Module 8** | Module 2 Completed ✅, Module 5 Completed ✅ |
+| **Student 2 (Rishi)** | **Module 2** (Event Management), **Module 5** (Student Event Discovery), **Module 8** (Personal Calendar & Schedule Integration) | Module 2 Completed ✅, Module 5 Completed ✅, Module 8 Completed ✅ |
 | **Student 3 (Anush)** | **Module 3** (Venue Management), **Module 6** (Registration & Attendance), **Module 9** | Module 3 Completed ✅, Module 6 Completed ✅ |
 
 ---
@@ -22,7 +22,7 @@ The repository is built following a clean, modular structure with zero complex a
 - **Language:** Plain JavaScript (`.js` files, beginner-friendly, zero TypeScript overhead)
 - **Styling:** Custom lightweight CSS (`app/globals.css`) with clean card containers, modern pill navigation, responsive tables, and status badges. Zero heavy UI frameworks (no Tailwind/Bootstrap required).
 - **Backend & APIs:** Next.js Route Handlers (`app/api/...`) with seamless dual-path compatibility (`/events/...` and `/venues/...`) powered by `middleware.js`.
-- **Database System:** File-based JSON storage inside `data/` (`users.json`, `events.json`, `categories.json`, `tags.json`, `venues.json`, `bookings.json`, `registrations.json`, `waitlist.json`, `tickets.json`, `attendance.json`, `notifications.json`, `notification_preferences.json`, `email_outbox.json`, `push_outbox.json`), accessed via safe atomic read/write functions in `lib/db.js`.
+- **Database System:** File-based JSON storage inside `data/` (`users.json`, `events.json`, `categories.json`, `tags.json`, `venues.json`, `bookings.json`, `registrations.json`, `waitlist.json`, `tickets.json`, `attendance.json`, `notifications.json`, `notification_preferences.json`, `email_outbox.json`, `push_outbox.json`, `timetable.json`), accessed via safe atomic read/write functions in `lib/db.js`.
 - **Authentication & Security:** 
   - Password hashing using `bcryptjs` with salt.
   - Session issuing & verification using `jsonwebtoken` (JWT).
@@ -1383,6 +1383,136 @@ Simulated mobile delivery log recording push notification payloads with `id`, `u
 
 ---
 
+
+
+---
+
+## 📅 Comprehensive Breakdown of Module 8: Personal Calendar & Schedule Integration
+
+### 1. Purpose & Scope
+Module 8 fits campus events into a student's actual weekly life. While other modules focus on event listings and venue bookings, Module 8 solves the real student problem: **"Can I actually attend this event without missing my classes or double-booking myself?"**
+
+### 2. Core Functional Features Implemented
+1. **Personal Unified Calendar (`/calendar`):**
+   - Displays a weekly agenda (Monday through Sunday) combining:
+     - 📚 Recurring class timetable lectures (e.g., DBMS, OS, Data Structures).
+     - 🎟️ Confirmed registered campus events.
+     - ⭐ Bookmarked events saved for later.
+2. **Class Timetable Management:**
+   - **Manual Slot Entry:** Students can add recurring lecture slots with Subject name, Day of week, Start time, End time, Room/Lab, and Instructor.
+   - **1-Click College Preset:** "⚡ Load Sample College Timetable" automatically populates a realistic engineering schedule (DBMS, OS, AI, Networks).
+   - **File Import:** Supports importing weekly schedules directly from `.json` or `.csv` files.
+   - **Slot Deletion:** Instant removal of slots with confirmation.
+3. **Personal Clash Warning Engine:**
+   - Detects when an event clashes with recurring class lectures:
+     - *"Personal Clash: This event overlaps your DBMS Lecture on Thursday from 10:00 to 11:00 (Room: Lab 3)."*
+   - Detects double-booking when an event overlaps another already registered event:
+     - *"Personal Clash: You are already registered for 'Robotics Seminar' on 2026-11-13 from 14:00 to 16:00."*
+   - Integrated directly into the **Module 6 Event Registration flow** (`registerStudent`), blocking conflicting registrations with `HTTP 409 Conflict` unless overridden.
+4. **Free-Slot Finder:**
+   - Computes open, unoccupied time blocks between campus hours (`08:00` to `18:00`) for any selected date.
+   - Merges contiguous busy intervals and reports exact available time blocks and duration in minutes.
+5. **.ics Calendar Export (RFC 5545):**
+   - One-click `.ics` download (`/calendar/export.ics` and `/api/calendar/export.ics`).
+   - Generates standards-compliant iCalendar files compatible with **Google Calendar**, **Apple Calendar**, and **Microsoft Outlook**.
+   - Includes recurring weekly lecture rules (`RRULE:FREQ=WEEKLY;BYDAY=TH`).
+
+---
+
+### 3. Mathematical Overlap & Free-Slot Interval Algorithms
+
+#### A. The Golden Interval Overlap Formula
+Two time intervals `[A_start, A_end]` and `[B_start, B_end]` collide if and only if:
+```text
+(A_start < B_end) AND (A_end > B_start)
+```
+- If an event runs `10:30 - 12:00` and a DBMS lecture runs `10:00 - 11:00`:
+  - `10:30 < 11:00` (True) AND `12:00 > 10:00` (True) => **COLLISION DETECTED**.
+- If an event starts exactly when class ends (`11:00 - 12:00`):
+  - `11:00 < 11:00` (False) => **NO CLASH (Adjacent times permitted)**.
+
+#### B. Chronological Gap-Finding Algorithm for Free Slots
+1. Collect all busy intervals for date D (timetable lectures for that day of week + registered events).
+2. Sort intervals chronologically by `startTime`.
+3. Merge overlapping or contiguous busy intervals.
+4. Iterate from `dayStart` (`08:00`) to `dayEnd` (`18:00`):
+   - If `currentTime < busy.startTime`, add `[currentTime, busy.startTime]` as a **Free Slot**.
+   - Advance `currentTime` to `max(currentTime, busy.endTime)`.
+5. If `currentTime < dayEnd`, append final interval `[currentTime, dayEnd]`.
+
+---
+
+### 4. Data Entities & Schema
+
+#### A. TimetableSlot (`data/timetable.json`)
+```json
+[
+  {
+    "id": "slot_1731234567_abc12",
+    "userId": "1730000000001",
+    "subject": "DBMS Lecture",
+    "dayOfWeek": "Thursday",
+    "startTime": "10:00",
+    "endTime": "11:00",
+    "room": "Lab 3",
+    "instructor": "Prof. Sharma",
+    "createdAt": "2026-11-10T10:00:00.000Z"
+  }
+]
+```
+
+#### B. PersonalSchedule Composite Entity
+```json
+{
+  "user": { "id": "1730000000001", "name": "Rishi Student", "role": "student" },
+  "schedule": {
+    "timetable": [ ... ],
+    "registeredEvents": [ ... ],
+    "bookmarkedEvents": [ ... ]
+  },
+  "weeklyAgenda": {
+    "Monday": [ ... ],
+    "Tuesday": [ ... ],
+    "Wednesday": [ ... ],
+    "Thursday": [ ... ],
+    "Friday": [ ... ],
+    "Saturday": [ ... ],
+    "Sunday": [ ... ]
+  },
+  "freeSlots": [
+    { "startTime": "08:00", "endTime": "10:00", "durationMinutes": 120 },
+    { "startTime": "11:00", "endTime": "14:00", "durationMinutes": 180 },
+    { "startTime": "16:00", "endTime": "18:00", "durationMinutes": 120 }
+  ]
+}
+```
+
+---
+
+### 5. Module 8 API Endpoints
+| HTTP Method | Route & Middleware Alias | Access Level | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/calendar` & `/api/calendar` | Authenticated | Fetches student schedule, weekly agenda, and optional `?date=` free slots. |
+| `POST` | `/calendar/timetable` & `/api/calendar/timetable` | Authenticated | Adds a single timetable slot or bulk array (`slots: [...]`) from file import. |
+| `GET` | `/calendar/timetable` & `/api/calendar/timetable` | Authenticated | Lists all recurring class timetable slots for the logged-in student. |
+| `DELETE` | `/calendar/timetable?id=` & `/api/calendar/timetable?id=` | Authenticated | Removes a specific timetable slot by ID. |
+| `GET` | `/calendar/clashes` & `/api/calendar/clashes` | Authenticated | Checks if `?eventId=` or custom date/time overlaps lectures or registered events. |
+| `GET` | `/calendar/export.ics` & `/api/calendar/export.ics` | Authenticated | Generates and downloads an RFC 5545 iCalendar (`.ics`) file. |
+
+---
+
+### 6. Viva & Evaluation Cheat Sheet 🎓
+
+| Viva Question Asked by Examiner | Recommended Direct Answer |
+| :--- | :--- |
+| **Q1: Why is personal schedule clash detection different from venue clash detection?** | *"Venue clash detection (Module 4) checks if two physical events are competing for the same room. Personal schedule clash detection (Module 8) checks the student's personal schedule: preventing double-booking across registered events and warning when an event overlaps their recurring class timetable."* |
+| **Q2: How does the system map a specific calendar date (e.g. `2026-11-12`) to a recurring weekly lecture?** | *"The helper `getDayOfWeekFromDate()` parses the target event date and extracts the day name (e.g., 'Thursday'). The engine filters the student's `timetable.json` for slots on that day of week, and applies the interval overlap condition `(startA < endB) && (endA > startB)`."* |
+| **Q3: How does the `.ics` export work with Google Calendar or Apple Calendar?** | *"We generate an RFC 5545 compliant iCalendar string containing `BEGIN:VCALENDAR`, `VEVENT` blocks with UTC/local timestamps, and `RRULE:FREQ=WEEKLY;BYDAY=...` recurrence rules. We serve it with `Content-Type: text/calendar` and `Content-Disposition: attachment; filename=eventra-calendar.ics`, enabling one-click import into any calendar app."* |
+| **Q4: How does the free-slot calculation handle multiple overlapping classes?** | *"The algorithm first sorts all occupied intervals chronologically and merges contiguous or overlapping intervals into unified busy blocks. It then scans between `08:00` and `18:00` to find remaining gaps, accurately outputting start times, end times, and duration minutes."* |
+| **Q5: Is Module 8 integrated into Module 6 registration?** | *"Yes! In `lib/registrationEngine.js`, before confirming a registration, `checkPersonalScheduleClash()` is executed. If a clash exists with the student's class timetable or an existing event, registration is rejected with HTTP 409 Conflict, protecting the student's attendance."* |
+
+---
+
 ## 📂 Project Directory Structure
 
 ```text
@@ -1397,6 +1527,11 @@ Eventra/
 │   │   │   ├── login/route.js      # POST /api/auth/login
 │   │   │   ├── logout/route.js     # POST /api/auth/logout
 │   │   │   └── register/route.js   # POST /api/auth/register
+│   │   ├── calendar/
+│   │   │   ├── clashes/route.js    # GET /api/calendar/clashes (Module 8 Clash Checker)
+│   │   │   ├── export.ics/route.js # GET /api/calendar/export.ics (Module 8 .ics Calendar Export)
+│   │   │   ├── timetable/route.js  # GET, POST, DELETE /api/calendar/timetable
+│   │   │   └── route.js            # GET /api/calendar (Schedule, Weekly Agenda & Free Slots)
 │   │   ├── categories/route.js     # GET, POST /api/categories
 │   │   ├── notifications/
 │   │   │   ├── [id]/
@@ -1513,6 +1648,7 @@ Eventra/
 │   ├── test-module5.js             # Automated 12-point Module 5 event discovery test suite
 │   ├── test-module6.js             # Automated 21-point Module 6 registration & attendance test suite
 │   ├── test-module7.js             # Automated 27-point Module 7 notifications & reminders test suite
+│   ├── test-module8.js             # Automated 30-point Module 8 personal calendar test suite
 │   └── run-reminders.js            # Module 7 CLI scheduled reminder runner
 ├── package.json                    # Project dependencies & scripts
 ├── README.md                       # Comprehensive documentation
@@ -1605,5 +1741,15 @@ node scripts/test-module7.js
 3. **Simulated Outbox Preview:** In the preferences panel, click **📬 Inspect Simulated Email/Push Outbox** to view recent outbound emails and push payloads.
 4. **Trigger Reminders On-Demand:** Click **⏱️ Run Reminders** to run the scheduled reminder engine immediately on upcoming events.
 5. **Mark Read / Clear:** Click **✓ Mark Read** on individual notification cards or **✓ Mark All Read** to clear unread badge counters.
+
+
+
+### Method D: Manual Testing Walkthrough (Module 8: Personal Calendar & Timetable)
+1. **Open Calendar View:** Log in as student and click **📅 My Calendar** in the navigation bar (or navigate to [http://localhost:3000/calendar](http://localhost:3000/calendar)).
+2. **Weekly Agenda:** View the unified weekly schedule showing both registered campus events and classes.
+3. **Add Timetable Lectures:** Click the **📚 Manage Timetable** tab. You can add a manual slot (e.g. *DBMS Lecture*, *Thursday*, *10:00 - 11:00*, *Lab 3*), or simply click **⚡ Load Sample College Timetable** to instantly load a full semester schedule!
+4. **Test Personal Clash Warning:** Click the **⚠️ Personal Clash Checker** tab. Pick an event or type a time overlapping Thursday 10:00 - 11:00. The system displays an immediate warning: *"Personal Clash: This event overlaps your DBMS Lecture on Thursday from 10:00 to 11:00 (Room: Lab 3)"*.
+5. **View Free Slots:** Click the **⏰ Free-Slot View** tab, pick any date, and see available open hours (e.g., *08:00 - 10:00 (120 mins)* and *11:00 - 14:00 (180 mins)*).
+6. **Export .ics Calendar:** Click **📥 Export .ics (Sync with Google / Apple Calendar)** in the top right to download your standard calendar file.
 
 For full step-by-step browser testing for all modules, refer to **[TESTING.md](TESTING.md)**.
