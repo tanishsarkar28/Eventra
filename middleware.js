@@ -11,11 +11,30 @@ import { NextResponse } from 'next/server';
  * 4. Module 5: /discover -> routes HTML to UI feed, or JSON to /api/discover.
  * 5. Module 6: /attendance/scan -> routes to /api/attendance/scan.
  * 6. Module 7: /notifications -> routes HTML to UI Notifications Center, or API JSON to /api/notifications.
+ * 7. Module 8: /calendar -> routes HTML to UI Calendar page, or API JSON to /api/calendar.
  */
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   const accept = request.headers.get('accept') || '';
   const isHtml = accept.includes('text/html');
+
+  // =========================================================================
+  // Module 8: Personal Calendar & Schedule Integration Dual-Access Routing
+  // =========================================================================
+  if (pathname === '/calendar') {
+    if (request.method === 'GET' && isHtml) {
+      return NextResponse.next();
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = '/api/calendar';
+    return NextResponse.rewrite(url);
+  }
+
+  if (pathname.startsWith('/calendar/')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/api' + pathname;
+    return NextResponse.rewrite(url);
+  }
 
   // =========================================================================
   // Module 7: Notifications & Reminders Dual-Access Routing
@@ -182,5 +201,7 @@ export const config = {
     '/attendance/:path*',
     '/notifications',
     '/notifications/:path*',
+    '/calendar',
+    '/calendar/:path*',
   ],
 };

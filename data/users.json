@@ -36,5 +36,33 @@
     "interests": [],
     "clubName": "",
     "isVerified": true
+  },
+  {
+    "id": "test_student_m5",
+    "name": "Rahul Sharma",
+    "email": "rahul@campus.edu",
+    "password": "$2a$10$RCZvafUqmEcxDGN7dJkPHuz.9qwfB.rMSai5kk0yeFS8KUriuHXKO",
+    "role": "student",
+    "branch": "Computer Science",
+    "year": "3rd Year",
+    "interests": [
+      "coding",
+      "ai",
+      "hackathon"
+    ],
+    "clubName": "",
+    "isVerified": true
+  },
+  {
+    "id": "1794285471562",
+    "name": "rishi",
+    "email": "rishiraj18sep2004@gmail.com",
+    "password": "$2a$10$GIzoOIwNfj3kZOrewnVMf.NkpXVYnlrGiCBURyi92G/ZNOtA8hmhy",
+    "role": "student",
+    "branch": "",
+    "year": "",
+    "interests": [],
+    "clubName": "",
+    "isVerified": true
   }
 ]
