@@ -7,9 +7,7 @@
     "role": "organiser",
     "branch": "Cse",
     "year": "3rd",
-    "interests": [
-      "Esports"
-    ],
+    "interests": ["Esports"],
     "clubName": "Meow Club",
     "isVerified": true
   },
@@ -45,11 +43,7 @@
     "role": "student",
     "branch": "Computer Science",
     "year": "3rd Year",
-    "interests": [
-      "coding",
-      "ai",
-      "hackathon"
-    ],
+    "interests": ["coding", "ai", "hackathon"],
     "clubName": "",
     "isVerified": true
   },
@@ -58,6 +52,18 @@
     "name": "rishi",
     "email": "rishiraj18sep2004@gmail.com",
     "password": "$2a$10$GIzoOIwNfj3kZOrewnVMf.NkpXVYnlrGiCBURyi92G/ZNOtA8hmhy",
+    "role": "student",
+    "branch": "",
+    "year": "",
+    "interests": [],
+    "clubName": "",
+    "isVerified": true
+  },
+  {
+    "id": "1794378066876",
+    "name": "Anush Choudhary",
+    "email": "baghgems612@gmail.com",
+    "password": "$2a$10$KpN441LNf6e48Hi7Cf/PiuryiNpshumG5uDTcysMfgFfqrkFtMDOG",
     "role": "student",
     "branch": "",
     "year": "",
