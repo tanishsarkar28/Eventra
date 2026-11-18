@@ -12,11 +12,25 @@ import { NextResponse } from 'next/server';
  * 5. Module 6: /attendance/scan -> routes to /api/attendance/scan.
  * 6. Module 7: /notifications -> routes HTML to UI Notifications Center, or API JSON to /api/notifications.
  * 7. Module 8: /calendar -> routes HTML to UI Calendar page, or API JSON to /api/calendar.
+ * 8. Module 9: /admin/* -> routes admin REST APIs (/admin/pending-events, /admin/events/:id/approve, /admin/analytics, /admin/audit-log, /admin/reports) to /api/admin/*
  */
 export function middleware(request) {
   const { pathname } = request.nextUrl;
   const accept = request.headers.get('accept') || '';
   const isHtml = accept.includes('text/html');
+
+  // =========================================================================
+  // Module 9: Admin Dashboard, Moderation & Analytics Dual-Access Routing
+  // =========================================================================
+  if (pathname === '/admin') {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith('/admin/')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/api' + pathname;
+    return NextResponse.rewrite(url);
+  }
 
   // =========================================================================
   // Module 8: Personal Calendar & Schedule Integration Dual-Access Routing
@@ -158,6 +172,12 @@ export function middleware(request) {
       return NextResponse.rewrite(url);
     }
 
+    if (pathname.endsWith('/report')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/api' + pathname;
+      return NextResponse.rewrite(url);
+    }
+
     if (pathname === '/events/search') {
       const url = request.nextUrl.clone();
       url.pathname = '/api/events/search';
@@ -190,6 +210,8 @@ export function middleware(request) {
 
 export const config = {
   matcher: [
+    '/admin',
+    '/admin/:path*',
     '/venues',
     '/venues/:path*',
     '/clash',

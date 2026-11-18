@@ -20,6 +20,11 @@ export default function EventDetailPage({ params }) {
   const [answers, setAnswers] = useState({ rollNo: '', notes: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [scheduleClash, setScheduleClash] = useState(null);
+  // Module 9 Moderation Report State
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("Inappropriate Content");
+  const [reportDescription, setReportDescription] = useState("");
+  const [reportSubmitting, setReportSubmitting] = useState(false);
 
   // Load event details, logged-in user, bookmarks, and registration status
   async function loadData() {
@@ -68,6 +73,36 @@ export default function EventDetailPage({ params }) {
   useEffect(() => {
     loadData();
   }, [id]);
+
+  // Handle reporting event (Module 9 Moderation)
+  async function handleReportEvent(e) {
+    e.preventDefault();
+    if (!user) {
+      alert("Please log in first to report an event!");
+      return;
+    }
+    try {
+      setReportSubmitting(true);
+      const res = await fetch(`/api/events/${id}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reportReason, description: reportDescription }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage(data.message || "Report submitted to campus moderation.");
+        setShowReportModal(false);
+        setReportDescription("");
+        setTimeout(() => setMessage(""), 4000);
+      } else {
+        alert(data.message || "Failed to submit report.");
+      }
+    } catch (err) {
+      alert("Network error submitting report.");
+    } finally {
+      setReportSubmitting(false);
+    }
+  }
 
   // Handle bookmarking
   async function handleBookmark() {
@@ -190,7 +225,56 @@ export default function EventDetailPage({ params }) {
         <Link href="/discover">← Back to Discover Events</Link>
       </p>
 
-      <h2>{event.title}</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+        <h2 style={{ margin: 0 }}>{event.title}</h2>
+        <button
+          onClick={() => setShowReportModal(true)}
+          style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}
+          title="Report this event to campus administration"
+        >
+          🚩 Report Event
+        </button>
+      </div>
+
+      {/* Module 9 Moderation Report Modal */}
+      {showReportModal && (
+        <div style={{ background: '#fff5f5', border: '1px solid #feb2b2', borderRadius: '8px', padding: '16px', marginBottom: '16px' }}>
+          <h4 style={{ margin: '0 0 8px 0', color: '#991b1b' }}>🚩 Report Event to Campus Administration</h4>
+          <form onSubmit={handleReportEvent}>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 600 }}>Reason for Flagging:</label>
+              <select
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                style={{ width: '100%', padding: '6px', marginTop: '4px' }}
+              >
+                <option value="Inappropriate Content">Inappropriate Content / Language</option>
+                <option value="Misleading Information">Misleading / Fake Event Information</option>
+                <option value="Safety Concern">Campus Safety or Hazard Concern</option>
+                <option value="Spam">Spam / Commercial Advertisement</option>
+                <option value="Other">Other Violation</option>
+              </select>
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 600 }}>Description (Optional):</label>
+              <textarea
+                value={reportDescription}
+                onChange={(e) => setReportDescription(e.target.value)}
+                placeholder="Provide additional details for the moderator..."
+                style={{ width: '100%', padding: '6px', marginTop: '4px', minHeight: '60px' }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="submit" disabled={reportSubmitting} style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', fontWeight: 600, cursor: 'pointer' }}>
+                {reportSubmitting ? 'Submitting...' : 'Submit Report'}
+              </button>
+              <button type="button" onClick={() => setShowReportModal(false)} style={{ background: '#f1f5f9' }}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {message && (
         <div style={{ padding: '10px', background: '#d4edda', color: '#155724', borderRadius: '4px', marginBottom: '15px' }}>

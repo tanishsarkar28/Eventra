@@ -306,6 +306,53 @@ Follow these step-by-step instructions to test all features of Module 1 and Modu
 7. **Run Reminders On-Demand:** Click **⏱️ Run Reminders** on the notifications page (or run `node scripts/run-reminders.js` in your terminal). The engine evaluates upcoming events and issues **⏰ 24h Reminder** and **🚨 1h Final Call** alerts!
 8. **Inspect Simulated Multi-Channel Outbox:** Click **⚙️ Preferences** -> **📬 Inspect Simulated Email/Push Outbox** to view outbound email logs and push alert transmissions!
 
+#### H. Module 9: Admin Dashboard, Moderation & Analytics Walkthrough
+
+1. **Open Admin Command Center:**
+   - Log in as the administrator (`admin@eventra.edu` / `admin123`).
+   - Click **Admin** in the top navigation bar or navigate directly to [http://localhost:3000/admin](http://localhost:3000/admin).
+
+2. **Test Analytics & Real-Time Insights:**
+   - On the default **📊 Analytics & Insights** tab, observe the executive KPI cards: Total Events, Confirmed Registrations, Gate Check-In Attendees, Overall Attendance Rate (%), Active Venues, Pending Reports, and Recorded Audit Logs.
+   - Inspect the **Events Per Week** cadence table showing peak and exam periods.
+   - Review **Venue Utilisation (%)** progress bars showing exact occupied vs operating hours for each campus venue.
+   - Examine **Registration vs Attendance Rate (%)** for published events, pinpointing drop-off rates.
+   - Check the **Popular Categories** leaderboard ranked by total registrations and bookmarks.
+   - Review the **Clash Frequency & Distribution** panel tracking venue, capacity, organiser, audience, and blackout conflicts.
+
+3. **Test Pending Events Approval & Clash Override:**
+   - Click the **⏳ Pending Events** tab.
+   - Events submitted by organisers appear with instant pre-calculated clash badges:
+     - **Clean Event:** Shows green `✅ No Clashes`. Click **✓ Approve & Publish** to publish the event immediately.
+     - **Conflicting Event:** Shows red `⚠️ Clash Detected` with exact clash details (e.g. venue already booked, capacity exceeded).
+     - Click **✓ Approve & Publish** on a clashing event: Notice the system displays a safety modal requiring an explicit confirmation checkbox and an **Override Reason**.
+     - Check the box, enter *"Approved for college annual day festival with special provost permission"*, and click **Force Publish with Override**.
+     - Verify the event transitions to `Published` status and the override is logged.
+
+4. **Test Event Rejection with Organiser Feedback:**
+   - On another pending event, click **✕ Reject Proposal**.
+   - An explanation modal appears. Type feedback: *"Please choose a different venue due to sound restrictions during evening hours."*
+   - Click **Confirm Rejection**.
+   - **Expected Result:** The event status rolls back to `Draft`, returning editing control to the organiser. The rejection reason is sent as an in-app alert to the organiser.
+
+5. **Test Student Content Moderation & Reporting:**
+   - Open an incognito browser window or log in as a student (`rahul@campus.edu` / `pass123`).
+   - Open any published event page ([http://localhost:3000/events/EVENT_ID](http://localhost:3000/events/EVENT_ID)).
+   - Click the **🚩 Report Event** button.
+   - Select reason: `Inappropriate Content / Code of Conduct Violation`.
+   - Enter report details: *"Poster contains unapproved offensive imagery."* and click **Submit Report**.
+   - Switch back to the Admin Console under the **🚩 Moderation Reports** tab.
+   - Notice the pending report card with the student's name, reason, and timestamp.
+   - Click **Resolve & Cancel Event**. Enter admin resolution notes.
+   - **Expected Result:** The event is immediately cancelled, registered attendees are alerted, and the report status updates to `Resolved`.
+
+6. **Test Tamper-Evident Audit Log:**
+   - Click the **📜 Audit Log** tab.
+   - Review the full chronological ledger of all administrative actions: `EVENT_APPROVED`, `CLASH_OVERRIDDEN`, `EVENT_REJECTED`, and `REPORT_RESOLVED`.
+   - Filter logs by action type (e.g., `CLASH_OVERRIDDEN`) or target type (`event`).
+
+---
+
 ## 5. Automated Testing Scripts
 You can run the complete automated test suites:
 ```bash
@@ -326,6 +373,12 @@ node scripts/test-module6.js
 
 # Run Module 7 Notifications & Reminders tests (27 checks)
 node scripts/test-module7.js
+
+# Run Module 8 Personal Calendar & Timetable tests (30 checks)
+node scripts/test-module8.js
+
+# Run Module 9 Admin Dashboard, Moderation & Analytics tests (28 checks)
+node scripts/test-module9.js
 ```
 
 ---

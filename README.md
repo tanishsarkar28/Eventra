@@ -12,7 +12,7 @@ The repository is built following a clean, modular structure with zero complex a
 | :--- | :--- | :--- |
 | **Student 1 (Tanish)** | **Module 1** (Auth & User Management), **Module 4** (Venue & Clash Management), **Module 7** (Notifications & Reminders) | Module 1 Completed ✅, Module 4 Completed ✅, Module 7 Completed ✅ |
 | **Student 2 (Rishi)** | **Module 2** (Event Management), **Module 5** (Student Event Discovery), **Module 8** (Personal Calendar & Schedule Integration) | Module 2 Completed ✅, Module 5 Completed ✅, Module 8 Completed ✅ |
-| **Student 3 (Anush)** | **Module 3** (Venue Management), **Module 6** (Registration & Attendance), **Module 9** | Module 3 Completed ✅, Module 6 Completed ✅ |
+| **Student 3 (Anush)** | **Module 3** (Venue Management), **Module 6** (Registration & Attendance), **Module 9** (Admin Dashboard, Moderation & Analytics) | Module 3 Completed ✅, Module 6 Completed ✅, Module 9 Completed ✅ |
 
 ---
 
@@ -21,8 +21,8 @@ The repository is built following a clean, modular structure with zero complex a
 - **Frontend Framework:** Next.js 14 (App Router) + React 18
 - **Language:** Plain JavaScript (`.js` files, beginner-friendly, zero TypeScript overhead)
 - **Styling:** Custom lightweight CSS (`app/globals.css`) with clean card containers, modern pill navigation, responsive tables, and status badges. Zero heavy UI frameworks (no Tailwind/Bootstrap required).
-- **Backend & APIs:** Next.js Route Handlers (`app/api/...`) with seamless dual-path compatibility (`/events/...` and `/venues/...`) powered by `middleware.js`.
-- **Database System:** File-based JSON storage inside `data/` (`users.json`, `events.json`, `categories.json`, `tags.json`, `venues.json`, `bookings.json`, `registrations.json`, `waitlist.json`, `tickets.json`, `attendance.json`, `notifications.json`, `notification_preferences.json`, `email_outbox.json`, `push_outbox.json`, `timetable.json`), accessed via safe atomic read/write functions in `lib/db.js`.
+- **Backend & APIs:** Next.js Route Handlers (`app/api/...`) with seamless dual-path compatibility (`/events/...`, `/venues/...`, and `/admin/...`) powered by `middleware.js`.
+- **Database System:** File-based JSON storage inside `data/` (`users.json`, `events.json`, `categories.json`, `tags.json`, `venues.json`, `bookings.json`, `registrations.json`, `waitlist.json`, `tickets.json`, `attendance.json`, `notifications.json`, `notification_preferences.json`, `email_outbox.json`, `push_outbox.json`, `timetable.json`, `audit_logs.json`, `reports.json`, `analytics_snapshots.json`), accessed via safe atomic read/write functions in `lib/db.js`.
 - **Authentication & Security:** 
   - Password hashing using `bcryptjs` with salt.
   - Session issuing & verification using `jsonwebtoken` (JWT).
@@ -1513,14 +1513,303 @@ Two time intervals `[A_start, A_end]` and `[B_start, B_end]` collide if and only
 
 ---
 
+## 🛡️ Comprehensive Breakdown of Module 9: Admin Dashboard, Moderation & Analytics
+
+### 1. Purpose & Scope
+Module 9 provides college administrators with a centralized **Command Center** for oversight, quality control, student safety, and data-driven campus planning.
+
+While earlier modules empower organisers to create events and students to discover and register for them, Module 9 ensures that:
+- Inappropriate or dangerous events cannot be published.
+- Scheduling conflicts are caught before they disrupt college operations (with explicit administrative override authority).
+- Students have a safe reporting mechanism to flag spam, offensive, or policy-violating events.
+- Every administrative action is permanently recorded in an immutable **Audit Log**.
+- Deans and administrators have quantitative insights into venue utilisation, attendance drop-off, popular event categories, and scheduling clash trends.
+
+---
+
+### 2. Explain Module 9 Like You're Explaining to a 5-Year-Old 👶
+
+| School Life Analogy 🏫 | What It Represents in Eventra Module 9 | Why It Matters |
+| :--- | :--- | :--- |
+| **The School Principal's Desk** 👨‍🏫 | **The Admin Command Center (`/admin`)** | Organisers cannot just run wild. Someone with a big badge reviews club proposals before anyone is allowed through the school gates. |
+| **The Traffic Cop's Whistle** 👮 | **Clash Detection & Admin Override** | If two clubs want the auditorium at the same time, the system blows the whistle! The admin can either tell them to reschedule, or grant an emergency override with an official reason. |
+| **The Red Flag Incident Box** 🚩 | **Content Moderation & Student Reporting** | If a poster has bad words or a club posts a fake party, any student can drop a red flag report. The admin reviews the report and can ban the event immediately. |
+| **The Principal's Permanent Diary** 📖 | **The Immutable Audit Log (`audit_logs.json`)** | Whenever an admin approves an event, rejects a club, overrides a clash, or bans a poster, it is written in indelible ink with a timestamp so nobody can say "I didn't do it!" |
+| **The Semester Report Card** 📊 | **Campus Analytics & Insights Engine** | Shows the principal how many races happened each week, which rooms were packed vs empty, how many kids actually showed up, and what activities kids love most. |
+
+---
+
+### 3. Core Functional Features Implemented
+
+#### A. Pending Events Approval & Clash Override Engine
+- **Pre-Computed Clash Previews:** When an administrator opens the **Pending Events** queue (`GET /admin/pending-events`), the backend automatically runs Module 4's clash engine on every pending event against all existing bookings and published events.
+- **Visual Clash Badges:** Clean events show a green `✅ No Clashes` badge, while conflicting events show a red `⚠️ Clash Detected` pill with exact clash details (e.g., room occupied, capacity exceeded, audience collision).
+- **Enforced Safety Check:** Clicking **Approve** on a conflicting event is strictly blocked by the backend (`HTTP 409 Conflict`), requiring the administrator to check an explicit **"I understand and want to override this clash"** checkbox and provide a mandatory **Override Reason**.
+- **Audit Traceability:** Approvals and overrides automatically create permanent records in `audit_logs.json` and notify the club organiser via Module 7 notifications.
+
+#### B. Event Rejection with Actionable Feedback
+- Administrators can reject any pending event proposal.
+- A modal prompts for an **Administrative Feedback Reason** (e.g., *"Event exceeds budget limit; please reschedule to Seminar Hall 1"*).
+- The event's status is rolled back from `Pending Approval` to `Draft`, returning editing permissions to the organiser.
+- An alert notification is delivered to the organiser's notification center containing the admin's rejection explanation.
+
+#### C. Student Content Moderation & Reporting System
+- **Student Flagging:** Any authenticated student can flag an event directly from its detail page (`/events/:id`) using the **🚩 Report Event** button (`POST /events/:id/report`).
+- **Standardized Categories:** Reports require choosing a reason (`inappropriate_content`, `spam_misleading`, `safety_hazard`, `copyright_infringement`, or `other`) along with descriptive details.
+- **Admin Moderation Queue:** Pending flags appear in the **Content Moderation** tab (`GET /admin/reports`).
+- **Resolution Actions (`PATCH /admin/reports/:id`):** Administrators can:
+  1. `Resolve & Keep Event`: Mark report investigated and resolved with admin notes.
+  2. `Resolve & Cancel Event`: Cancel the event immediately, notify registered students, and resolve the report.
+  3. `Dismiss Report`: Reject invalid or frivolous flags.
+
+#### D. Immutable Audit Logging Engine
+- Records all sensitive administrative operations across the platform:
+  - `EVENT_APPROVED`, `EVENT_REJECTED`, `CLASH_OVERRIDDEN`
+  - `ORGANISER_VERIFIED`, `ORGANISER_REJECTED`
+  - `REPORT_RESOLVED`, `REPORT_DISMISSED`
+  - `VENUE_CREATED`, `VENUE_UPDATED`, `VENUE_DEACTIVATED`
+  - `BLACKOUT_ADDED`, `BLACKOUT_REMOVED`
+- Every entry stores `timestamp`, `adminId`, `adminName`, `action`, `targetType`, `targetId`, `details`, and `ipAddress`.
+- Queryable via `GET /admin/audit-log` with optional filters (`?action=`, `?targetType=`, `?adminId=`, `?limit=`).
+
+#### E. Campus Analytics & Insights Engine (`GET /admin/analytics`)
+Computes 5 critical administrative metrics in real-time:
+1. **Events Per Week Cadence (`eventsPerWeek`):** Weekly distribution of campus events (e.g., `2026-W47: 5 events`), identifying campus activity peaks and quiet exam weeks.
+2. **Venue Utilisation % (`venueUtilisation`):** Percentage of operating hours each venue is utilized by confirmed bookings and published events.
+3. **Registration vs Attendance Rate % (`registrationVsAttendance`):** Analyzes student drop-off by comparing confirmed registrations against gate QR check-ins across events.
+4. **Popular Categories (`popularCategories`):** Ranks categories (Technical, Cultural, Sports, etc.) by total events, confirmed registrations, bookmarks, and average attendees per event.
+5. **Clash Frequency & Distribution (`clashFrequency`):** Measures the overall clash rate and breaks down conflicts across the 5 clash types (Venue, Capacity, Organiser, Audience, Blackout).
+
+---
+
+### 4. Event Approval & Moderation State Machine
+
+```text
+ ┌───────────────┐
+ │     Draft     │ ◄─── (Organiser edits / Resubmits)
+ └───────┬───────┘
+         │ (Organiser submits for review)
+         ▼
+ ┌──────────────────────┐
+ │   Pending Approval   │
+ └──────────┬───────────┘
+            │
+            ├─────────────────────────────────────────┐
+            │ [Admin Rejection + Reason]              │ [Admin Approval]
+            ▼                                         ▼
+ ┌──────────────────────┐                    ┌──────────────────┐
+ │        Draft         │                    │    Published     │
+ │ (Feedback sent to    │                    │ (Tickets active, │
+ │  organiser outbox)   │                    │  live on feed)   │
+ └──────────────────────┘                    └────────┬─────────┘
+                                                      │
+                                                      │ (Student flags event)
+                                                      ▼
+                                             ┌──────────────────┐
+                                             │ Reported / Under │
+                                             │ Moderation Review│
+                                             └────────┬─────────┘
+                                                      │
+                       ┌──────────────────────────────┴──────────────────────────────┐
+                       │ [Admin Dismisses Report]                                    │ [Admin Cancels Event]
+                       ▼                                                             ▼
+             ┌──────────────────┐                                          ┌──────────────────┐
+             │    Published     │                                          │    Cancelled     │
+             │ (Event remains)  │                                          │ (Audit log saved,│
+             └──────────────────┘                                          │  students alerted)
+                                                                           └──────────────────┘
+```
+
+---
+
+### 5. Mathematical Formulas for Campus Analytics
+
+#### A. Venue Utilisation Rate Formula
+For any campus venue $V$ with operating window $[T_{\text{open}}, T_{\text{close}}]$:
+
+$$\text{Daily Operating Hours} = T_{\text{close}} - T_{\text{open}}$$
+
+$$\text{Weekly Available Operating Hours} = \text{Daily Operating Hours} \times |\text{Available Days}|$$
+
+$$\text{Utilisation Rate (\%)} = \left( \frac{\sum_{i=1}^{n} \text{Duration}(\text{Booking}_i)}{\text{Weekly Available Operating Hours}} \right) \times 100\%$$
+
+*Example:* Main Auditorium is open 12 hours/day for 6 days (72 hours/week). If bookings total 36 hours in a week, its utilisation is exactly $\frac{36}{72} \times 100\% = 50.0\%$.
+
+#### B. Registration to Attendance Conversion Rate Formula
+For any event $E$:
+
+$$\text{Attendance Conversion Rate (\%)} = \left( \frac{\text{Checked-in Attendees (Gate Scans)}}{\text{Confirmed Registrations}} \right) \times 100\%$$
+
+*Example:* If 100 students registered for the AI Hackathon and 85 were scanned in with valid QR passes at the entrance gate, the attendance conversion rate is $\frac{85}{100} \times 100\% = 85.0\%$. The remaining $15.0\%$ represents the drop-off / no-show rate.
+
+#### C. Clash Frequency Rate Formula
+Across all campus events:
+
+$$\text{Clash Rate (\%)} = \left( \frac{\text{Events with Detected Clashes}}{\text{Total Non-Cancelled Events}} \right) \times 100\%$$
+
+*Example:* If 12 events are active and 3 have detected overlaps (e.g. 2 venue conflicts + 1 capacity overflow), the system-wide clash rate is $\frac{3}{12} \times 100\% = 25.0\%$.
+
+---
+
+### 6. Module 9 Database Schemas
+
+#### A. Audit Log Entity (`data/audit_logs.json`)
+```json
+[
+  {
+    "id": "audit_1794979347700_abc12",
+    "timestamp": "2026-11-18T10:30:00.000Z",
+    "adminId": "admin_test_1",
+    "adminName": "System Administrator",
+    "action": "EVENT_APPROVED",
+    "targetType": "event",
+    "targetId": "evt_ai_workshop",
+    "targetName": "Intro to Drone Navigation",
+    "details": {
+      "hasClash": false,
+      "previousStatus": "Pending Approval",
+      "newStatus": "Published",
+      "adminOverride": false
+    },
+    "ipAddress": "127.0.0.1"
+  }
+]
+```
+
+#### B. Content Moderation Report Entity (`data/reports.json`)
+```json
+[
+  {
+    "id": "rep_1794979347710_def34",
+    "eventId": "m9_evt_published",
+    "eventTitle": "National AI Exhibition",
+    "reportedBy": "m9_student_1",
+    "reporterName": "Student Aarav",
+    "reason": "inappropriate_content",
+    "details": "Poster contains copyrighted characters without club permission.",
+    "status": "Pending",
+    "adminNotes": null,
+    "resolvedBy": null,
+    "resolvedAt": null,
+    "createdAt": "2026-11-18T10:31:00.000Z"
+  }
+]
+```
+
+#### C. Analytics Snapshot Entity (`data/analytics_snapshots.json`)
+```json
+[
+  {
+    "id": "snap_1794979347720_ghi56",
+    "generatedAt": "2026-11-18T10:32:00.000Z",
+    "overview": {
+      "totalEvents": 14,
+      "publishedEvents": 10,
+      "pendingEvents": 2,
+      "totalRegistrations": 320,
+      "totalAttendees": 260,
+      "overallAttendanceRate": 81.3,
+      "totalVenues": 4,
+      "pendingReports": 1,
+      "totalAuditLogs": 28
+    },
+    "eventsPerWeek": [
+      { "week": "2026-W47", "count": 5 }
+    ],
+    "venueUtilisation": [
+      { "venueId": "v1", "venueName": "Main Auditorium", "utilisationPercentage": 45.8 }
+    ],
+    "popularCategories": [
+      { "category": "Technical", "eventCount": 6, "totalRegistrations": 180 }
+    ],
+    "clashFrequency": {
+      "totalClashesDetected": 2,
+      "clashRatePercentage": 14.3
+    }
+  }
+]
+```
+
+---
+
+### 7. Module 9 API Endpoints
+
+| HTTP Method | Route & Middleware Alias | Access Level | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/admin/pending-events` & `/api/admin/pending-events` | Admin Only | Lists all pending events with pre-calculated clash detection flags. |
+| `PATCH` | `/admin/events/:id/approve` & `/api/admin/events/:id/approve` | Admin Only | Approves (`action: "approve"`) or Rejects (`action: "reject"`) a pending event. Supports `adminOverride: true` with `overrideReason`. |
+| `GET` | `/admin/analytics` & `/api/admin/analytics` | Admin Only | Computes live executive analytics snapshot (5 metrics + KPI overview). |
+| `GET` | `/admin/audit-log` & `/api/admin/audit-log` | Admin Only | Queries immutable audit log entries with optional action/targetType filters. |
+| `POST` | `/events/:id/report` & `/api/events/:id/report` | Authenticated | Students report or flag an inappropriate or spam event. |
+| `GET` | `/admin/reports` & `/api/admin/reports` | Admin Only | Lists all student moderation reports (`?status=Pending` or `?status=all`). |
+| `PATCH` | `/admin/reports/:id` & `/api/admin/reports/:id` | Admin Only | Resolves or dismisses a report (`action: "resolve"` or `"dismiss"`), with option to cancel the reported event (`cancelEvent: true`). |
+
+#### Sample API Response: `GET /admin/pending-events`
+```json
+{
+  "count": 1,
+  "pendingEvents": [
+    {
+      "id": "evt_ai_workshop",
+      "title": "Concurrent Robotics Showcase",
+      "date": "2026-11-20",
+      "startTime": "11:00",
+      "endTime": "12:30",
+      "venue": "Main Auditorium",
+      "capacity": 100,
+      "status": "Pending Approval",
+      "organiserName": "Robotics Club Lead",
+      "hasClashes": true,
+      "clashSummary": "1 total clash detected (1 CRITICAL). Cannot publish without admin override.",
+      "clashes": [
+        {
+          "type": "Venue clash",
+          "severity": "CRITICAL",
+          "message": "Venue 'Main Auditorium' is already occupied on 2026-11-20 from 10:00 to 13:00."
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+### 8. Viva & Evaluation Cheat Sheet 🎓
+
+| Viva Question Asked by Examiner | Recommended Direct Answer |
+| :--- | :--- |
+| **Q1: What happens if an admin tries to approve an event that clashes with another event?** | *"By default, Module 9 strictly rejects the approval with HTTP 409 Conflict and returns the exact clash breakdown. To publish a clashing event, the admin must explicitly provide `adminOverride: true` and an official `overrideReason`. This override is permanently recorded in the audit log for accountability."* |
+| **Q2: Why is the audit log immutable and who can access it?** | *"The audit log is an append-only ledger in `data/audit_logs.json`. There is no API or UI to edit or delete audit entries. Only users with the `admin` role can query `/admin/audit-log`, preventing unauthorised tampering or concealment of moderation actions."* |
+| **Q3: How does the analytics engine calculate venue utilisation?** | *"It iterates through all confirmed venue bookings and published events, summing the occupied minutes for each venue. It divides this occupied duration by the venue's available weekly operating hours (derived from operating hours and days of operation) to calculate an exact percentage utilisation rate."* |
+| **Q4: How does student content moderation work end-to-end?** | *"A student clicks 'Report Event' on the event page, submitting a reason and description. This creates a record in `data/reports.json`. Admins see this flag in the Moderation tab of the Admin Console and can either dismiss the report or resolve it and automatically cancel the event, alerting all registered attendees."* |
+| **Q5: What is the difference between rejecting an event vs cancelling an event?** | *"Rejection occurs during review while an event is in 'Pending Approval' status; the status reverts to 'Draft' so the organiser can fix issues and resubmit. Cancellation occurs after an event was already 'Published'; it stops registrations, invalidates issued QR passes, and notifies all registered students."* |
+
+---
+
 ## 📂 Project Directory Structure
 
 ```text
 Eventra/
 ├── app/
 │   ├── admin/
-│   │   └── page.js                 # Admin Panel: Verify Organisers & Approve/Publish Events
+│   │   ├── analytics/route.js      # Direct alias for GET /admin/analytics
+│   │   ├── audit-log/route.js      # Direct alias for GET /admin/audit-log
+│   │   ├── events/[id]/approve/route.js # Direct alias for PATCH /admin/events/:id/approve
+│   │   ├── pending-events/route.js # Direct alias for GET /admin/pending-events
+│   │   ├── reports/
+│   │   │   ├── [id]/route.js       # Direct alias for PATCH /admin/reports/:id
+│   │   │   └── route.js            # Direct alias for GET /admin/reports
+│   │   └── page.js                 # Module 9 Admin Command Center UI (Analytics, Moderation, Approvals, Audit)
 │   ├── api/
+│   │   ├── admin/
+│   │   │   ├── analytics/route.js  # GET /api/admin/analytics (Module 9 Analytics Engine)
+│   │   │   ├── audit-log/route.js  # GET /api/admin/audit-log (Module 9 Audit Log query)
+│   │   │   ├── events/[id]/approve/route.js # PATCH /api/admin/events/:id/approve (Approve/Reject & Clash Override)
+│   │   │   ├── pending-events/route.js # GET /api/admin/pending-events (Pending with Clash Flags)
+│   │   │   └── reports/
+│   │   │       ├── [id]/route.js   # PATCH /api/admin/reports/:id (Resolve/Dismiss Report)
+│   │   │       └── route.js        # GET /api/admin/reports (List Moderation Reports)
 │   │   ├── attendance/
 │   │   │   └── scan/route.js       # POST /api/attendance/scan (Organiser QR Ticket Check-In)
 │   │   ├── auth/
@@ -1554,6 +1843,7 @@ Eventra/
 │   │   │   │   ├── attendees/route.js # GET /api/events/:id/attendees (JSON & CSV export)
 │   │   │   │   ├── bookmark/route.js  # POST /api/events/:id/bookmark
 │   │   │   │   ├── register/route.js  # POST, DELETE, GET /api/events/:id/register
+│   │   │   │   ├── report/route.js    # POST /api/events/:id/report (Student Event Reporting)
 │   │   │   │   ├── status/route.js    # PATCH /api/events/:id/status
 │   │   │   │   └── route.js           # GET, PUT, DELETE /api/events/:id
 │   │   │   ├── mine/route.js       # GET /api/events/mine
@@ -1587,8 +1877,9 @@ Eventra/
 │   │   │   ├── attendees/page.js   # Module 6 Attendance Dashboard & QR Scanner
 │   │   │   ├── bookmark/route.js   # Direct alias for POST /events/:id/bookmark
 │   │   │   ├── register/route.js   # Direct alias for /events/:id/register
+│   │   │   ├── report/route.js     # Direct alias for POST /events/:id/report
 │   │   │   ├── status/route.js     # Alias handler for /events/:id/status
-│   │   │   └── page.js             # Event Detail & QR Ticket Pass UI
+│   │   │   └── page.js             # Event Detail, QR Pass & Student Moderation Report UI
 │   │   ├── create/page.js          # Create Event Form (Live Module 4 validation & suggestions)
 │   │   ├── edit/[id]/page.js       # Edit Event Form (Live Module 4 validation)
 │   │   ├── mine/route.js           # Alias handler for /events/mine
@@ -1612,7 +1903,9 @@ Eventra/
 │       ├── edit/[id]/page.js       # Edit Venue Form Page (Admin)
 │       └── page.js                 # Venue Management Dashboard
 ├── data/
+│   ├── analytics_snapshots.json    # Cached snapshots of executive campus analytics
 │   ├── attendance.json             # Event check-in and attendance records
+│   ├── audit_logs.json             # Immutable administrative audit log records
 │   ├── bookmarks.json              # Student bookmarked events
 │   ├── email_outbox.json           # Simulated multi-channel email transmission outbox
 │   ├── bookings.json               # Venue bookings and blackout records database
@@ -1622,12 +1915,16 @@ Eventra/
 │   ├── notifications.json          # In-app notifications database
 │   ├── push_outbox.json            # Simulated push notification transmission outbox
 │   ├── registrations.json          # Student event registrations database
+│   ├── reports.json                # Student content moderation reports database
 │   ├── tags.json                   # Event tags database
 │   ├── tickets.json                # Digital QR tickets database
+│   ├── timetable.json              # Student recurring lecture timetable slots
 │   ├── users.json                  # User accounts database
 │   ├── venues.json                 # Campus venues database
 │   └── waitlist.json               # Event waitlist queues database
 ├── lib/
+│   ├── analyticsEngine.js          # Module 9 Analytics computation engine (5 metrics + KPIs)
+│   ├── auditLogger.js              # Module 9 Immutable administrative audit logging engine
 │   ├── auth.js                     # Bcrypt hashing & JWT token verification helpers
 │   ├── clashEngine.js              # Module 4 Clash Engine (interval logic, 5 clashes, suggestions, report)
 │   ├── db.js                       # Safe atomic JSON read/write persistence functions
@@ -1638,7 +1935,7 @@ Eventra/
 │   ├── recommendation.js           # Module 5 Match score algorithm
 │   ├── registrationEngine.js       # Module 6 Registration, Waitlist FIFO & QR engine
 │   └── venueValidation.js          # Module 3 & 4 Venue, Clash, & Admin Override adapter
-├── middleware.js                   # Dual-path routing for Venues, Clash, Events, Attendance
+├── middleware.js                   # Dual-path routing for Venues, Clash, Events, Attendance, Admin
 ├── public/
 │   └── uploads/                    # Local storage directory for uploaded posters
 ├── scripts/
@@ -1649,6 +1946,7 @@ Eventra/
 │   ├── test-module6.js             # Automated 21-point Module 6 registration & attendance test suite
 │   ├── test-module7.js             # Automated 27-point Module 7 notifications & reminders test suite
 │   ├── test-module8.js             # Automated 30-point Module 8 personal calendar test suite
+│   ├── test-module9.js             # Automated 28-point Module 9 admin dashboard & analytics test suite
 │   └── run-reminders.js            # Module 7 CLI scheduled reminder runner
 ├── package.json                    # Project dependencies & scripts
 ├── README.md                       # Comprehensive documentation
@@ -1725,6 +2023,12 @@ node scripts/test-module6.js
 
 # Run Module 7 Notifications & Reminders tests (27 checks)
 node scripts/test-module7.js
+
+# Run Module 8 Personal Calendar & Timetable tests (30 checks)
+node scripts/test-module8.js
+
+# Run Module 9 Admin Dashboard, Moderation & Analytics tests (28 checks)
+node scripts/test-module9.js
 ```
 
 ### Method B: Manual Testing Walkthrough (Module 6: Registration & Attendance)
@@ -1751,5 +2055,18 @@ node scripts/test-module7.js
 4. **Test Personal Clash Warning:** Click the **⚠️ Personal Clash Checker** tab. Pick an event or type a time overlapping Thursday 10:00 - 11:00. The system displays an immediate warning: *"Personal Clash: This event overlaps your DBMS Lecture on Thursday from 10:00 to 11:00 (Room: Lab 3)"*.
 5. **View Free Slots:** Click the **⏰ Free-Slot View** tab, pick any date, and see available open hours (e.g., *08:00 - 10:00 (120 mins)* and *11:00 - 14:00 (180 mins)*).
 6. **Export .ics Calendar:** Click **📥 Export .ics (Sync with Google / Apple Calendar)** in the top right to download your standard calendar file.
+
+
+### Method E: Manual Testing Walkthrough (Module 9: Admin Dashboard, Moderation & Analytics)
+1. **Access Command Center:** Log in as administrator (`admin@eventra.edu` / `admin123`) and navigate to [http://localhost:3000/admin](http://localhost:3000/admin).
+2. **Analytics & Insights Tab:** View real-time KPI overview cards, Events Per Week cadence, Venue Utilisation percentages with interactive progress bars, Registration vs Attendance conversion rates, Popular Categories leaderboard, and Clash Breakdown across all 5 types.
+3. **Pending Events & Clash Overrides:** Click **⏳ Pending Events**. Note the green `✅ No Clashes` vs red `⚠️ Clash Detected` badges.
+   - For a clean event, click **Approve & Publish** to instantly publish it.
+   - For a clashing event, click **Approve** to view the clash conflict warning. Check **"I understand and want to override this clash"**, enter an administrative justification reason, and click **Force Publish with Override**.
+   - To reject an event, click **Reject Proposal**, enter an explanation reason for the club organiser, and click **Confirm Rejection**. The event reverts to `Draft` and the organiser receives an alert.
+4. **Content Moderation & Reports:** 
+   - In another browser tab as a student, open an event page [http://localhost:3000/events/EVENT_ID](http://localhost:3000/events/EVENT_ID) and click **🚩 Report Event**. Choose a reason (e.g. *Inappropriate Content*) and submit.
+   - Return to the Admin Console under **🚩 Moderation Reports**. Click **Resolve & Cancel Event** to cancel the offending event and resolve the report.
+5. **Immutable Audit Log:** Click the **📜 Audit Log** tab. View the full, tamper-evident chronological ledger of all approvals, clash overrides, rejections, and moderation actions with timestamps, admin names, and target IDs.
 
 For full step-by-step browser testing for all modules, refer to **[TESTING.md](TESTING.md)**.
