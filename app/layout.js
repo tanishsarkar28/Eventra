@@ -1,9 +1,18 @@
 import './globals.css';
-import Link from 'next/link';
+import Navbar from '@/components/Navbar';
 
+/**
+ * Root Layout (Next.js Unit I: Project Structure & Layouts)
+ * Metadata API (Next.js Unit V: Performance & SEO)
+ */
 export const metadata = {
-  title: 'Eventra - Campus Event Management',
-  description: 'Eventra Campus Event Management System',
+  title: {
+    default: 'Eventra - Campus Event Management',
+    template: '%s | Eventra',
+  },
+  description: 'Lightweight, modern campus event management and scheduling platform.',
+  keywords: ['campus events', 'event management', 'college timetable', 'clash detection'],
+  authors: [{ name: 'Eventra Engineering Team' }],
 };
 
 export default function RootLayout({ children }) {
@@ -11,22 +20,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <div className="app-container">
-          <header>
-            <h1>Eventra Campus Management</h1>
-            <nav>
-              <Link href="/">Home</Link>
-              <Link href="/discover">Discover Events</Link>
-              <Link href="/calendar">📅 My Calendar</Link>
-              <Link href="/notifications">🔔 Notifications</Link>
-              <Link href="/register">Register</Link>
-              <Link href="/login">Login</Link>
-              <Link href="/profile">Profile</Link>
-              <Link href="/my-events">My Events</Link>
-              <Link href="/venues">Venues</Link>
-              <Link href="/clash/report">Clash Report</Link>
-              <Link href="/admin">Admin</Link>
-            </nav>
-          </header>
+          <Navbar />
           <main>{children}</main>
         </div>
       </body>

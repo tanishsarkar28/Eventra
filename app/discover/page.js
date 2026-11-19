@@ -2,9 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Card from '@/components/Card';
+import Badge from '@/components/Badge';
+import Button from '@/components/Button';
+import EmptyState from '@/components/EmptyState';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
+/**
+ * Minimalist Discover Events Feed
+ * Next.js Unit II: Client Components & Fetch API
+ * React Unit II: Reusable component abstractions (Card, Badge, Button, EmptyState)
+ * React Unit III: State and effect dependencies
+ */
 export default function DiscoverPage() {
-  // 1. State variables (beginner-friendly state)
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
   const [user, setUser] = useState(null);
@@ -15,10 +25,8 @@ export default function DiscoverPage() {
   const [category, setCategory] = useState('');
   const [pricing, setPricing] = useState('');
   const [sort, setSort] = useState('recommended');
-
   const [message, setMessage] = useState('');
 
-  // 2. Fetch logged-in user profile & categories on page load
   useEffect(() => {
     async function init() {
       try {
@@ -34,13 +42,12 @@ export default function DiscoverPage() {
           setCategories(catData.categories || []);
         }
       } catch (err) {
-        // ignore errors
+        // ignore
       }
     }
     init();
   }, []);
 
-  // 3. Fetch events according to search and filters
   async function loadEvents() {
     setLoading(true);
     try {
@@ -62,18 +69,15 @@ export default function DiscoverPage() {
     }
   }
 
-  // Reload events when dropdown filters change
   useEffect(() => {
     loadEvents();
   }, [category, pricing, sort]);
 
-  // Handle search form submission
   function handleSearch(e) {
     e.preventDefault();
     loadEvents();
   }
 
-  // 4. Bookmark toggle button handler
   async function handleBookmark(eventId) {
     if (!user) {
       alert('Please log in first to save events!');
@@ -89,17 +93,18 @@ export default function DiscoverPage() {
         setMessage(data.message);
         setTimeout(() => setMessage(''), 3000);
 
-        // Update event bookmark state in list
-        setEvents(events.map(ev => {
-          if (ev.id === eventId) {
-            return {
-              ...ev,
-              isBookmarked: data.isBookmarked,
-              bookmarkCount: data.bookmarkCount,
-            };
-          }
-          return ev;
-        }));
+        setEvents(
+          events.map((ev) => {
+            if (ev.id === eventId) {
+              return {
+                ...ev,
+                isBookmarked: data.isBookmarked,
+                bookmarkCount: data.bookmarkCount,
+              };
+            }
+            return ev;
+          })
+        );
       }
     } catch (err) {
       alert('Could not update bookmark');
@@ -108,122 +113,189 @@ export default function DiscoverPage() {
 
   return (
     <div>
-      <h2>Discover Events</h2>
-      <p>Browse upcoming campus events, search by topic, and bookmark what you like.</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <h2 style={{ border: 'none', margin: '0 0 4px 0', padding: 0 }}>
+            Discover Campus Events
+          </h2>
+          <p style={{ margin: 0 }}>
+            Browse upcoming workshops, hackathons, and cultural fests matching your interests.
+          </p>
+        </div>
+        {user && user.interests && user.interests.length > 0 && (
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <span style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>Interests:</span>
+            {user.interests.map((tag) => (
+              <Badge key={tag} variant="info" size="sm">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Student interests notification */}
-      {user && user.interests && user.interests.length > 0 && (
-        <p style={{ background: '#f0f0f0', padding: '8px', border: '1px solid #ccc' }}>
-          <strong>Your Interests:</strong> {user.interests.join(', ')} (Events are ranked to match your interests!)
-        </p>
-      )}
-
-      {/* Success/Action message */}
       {message && (
-        <p style={{ color: 'green', fontWeight: 'bold' }}>
-          {message}
-        </p>
+        <div className="alert alert-success" role="alert">
+          <span>✅</span>
+          <span>{message}</span>
+        </div>
       )}
 
-      {/* Simple Search & Filter Box */}
-      <div style={{ border: '1px solid #ccc', padding: '12px', marginBottom: '20px' }}>
-        <form onSubmit={handleSearch} style={{ marginBottom: '10px' }}>
+      {/* Minimal Filter Bar */}
+      <Card padding="compact" style={{ marginBottom: '24px' }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
           <input
             type="text"
             placeholder="Search events by title, description or tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ width: '70%', marginRight: '8px' }}
+            style={{ flex: 1, minWidth: '220px' }}
           />
-          <button type="submit">Search</button>
-          {' '}
+          <Button type="submit" variant="primary" size="sm">
+            Search
+          </Button>
           {searchQuery && (
-            <button
+            <Button
               type="button"
-              onClick={() => { setSearchQuery(''); setTimeout(loadEvents, 0); }}
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearchQuery('');
+                setTimeout(loadEvents, 0);
+              }}
             >
               Reset
-            </button>
+            </Button>
           )}
         </form>
 
-        <div>
-          <label>Category: </label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="">All Categories</option>
-            {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          {' | '}
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', fontSize: '13px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label style={{ margin: 0 }}>Category:</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{ width: 'auto', padding: '4px 8px' }}
+            >
+              <option value="">All Categories</option>
+              {categories.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
 
-          <label>Pricing: </label>
-          <select value={pricing} onChange={(e) => setPricing(e.target.value)}>
-            <option value="">All</option>
-            <option value="free">Free Only</option>
-            <option value="paid">Paid Only</option>
-          </select>
-          {' | '}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label style={{ margin: 0 }}>Pricing:</label>
+            <select
+              value={pricing}
+              onChange={(e) => setPricing(e.target.value)}
+              style={{ width: 'auto', padding: '4px 8px' }}
+            >
+              <option value="">All</option>
+              <option value="free">Free Only</option>
+              <option value="paid">Paid Only</option>
+            </select>
+          </div>
 
-          <label>Sort By: </label>
-          <select value={sort} onChange={(e) => setSort(e.target.value)}>
-            <option value="recommended">Best Match (Relevant to Me)</option>
-            <option value="trending">Most Bookmarked</option>
-            <option value="date">Date</option>
-          </select>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label style={{ margin: 0 }}>Sort By:</label>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              style={{ width: 'auto', padding: '4px 8px' }}
+            >
+              <option value="recommended">Best Match (Relevant to Me)</option>
+              <option value="trending">Most Bookmarked</option>
+              <option value="date">Date</option>
+            </select>
+          </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Event List */}
+      {/* Events Presentation */}
       {loading ? (
-        <p>Loading events...</p>
+        <LoadingSpinner text="Finding matches..." />
       ) : events.length === 0 ? (
-        <p>No published events found matching your search.</p>
+        <EmptyState
+          icon="🔍"
+          title="No published events found"
+          description="Try broadening your category filter or clearing the search keyword."
+          actionLabel="Clear Filters"
+          onAction={() => {
+            setSearchQuery('');
+            setCategory('');
+            setPricing('');
+            setTimeout(loadEvents, 0);
+          }}
+        />
       ) : (
-        <table border="1" cellPadding="8" style={{ width: '100%', marginTop: '10px' }}>
-          <thead>
-            <tr>
-              <th>Event</th>
-              <th>Category</th>
-              <th>Date & Time</th>
-              <th>Venue</th>
-              <th>Price</th>
-              <th>Match</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((ev) => (
-              <tr key={ev.id}>
-                <td>
-                  <strong>
-                    <Link href={`/events/${ev.id}`}>{ev.title}</Link>
-                  </strong>
-                  <br />
-                  <small>{ev.clubName || ev.organiserName}</small>
-                </td>
-                <td>{ev.category}</td>
-                <td>
-                  {ev.date}
-                  <br />
-                  <small>{ev.startTime} - {ev.endTime}</small>
-                </td>
-                <td>{ev.venue}</td>
-                <td>{ev.isPaid ? `₹${ev.ticketPrice}` : 'Free'}</td>
-                <td>
-                  <strong>{ev.relevanceScore}%</strong>
-                </td>
-                <td>
-                  <Link href={`/events/${ev.id}`}>View</Link>
-                  {' | '}
-                  <button onClick={() => handleBookmark(ev.id)}>
-                    {ev.isBookmarked ? 'Saved ★' : 'Save ☆'}
-                  </button>
-                </td>
+        <div className="card card-padding-none">
+          <table>
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Category</th>
+                <th>Date & Time</th>
+                <th>Venue</th>
+                <th>Price</th>
+                <th>Match</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {events.map((ev) => (
+                <tr key={ev.id}>
+                  <td>
+                    <Link href={`/events/${ev.id}`} style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                      {ev.title}
+                    </Link>
+                    <br />
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                      {ev.clubName || ev.organiserName}
+                    </span>
+                  </td>
+                  <td>
+                    <Badge variant="info" size="sm">
+                      {ev.category}
+                    </Badge>
+                  </td>
+                  <td>
+                    <span>{ev.date}</span>
+                    <br />
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                      {ev.startTime} - {ev.endTime}
+                    </span>
+                  </td>
+                  <td>{ev.venue}</td>
+                  <td>
+                    <Badge variant={ev.isPaid ? 'warning' : 'neutral'} size="sm">
+                      {ev.isPaid ? `₹${ev.ticketPrice}` : 'Free'}
+                    </Badge>
+                  </td>
+                  <td>
+                    <Badge variant={ev.relevanceScore >= 50 ? 'success' : 'neutral'} dot size="sm">
+                      {ev.relevanceScore}%
+                    </Badge>
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    <div style={{ display: 'inline-flex', gap: '6px' }}>
+                      <Link href={`/events/${ev.id}`} className="btn btn-outline btn-sm">
+                        View
+                      </Link>
+                      <Button
+                        variant={ev.isBookmarked ? 'primary' : 'outline'}
+                        size="sm"
+                        onClick={() => handleBookmark(ev.id)}
+                      >
+                        {ev.isBookmarked ? '★ Saved' : '☆ Save'}
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

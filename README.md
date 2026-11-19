@@ -4,6 +4,8 @@
 
 The repository is built following a clean, modular structure with zero complex abstractions, making it readable, explainable, and easy to evaluate for college demonstrations.
 
+> 📚 **Curriculum & Academic Syllabus Mapping**: See **[CURRICULUM_GUIDE.md](CURRICULUM_GUIDE.md)** for a unit-by-unit mapping of all **Next.js (Units I–VI)** and **React (Units I–V)** university topics to Eventra, including source file links, design patterns, and an examiner Viva Cheat Sheet!
+
 ---
 
 ## 📌 Project Team & Module Distribution
@@ -1792,6 +1794,8 @@ $$\text{Clash Rate (\%)} = \left( \frac{\text{Events with Detected Clashes}}{\te
 ```text
 Eventra/
 ├── app/
+│   ├── actions/
+│   │   └── eventActions.js         # Next.js Server Actions ('use server') for mutations & revalidation
 │   ├── admin/
 │   │   ├── analytics/route.js      # Direct alias for GET /admin/analytics
 │   │   ├── audit-log/route.js      # Direct alias for GET /admin/audit-log
@@ -1885,11 +1889,14 @@ Eventra/
 │   │   ├── mine/route.js           # Alias handler for /events/mine
 │   │   ├── search/route.js         # Direct alias for GET /events/search
 │   │   └── route.js                # Alias handler for /events
-│   ├── globals.css                 # Simple, modern responsive stylesheet
-│   ├── layout.js                   # Root HTML shell & top navigation bar (with Clash Report)
-│   ├── login/page.js               # User Login Page
+│   ├── error.js                    # Next.js App Router Error UI boundary
+│   ├── globals.css                 # Minimalist design system & responsive styling
+│   ├── layout.js                   # Root HTML shell & top navigation bar (Metadata API)
+│   ├── loading.js                  # Next.js App Router Loading UI skeleton
+│   ├── login/page.js               # Minimalist User Login Page
 │   ├── my-events/page.js           # Organiser Event Management Dashboard
-│   ├── page.js                     # Home Landing Page with dynamic role greeting
+│   ├── not-found.js                # Next.js App Router 404 Not Found UI
+│   ├── page.js                     # Minimalist Home Landing Page
 │   ├── notifications/
 │   │   ├── [id]/read/route.js      # Direct alias for PATCH /notifications/:id/read
 │   │   ├── preferences/route.js    # Direct alias for /notifications/preferences
@@ -1902,6 +1909,14 @@ Eventra/
 │       ├── create/page.js          # Add New Venue Form Page (Admin)
 │       ├── edit/[id]/page.js       # Edit Venue Form Page (Admin)
 │       └── page.js                 # Venue Management Dashboard
+├── components/                     # Reusable Minimalist React Functional Components
+│   ├── Badge.js                    # Minimal status pill badge (props-driven variants)
+│   ├── Button.js                   # Minimal button with variants, sizes & loading states
+│   ├── Card.js                     # Flexible container card with header, body & footer slots
+│   ├── EmptyState.js               # Clean placeholder for empty queries and lists
+│   ├── LoadingSpinner.js           # Lightweight CSS loading spinner
+│   ├── Modal.js                    # Accessible modal dialog with backdrop blur & ESC dismiss
+│   └── Navbar.js                   # Sleek navigation bar with active links & notification badge
 ├── data/
 │   ├── analytics_snapshots.json    # Cached snapshots of executive campus analytics
 │   ├── attendance.json             # Event check-in and attendance records
@@ -1929,6 +1944,7 @@ Eventra/
 │   ├── clashEngine.js              # Module 4 Clash Engine (interval logic, 5 clashes, suggestions, report)
 │   ├── db.js                       # Safe atomic JSON read/write persistence functions
 │   ├── eventBus.js                 # Module 7 Event-driven singleton Event Bus
+│   ├── hooks.js                    # React Unit III Custom Hooks (useAuth, useFetch, useDebounce, etc.)
 │   ├── notifications.js            # Module 7 Multi-channel dispatcher & event listeners
 │   ├── reminders.js                # Module 7 Scheduled 24h & 1h reminder runner
 │   ├── personalSchedule.js         # Module 8 Personal Schedule Clash Detection
@@ -1948,6 +1964,7 @@ Eventra/
 │   ├── test-module8.js             # Automated 30-point Module 8 personal calendar test suite
 │   ├── test-module9.js             # Automated 28-point Module 9 admin dashboard & analytics test suite
 │   └── run-reminders.js            # Module 7 CLI scheduled reminder runner
+├── CURRICULUM_GUIDE.md             # Complete academic syllabus mapping & viva cheat sheet
 ├── package.json                    # Project dependencies & scripts
 ├── README.md                       # Comprehensive documentation
 └── TESTING.md                      # Detailed manual testing guide

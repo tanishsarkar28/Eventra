@@ -1,74 +1,147 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/lib/hooks';
+import Card from '@/components/Card';
+import Badge from '@/components/Badge';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
+/**
+ * Eventra Minimal Landing Page
+ * Next.js Unit I: App Router & Navigation
+ * React Unit II: Reusable component composition (Card, Badge)
+ * React Unit III: useAuth custom hook
+ */
 export default function HomePage() {
-  // 1. state to store the logged-in user
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, isOrganiser, isAdmin } = useAuth();
 
-  // 2. check if a user is logged in when the page loads
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const response = await fetch('/api/users/me');
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadUser();
-  }, []);
-
-  // 3. show loading message while checking auth status
   if (loading) {
-    return <p>Loading...</p>;
+    return <LoadingSpinner text="Loading campus overview..." />;
   }
 
-  // 4. if logged in, show greeting with name and role
   if (user) {
     return (
       <div>
-        <h2>Hello, {user.name} ({user.role})</h2>
-        <p>Welcome back to Eventra!</p>
-        <ul>
-          <li><Link href="/discover">🔍 Discover Campus Events (Feed & Bookmarks)</Link></li>
-          <li><Link href="/profile">👤 Go to your Profile</Link></li>
-          {(user.role === 'organiser' || user.role === 'admin') && (
-            <>
-              <li><Link href="/my-events">🎪 Manage My Events</Link></li>
-              <li><Link href="/events/create">➕ Create New Event</Link></li>
-            </>
-          )}
-          <li><Link href="/venues">🏛️ Browse Campus Venues</Link></li>
-          {user.role === 'admin' && (
-            <li><Link href="/admin">⚙️ Go to Admin Panel</Link></li>
-          )}
-        </ul>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <div>
+            <h2 style={{ border: 'none', margin: '0 0 4px 0', padding: 0 }}>
+              Welcome back, {user.name}
+            </h2>
+            <p style={{ margin: 0 }}>
+              Manage your campus schedule, upcoming events, and club activities.
+            </p>
+          </div>
+          <Badge variant="neutral" dot size="lg">
+            {user.role}
+          </Badge>
+        </div>
+
+        <div className="grid-3" style={{ marginBottom: '24px' }}>
+          <Card padding="compact">
+            <div style={{ fontSize: '24px', marginBottom: '8px' }}>🔍</div>
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '15px' }}>Discover Events</h4>
+            <p style={{ fontSize: '13px', margin: '0 0 12px 0' }}>
+              Browse upcoming college fests, workshops, and hackathons.
+            </p>
+            <Link href="/discover" className="btn btn-outline btn-sm">
+              Explore Feed &rarr;
+            </Link>
+          </Card>
+
+          <Card padding="compact">
+            <div style={{ fontSize: '24px', marginBottom: '8px' }}>📅</div>
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '15px' }}>My Calendar</h4>
+            <p style={{ fontSize: '13px', margin: '0 0 12px 0' }}>
+              Check weekly agenda, timetable lectures, and free slots.
+            </p>
+            <Link href="/calendar" className="btn btn-outline btn-sm">
+              Open Calendar &rarr;
+            </Link>
+          </Card>
+
+          <Card padding="compact">
+            <div style={{ fontSize: '24px', marginBottom: '8px' }}>🏛️</div>
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '15px' }}>Campus Venues</h4>
+            <p style={{ fontSize: '13px', margin: '0 0 12px 0' }}>
+              Inspect auditoriums, seminar halls, and availability.
+            </p>
+            <Link href="/venues" className="btn btn-outline btn-sm">
+              View Venues &rarr;
+            </Link>
+          </Card>
+        </div>
+
+        {(isOrganiser || isAdmin) && (
+          <Card
+            title="Club Organiser Console"
+            subtitle="Create and coordinate events for your student organization"
+            padding="normal"
+          >
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <Link href="/events/create" className="btn btn-primary btn-sm">
+                + Create New Event
+              </Link>
+              <Link href="/my-events" className="btn btn-outline btn-sm">
+                Manage My Events
+              </Link>
+              <Link href="/clash/report" className="btn btn-ghost btn-sm">
+                Run Clash Audit
+              </Link>
+              {isAdmin && (
+                <Link href="/admin" className="btn btn-secondary btn-sm">
+                  🛡️ Admin Command Center
+                </Link>
+              )}
+            </div>
+          </Card>
+        )}
       </div>
     );
   }
 
-  // 5. if not logged in, show welcome and login/register links
   return (
-    <div>
-      <h2>Welcome to Eventra</h2>
-      <p>Campus event discovery, scheduling, and management made simple.</p>
-      <ul>
-        <li><Link href="/discover">🔍 Browse & Discover Upcoming Events</Link></li>
-        <li><Link href="/login">🔑 Login to your account</Link></li>
-        <li><Link href="/register">📝 Register as a Student or Organiser</Link></li>
-        <li><Link href="/venues">🏛️ View Campus Venues</Link></li>
-      </ul>
+    <div style={{ maxWidth: '640px', margin: '40px auto', textAlign: 'center' }}>
+      <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚡</div>
+      <h2 style={{ fontSize: '28px', border: 'none', marginBottom: '12px' }}>
+        Eventra Campus Management
+      </h2>
+      <p style={{ fontSize: '16px', lineHeight: '1.6', marginBottom: '32px' }}>
+        A lightweight, modern web platform for university event discovery, clash-free scheduling,
+        digital QR check-ins, and club coordination.
+      </p>
+
+      <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '40px' }}>
+        <Link href="/discover" className="btn btn-primary btn-lg">
+          🔍 Discover Events
+        </Link>
+        <Link href="/login" className="btn btn-outline btn-lg">
+          Log In
+        </Link>
+        <Link href="/register" className="btn btn-ghost btn-lg">
+          Create Account
+        </Link>
+      </div>
+
+      <div className="grid-3" style={{ textAlign: 'left' }}>
+        <Card padding="compact">
+          <h4 style={{ margin: '0 0 4px 0', fontSize: '14px' }}>🛡️ Zero Clashes</h4>
+          <p style={{ fontSize: '12.5px', margin: 0 }}>
+            Automated conflict detection across 5 distinct campus clash types.
+          </p>
+        </Card>
+        <Card padding="compact">
+          <h4 style={{ margin: '0 0 4px 0', fontSize: '14px' }}>🎟️ QR Check-In</h4>
+          <p style={{ fontSize: '12.5px', margin: 0 }}>
+            Instant digital ticket generation with real-time gate pass validation.
+          </p>
+        </Card>
+        <Card padding="compact">
+          <h4 style={{ margin: '0 0 4px 0', fontSize: '14px' }}>📅 Timetable Sync</h4>
+          <p style={{ fontSize: '12.5px', margin: 0 }}>
+            Personal lecture schedule clash alerts and .ics calendar sync.
+          </p>
+        </Card>
+      </div>
     </div>
   );
 }
