@@ -1,17 +1,19 @@
 'use client';
 
+import { memo } from 'react';
+
 /**
  * Minimalist Status Badge Component
  * React Unit II: Props-driven component reusability & conditional rendering
+ * React Unit III: Performance optimization using React.memo (skips re-render if props are identical)
  */
-export default function Badge({
+function Badge({
   children,
   variant = 'neutral',
   size = 'md',
   className = '',
   dot = false,
 }) {
-  // Normalize status text to variant if children is a string
   let resolvedVariant = variant;
   if (typeof children === 'string') {
     const text = children.toLowerCase();
@@ -33,3 +35,5 @@ export default function Badge({
     </span>
   );
 }
+
+export default memo(Badge);

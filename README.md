@@ -1897,6 +1897,7 @@ Eventra/
 │   ├── my-events/page.js           # Organiser Event Management Dashboard
 │   ├── not-found.js                # Next.js App Router 404 Not Found UI
 │   ├── page.js                     # Minimalist Home Landing Page
+│   ├── ssr-demo/page.js            # Next.js Unit II: Server Component SSR Demo (Direct DB fetch, 0 client JS)
 │   ├── notifications/
 │   │   ├── [id]/read/route.js      # Direct alias for PATCH /notifications/:id/read
 │   │   ├── preferences/route.js    # Direct alias for /notifications/preferences
@@ -1910,13 +1911,15 @@ Eventra/
 │       ├── edit/[id]/page.js       # Edit Venue Form Page (Admin)
 │       └── page.js                 # Venue Management Dashboard
 ├── components/                     # Reusable Minimalist React Functional Components
-│   ├── Badge.js                    # Minimal status pill badge (props-driven variants)
+│   ├── Badge.js                    # Minimal status pill badge (React.memo optimized)
 │   ├── Button.js                   # Minimal button with variants, sizes & loading states
-│   ├── Card.js                     # Flexible container card with header, body & footer slots
+│   ├── Card.js                     # Flexible container card (React.memo, composable header/body/footer)
 │   ├── EmptyState.js               # Clean placeholder for empty queries and lists
 │   ├── LoadingSpinner.js           # Lightweight CSS loading spinner
 │   ├── Modal.js                    # Accessible modal dialog with backdrop blur & ESC dismiss
-│   └── Navbar.js                   # Sleek navigation bar with active links & notification badge
+│   └── Navbar.js                   # Sleek navigation bar consuming useAuth context with active route pill
+├── context/
+│   └── AuthContext.js              # React Unit VI: Global State Management (React Context API)
 ├── data/
 │   ├── analytics_snapshots.json    # Cached snapshots of executive campus analytics
 │   ├── attendance.json             # Event check-in and attendance records
@@ -1950,6 +1953,7 @@ Eventra/
 │   ├── personalSchedule.js         # Module 8 Personal Schedule Clash Detection
 │   ├── recommendation.js           # Module 5 Match score algorithm
 │   ├── registrationEngine.js       # Module 6 Registration, Waitlist FIFO & QR engine
+│   ├── schemas.js                  # React Unit IV: Schema-based validation using Zod
 │   └── venueValidation.js          # Module 3 & 4 Venue, Clash, & Admin Override adapter
 ├── middleware.js                   # Dual-path routing for Venues, Clash, Events, Attendance, Admin
 ├── public/

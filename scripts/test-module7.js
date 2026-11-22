@@ -220,13 +220,13 @@ async function runModule7Tests() {
         description: '48 hour campus coding sprint',
         category: 'Technical',
         tags: ['coding', 'web', 'hackathon'],
-        date: '2026-11-20',
+        date: '2026-11-28',
         startTime: '10:00',
         endTime: '18:00',
         venue: 'Main Auditorium',
         capacity: 1, // small capacity to test waitlist later
         targetAudience: 'All Students',
-        registrationDeadline: '2026-11-19',
+        registrationDeadline: '2026-11-27',
         status: 'Published',
       })
     );

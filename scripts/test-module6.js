@@ -136,12 +136,12 @@ async function runModule6Tests() {
       description: 'Exclusive 1-seat workshop on robotics.',
       category: 'Technical',
       tags: ['robotics', 'ai'],
-      date: '2026-11-20',
+      date: '2026-11-28',
       startTime: '10:00',
       endTime: '12:00',
       venue: 'Main Auditorium',
       capacity: 1,
-      registrationDeadline: '2026-11-19',
+      registrationDeadline: '2026-11-27',
       isPaid: false,
       ticketPrice: 0,
       cancellationWindowHours: 2,
@@ -156,12 +156,12 @@ async function runModule6Tests() {
       description: 'Bootcamp happening on the same morning.',
       category: 'Workshop',
       tags: ['web', 'coding'],
-      date: '2026-11-20',
+      date: '2026-11-28',
       startTime: '11:00',
       endTime: '13:00', // Overlaps with 10:00 - 12:00!
       venue: 'CS Lab 1',
       capacity: 50,
-      registrationDeadline: '2026-11-19',
+      registrationDeadline: '2026-11-27',
       isPaid: false,
       ticketPrice: 0,
       cancellationWindowHours: 2,
@@ -176,12 +176,12 @@ async function runModule6Tests() {
       description: 'Team coding hackathon.',
       category: 'Technical',
       tags: ['hackathon'],
-      date: '2026-11-25',
+      date: '2026-11-29',
       startTime: '09:00',
       endTime: '18:00',
       venue: 'Main Auditorium',
       capacity: 50,
-      registrationDeadline: '2026-11-24',
+      registrationDeadline: '2026-11-28',
       isPaid: true,
       ticketPrice: 100,
       cancellationWindowHours: 2,
@@ -345,8 +345,8 @@ async function runModule6Tests() {
     // -------------------------------------------------------------
     // Test 7: Module 8 Integration: Personal Schedule Clash Detection
     // -------------------------------------------------------------
-    // Student 1 is registered for Event 1 (2026-11-20 10:00 - 12:00)
-    // Event 2 is on 2026-11-20 11:00 - 13:00 (Overlapping!)
+    // Student 1 is registered for Event 1 (2026-11-28 10:00 - 12:00)
+    // Event 2 is on 2026-11-28 11:00 - 13:00 (Overlapping!)
     const clashReg = await makeRequest(
       {
         hostname: 'localhost',

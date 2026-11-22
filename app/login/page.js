@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
+import { loginSchema, validateForm } from '@/lib/schemas';
 
 /**
  * Minimalist Login Page
@@ -20,6 +21,15 @@ export default function LoginPage() {
     e.preventDefault();
     setErrorMessage('');
     setIsLoading(true);
+
+    // INT252 Unit IV: Schema validation using Zod
+    const validation = validateForm(loginSchema, { email, password });
+    if (!validation.success) {
+      const firstError = Object.values(validation.errors)[0];
+      setErrorMessage(firstError);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/auth/login', {

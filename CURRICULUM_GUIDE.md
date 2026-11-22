@@ -19,7 +19,9 @@ Use this document to prepare for evaluations, practical vivas, and project prese
 9. [React Unit III: States, Events, Hooks & Side Effects](#react-unit-iii-states-events-hooks--side-effects)
 10. [React Unit IV: Form Handling & Validation](#react-unit-iv-form-handling--validation)
 11. [React Unit V: Client-Server Communication & Client Navigation](#react-unit-v-client-server-communication--client-side-routing)
-12. [🎓 Master Viva & Evaluation Cheat Sheet (15 Q&A)](#-master-viva--evaluation-cheat-sheet)
+12. [React Unit VI: Global State Management (Context API)](#react-unit-vi-global-state-management-context-api)
+13. [🎓 Master Viva & Evaluation Cheat Sheet (20 Q&A)](#-master-viva--evaluation-cheat-sheet)
+14. [🎙️ 30-Second Speaking Scripts for Teachers](#️-30-second-speaking-scripts-for-teachers-unit-by-unit)
 
 ---
 
@@ -47,6 +49,7 @@ Use this document to prepare for evaluations, practical vivas, and project prese
 | Syllabus Topic | How It Is Implemented in Eventra | Source Files |
 | :--- | :--- | :--- |
 | **Server Components vs Client Components** | Default pages run on the server for performance and SEO; interactive pages use the `'use client'` directive to enable React hooks (`useState`, `useEffect`). | `app/layout.js` (Server), `app/discover/page.js` (Client) |
+| **Server-Side Rendering (SSR) Demo** | Dedicated Server Component `/ssr-demo` reading data directly on the server without client-side `useEffect` or bundle overhead, complete with side-by-side SSR vs CSR comparison. | `app/ssr-demo/page.js` |
 | **SSR / SSG / ISR Concepts** | Static pages generated at build time (`/`, `/venues`, `/login`), while real-time authenticated views render dynamically on request. | Next.js build output |
 | **Data Fetching via Fetch API** | Standardized `fetch('/api/...')` with HTTP methods (GET, POST, PATCH, DELETE). | `lib/hooks.js`, `app/discover/page.js` |
 | **Caching & Revalidation** | Next.js `revalidatePath('/discover')` and `revalidatePath('/my-events')` triggered by Server Actions to instantly update server caches after data mutations. | `app/actions/eventActions.js` |
@@ -136,7 +139,7 @@ Use this document to prepare for evaluations, practical vivas, and project prese
 | **Local State Management (`useState`)** | Managing form inputs, search filters, modal visibility, and active tab toggles. | `app/discover/page.js`, `app/admin/page.js` |
 | **Event Handling** | Clean React event handlers: `onSubmit={handleSubmit}`, `onClick={handleBookmark}`. | `app/login/page.js`, `app/discover/page.js` |
 | **Side Effects & Cleanup (`useEffect`)** | Data fetching on mount, listening for ESC key in modals with cleanup functions (`removeEventListener`). | `components/Modal.js`, `app/profile/page.js` |
-| **Performance Optimization (`useCallback`)** | Memoized callbacks in custom hooks preventing unnecessary re-renders. | `lib/hooks.js` |
+| **Performance Optimization (`useMemo`, `useCallback`, `React.memo`)** | `React.memo` prevents re-rendering `Badge` and `Card` when props do not change. `useMemo` caches filtered/sorted event lists in `app/discover/page.js` and memoizes context in `context/AuthContext.js`. `useCallback` stabilizes function references (`refreshUser`, `logout`). | `components/Badge.js`, `components/Card.js`, `app/discover/page.js`, `context/AuthContext.js` |
 | **Custom Hooks for Logic Reuse** | Reusable logic abstracted into clean custom hooks: `useAuth()`, `useFetch()`, `useDebounce()`, `useToggle()`, and `useDocumentTitle()`. | `lib/hooks.js` |
 
 ---
@@ -149,6 +152,7 @@ Use this document to prepare for evaluations, practical vivas, and project prese
 | **Form Submission Workflows** | Intercepting form submissions with `e.preventDefault()`, validating inputs, and managing loading indicators. | `app/profile/page.js`, `app/events/create/page.js` |
 | **Reusable Form Component Design** | Unified CSS form styling (`.form-group`, clean labels, focus rings, and submit buttons). | `app/globals.css` |
 | **Client-Side Form Validation** | Real-time checks for required inputs, date sequence (`startTime < endTime`), and capacity constraints. | `app/events/create/page.js`, `app/register/page.js` |
+| **Schema-Based Validation with Zod** | Declarative data validation schemas (`eventSchema`, `loginSchema`, `registerSchema`) using Zod. Reusable helper `validateForm(schema, data)` returns typed, sanitized data or user-friendly field error mappings, integrated into login and event creation forms. | `lib/schemas.js`, `app/events/create/page.js`, `app/login/page.js` |
 
 ---
 
@@ -160,6 +164,16 @@ Use this document to prepare for evaluations, practical vivas, and project prese
 | **Handling Loading, Error & Empty States** | Clean UI feedback across all states: `<LoadingSpinner />`, `<ErrorBoundary />`, and `<EmptyState />`. | `components/EmptyState.js`, `components/LoadingSpinner.js` |
 | **Client-Side Navigation** | Next.js `<Link>` for instant page switches without full browser reloads. | `components/Navbar.js` |
 | **Query Parameter Handling** | Reading and updating URL query strings (`?q=...&category=...`) via `URLSearchParams`. | `app/discover/page.js`, `app/admin/audit-log/route.js` |
+
+---
+
+### React Unit VI: Global State Management (Context API)
+
+| Syllabus Topic | How It Is Implemented in Eventra | Source Files |
+| :--- | :--- | :--- |
+| **Context API (`createContext`, `useContext`)** | Global `AuthContext` provides authentication state (`user`, `loading`, `isStudent`, `isOrganiser`, `isAdmin`, `refreshUser`, `logout`) across the entire component tree without prop drilling. | `context/AuthContext.js` |
+| **Context Provider Pattern** | `<AuthProvider>` wraps `{children}` in the root layout (`app/layout.js`), while keeping the layout itself an optimized Server Component for the Next.js Metadata API. | `app/layout.js`, `context/AuthContext.js` |
+| **Custom Consumer Hook (`useAuth`)** | Simple, intuitive consumer hook `useAuth()` with runtime error checking to ensure components are within the provider tree. Consumed seamlessly by `Navbar.js` and pages. | `context/AuthContext.js`, `components/Navbar.js` |
 
 ---
 
@@ -182,3 +196,38 @@ Use this document to prepare for evaluations, practical vivas, and project prese
 | **13** | **How does Module 7 handle event reminders without spamming?** | *"The reminder engine computes 24-hour and 1-hour time windows using UTC timestamps and checks notification records to guarantee that reminder alerts are strictly deduplicated and sent only once per student."* |
 | **14** | **How does the metadata API improve SEO in Next.js?** | *"In `app/layout.js`, we export a `metadata` object defining standard OpenGraph titles, descriptions, and keywords. Next.js automatically injects these into the HTML `<head>` during server-side rendering for optimal search engine indexing."* |
 | **15** | **How did you verify and test the codebase?** | *"We built 8 automated integration test suites (`scripts/test-module2.js` through `test-module9.js`) that make real HTTP requests against all API endpoints, verifying authentication, permissions, CRUD flows, clash detection, and data persistence with 100% pass rates."* |
+| **16** | **How does schema validation using Zod work in your React forms?** | *"In `lib/schemas.js`, we define declarative Zod schemas (`eventSchema`, `loginSchema`) enforcing string lengths, email regex, positive numbers, and custom date logic (`startTime < endTime`). The `validateForm(schema, data)` helper uses `safeParse()` to return structured field errors that display inline in the UI without crashing."* |
+| **17** | **How does global state management work with the React Context API in Eventra?** | *"Instead of prop-drilling authentication state down through multiple component layers, `context/AuthContext.js` uses `createContext` and `<AuthProvider>`. We wrap `{children}` in `app/layout.js`. Any component (like `Navbar.js` or `page.js`) simply calls `useAuth()` to access `{ user, loading, isOrganiser, isAdmin, logout }`."* |
+| **18** | **What is the difference between `React.memo`, `useMemo`, and `useCallback` in Eventra?** | *"`React.memo` (used in `Badge.js` and `Card.js`) memoizes components to skip re-renders when props haven't changed. `useMemo` (used in `discover/page.js`) caches expensive computed values like filtered event lists. `useCallback` (used in `AuthContext.js`) preserves stable function identities across re-renders so effects don't re-trigger."* |
+| **19** | **Can you demonstrate pure Server-Side Rendering (SSR) without client-side JavaScript?** | *"Yes! Visit `/ssr-demo` (`app/ssr-demo/page.js`). It is a pure React Server Component that reads directly from the database on the server. It streams raw HTML to the browser with zero client JavaScript bundle overhead, ensuring instant loading and perfect SEO."* |
+| **20** | **How does Next.js handle data caching and cache revalidation?** | *"When an event is created or updated via Server Actions (`app/actions/eventActions.js`), Next.js calls `revalidatePath('/discover')` and `revalidatePath('/my-events')`. This immediately purges the cached server-rendered routes on demand, guaranteeing fresh data without stale cache issues."* |
+
+---
+
+## 🎙️ 30-Second Speaking Scripts for Teachers (Unit by Unit)
+
+When your teacher or evaluator asks you to explain specific units during your viva, use these concise scripts:
+
+### Next.js Units:
+- **Next.js Unit I (Fundamentals & Routing):**  
+  *"We used Next.js 14 App Router with file-based routing. Route transitions are handled with `<Link>` from `next/link`. We implemented convention-based files: `app/loading.js` for instant loading spinners, `app/error.js` as an interactive React Error Boundary, and `app/not-found.js` for custom 404 handling."*
+- **Next.js Unit II (Rendering & Data Fetching):**  
+  *"We demonstrate hybrid rendering: Server Components for high-performance server fetching (`app/ssr-demo/page.js`) and Client Components (`'use client'`) for interactive forms. We use Server-Side Rendering (SSR) with `revalidatePath` to refresh server caches immediately after data mutations."*
+- **Next.js Unit III (API Development & Server Actions):**  
+  *"We built backend REST APIs using Route Handlers (`app/api/.../route.js`) with full HTTP methods (GET, POST, PATCH, DELETE). For server mutations, we use Server Actions (`'use server'`) in `app/actions/eventActions.js` to process form data directly on the server."*
+- **Next.js Unit IV (Authentication & Database):**  
+  *"Authentication uses `bcryptjs` password hashing and stateless JSON Web Tokens (JWT) stored in secure `httpOnly` cookies. Route protection and Role-Based Access Control (RBAC) are enforced at the edge via `middleware.js` across 3 roles: student, organiser, and admin."*
+- **Next.js Unit V & VI (Performance, SEO & Advanced Features):**  
+  *"We export Next.js `metadata` in `app/layout.js` for search engine optimization. We use `middleware.js` as an edge proxy for dual-path routing and security checks, and verified the entire architecture with 8 automated end-to-end integration test suites."*
+
+### React Units:
+- **React Unit I & II (Fundamentals & Component Design):**  
+  *"We developed 100% functional components using modern ES6+ features (arrow functions, destructuring, spread operator). We built an atomic reusable component library in `components/` (`Badge.js`, `Button.js`, `Card.js`, `Modal.js`) adhering to props-driven reusability and semantic accessible HTML."*
+- **React Unit III (States, Hooks & Performance):**  
+  *"We manage local state with `useState` and handle side effects and cleanup with `useEffect`. For performance optimization, we wrapped components in `React.memo`, memoized heavy filtered lists with `useMemo`, and stabilized callbacks with `useCallback`. Reusable logic is encapsulated into custom hooks like `useFetch`, `useDebounce`, and `useToggle` in `lib/hooks.js`."*
+- **React Unit IV (Forms & Validation with Zod):**  
+  *"We use controlled form components with live error states. Form inputs are validated both client-side and server-side using declarative **Zod schemas** in `lib/schemas.js`, validating mandatory fields, email regex, and date sequences before submission."*
+- **React Unit V (Client-Server Communication & Navigation):**  
+  *"We implement clean REST communication with HTTP status codes and feedback states (`<LoadingSpinner />`, `<EmptyState />`). Navigation between views happens client-side without full-page refreshes using Next.js Link and query parameter management."*
+- **React Unit VI (Global State Management with Context API):**  
+  *"We implemented the React Context API in `context/AuthContext.js` with `<AuthProvider>` wrapping the app. This provides global user session state and permissions (`isStudent`, `isOrganiser`, `isAdmin`, `logout`) to any component via the custom `useAuth()` hook without prop drilling."*

@@ -3,47 +3,43 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 /**
  * Minimalist Navigation Bar Component
  * Next.js Unit I: Routing & Navigation (usePathname, Link)
  * React Unit II: Functional component design & composition
- * React Unit III: State and effects (useState, useEffect)
+ * React Unit VI: Global State Management (useAuth Context)
  */
 export default function Navbar() {
   const pathname = usePathname();
-  const [user, setUser] = useState(null);
+  const { user, isOrganiser, isAdmin } = useAuth();
   const [unreadNotifs, setUnreadNotifs] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
 
-    async function loadUserState() {
+    async function loadNotifications() {
+      if (!user) {
+        setUnreadNotifs(0);
+        return;
+      }
       try {
-        const res = await fetch('/api/users/me');
-        if (res.ok) {
-          const data = await res.json();
-          if (isMounted) setUser(data.user);
-
-          // Fetch unread notifications count
-          const notifRes = await fetch('/api/notifications');
-          if (notifRes.ok) {
-            const notifData = await notifRes.json();
-            if (isMounted) setUnreadNotifs(notifData.unreadCount || 0);
-          }
-        } else {
-          if (isMounted) setUser(null);
+        const notifRes = await fetch('/api/notifications');
+        if (notifRes.ok) {
+          const notifData = await notifRes.json();
+          if (isMounted) setUnreadNotifs(notifData.unreadCount || 0);
         }
       } catch (e) {
-        if (isMounted) setUser(null);
+        // ignore
       }
     }
 
-    loadUserState();
+    loadNotifications();
     return () => {
       isMounted = false;
     };
-  }, [pathname]);
+  }, [user, pathname]);
 
   const isActive = (path) => {
     if (path === '/') return pathname === '/';
@@ -86,6 +82,12 @@ export default function Navbar() {
             className={`nav-link ${isActive('/clash/report') ? 'active' : ''}`}
           >
             Clashes
+          </Link>
+          <Link
+            href="/ssr-demo"
+            className={`nav-link ${isActive('/ssr-demo') ? 'active' : ''}`}
+          >
+            SSR Demo
           </Link>
 
           {user && (user.role === 'organiser' || user.role === 'admin') && (

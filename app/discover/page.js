@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
@@ -12,12 +13,13 @@ import LoadingSpinner from '@/components/LoadingSpinner';
  * Minimalist Discover Events Feed
  * Next.js Unit II: Client Components & Fetch API
  * React Unit II: Reusable component abstractions (Card, Badge, Button, EmptyState)
- * React Unit III: State and effect dependencies
+ * React Unit III: Hooks & Optimization (useState, useEffect, useMemo, useCallback)
+ * React Unit VI: Global State Management with useAuth()
  */
 export default function DiscoverPage() {
+  const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Search and filter inputs
@@ -27,15 +29,10 @@ export default function DiscoverPage() {
   const [sort, setSort] = useState('recommended');
   const [message, setMessage] = useState('');
 
+  // 1. Fetch categories on mount
   useEffect(() => {
     async function init() {
       try {
-        const userRes = await fetch('/api/users/me');
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          setUser(userData.user);
-        }
-
         const catRes = await fetch('/api/categories');
         if (catRes.ok) {
           const catData = await catRes.json();
@@ -48,7 +45,8 @@ export default function DiscoverPage() {
     init();
   }, []);
 
-  async function loadEvents() {
+  // 2. React Unit III: useCallback memoizes event loading function
+  const loadEvents = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -67,11 +65,16 @@ export default function DiscoverPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [searchQuery, category, pricing, sort]);
 
   useEffect(() => {
     loadEvents();
-  }, [category, pricing, sort]);
+  }, [loadEvents]);
+
+  // 3. React Unit III: useMemo memoizes computed counts preventing recalculation
+  const bookmarkedCount = useMemo(() => {
+    return events.filter((ev) => ev.isBookmarked).length;
+  }, [events]);
 
   function handleSearch(e) {
     e.preventDefault();

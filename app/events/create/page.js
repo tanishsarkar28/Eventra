@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { eventSchema, validateForm } from '@/lib/schemas';
 
 export default function CreateEventPage() {
   // 1. form fields state
@@ -192,9 +193,21 @@ export default function CreateEventPage() {
     setMessage('');
     setIsError(false);
 
-    // client validation
-    if (startTime >= endTime) {
-      setMessage('Start time must be earlier than end time.');
+    // INT252 Unit IV: Schema-based form validation using Zod
+    const validation = validateForm(eventSchema, {
+      title,
+      description,
+      category,
+      date,
+      startTime,
+      endTime,
+      venue,
+      capacity: Number(capacity) || 0,
+    });
+
+    if (!validation.success) {
+      const firstError = Object.values(validation.errors)[0];
+      setMessage(`Validation Error (Zod): ${firstError}`);
       setIsError(true);
       return;
     }
