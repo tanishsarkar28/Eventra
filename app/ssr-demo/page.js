@@ -79,9 +79,10 @@ export default async function SSRDemoPage() {
               key={venue.id}
               style={{
                 border: '1px solid var(--border)',
-                borderRadius: 'var(--radius)',
-                padding: '14px',
-                background: 'var(--surface-subtle)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '14px 16px',
+                background: 'var(--surface)',
+                boxShadow: 'var(--shadow-xs)',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
