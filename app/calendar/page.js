@@ -293,21 +293,6 @@ export default function CalendarPage() {
             Welcome, <strong>{user?.name}</strong>! Keep track of your lectures, registered events, and free slots.
           </p>
         </div>
-        <button
-          onClick={handleDownloadIcs}
-          style={{
-            padding: '10px 16px',
-            backgroundColor: '#0284c7',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '6px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            fontSize: '14px',
-          }}
-        >
-          📥 Export .ics (Sync with Google / Apple Calendar)
-        </button>
       </div>
 
       {/* Tabs */}
