@@ -1,1 +1,72 @@
-[]
+[
+  {
+    "id": "push_1795440526887_k5o1y",
+    "notificationId": "notif_1795440526882_pb6kc",
+    "userId": "org_cultural",
+    "title": "👤 New Attendee Registered: Inter-College Dance Night",
+    "body": "TANISH SARKAR (sarkartanish2802@gmail.com) just registered for \"Inter-College Dance Night\". Ticket code: EVT-ight-0048-4LKP.",
+    "payload": {
+      "type": "organiser_registration",
+      "eventId": "event_dance_night",
+      "eventTitle": "Inter-College Dance Night",
+      "attendeeName": "TANISH SARKAR",
+      "attendeeEmail": "sarkartanish2802@gmail.com",
+      "ticketCode": "EVT-ight-0048-4LKP"
+    },
+    "sentAt": "2026-11-23T13:28:46.882Z",
+    "status": "Sent"
+  },
+  {
+    "id": "push_1795440526881_6qvjn",
+    "notificationId": "notif_1795440526876_of3sm",
+    "userId": "1795433570048",
+    "title": "🎟️ Registration Confirmed: Inter-College Dance Night",
+    "body": "You're all set! Your registration for \"Inter-College Dance Night\" is confirmed. Ticket Code: EVT-ight-0048-4LKP. Venue: Open Amphitheatre on 2026-12-05 at 18:00.",
+    "payload": {
+      "type": "registration_confirmation",
+      "eventId": "event_dance_night",
+      "eventTitle": "Inter-College Dance Night",
+      "ticketCode": "EVT-ight-0048-4LKP",
+      "venue": "Open Amphitheatre",
+      "date": "2026-12-05",
+      "startTime": "18:00"
+    },
+    "sentAt": "2026-11-23T13:28:46.876Z",
+    "status": "Sent"
+  },
+  {
+    "id": "push_1795440228602_x1sxy",
+    "notificationId": "notif_1795440228598_hr1l7",
+    "userId": "org_cultural",
+    "title": "👤 New Attendee Registered: Inter-College Dance Night",
+    "body": "TANISH SARKAR (sarkartanish2802@gmail.com) just registered for \"Inter-College Dance Night\". Ticket code: EVT-ight-0048-09LJ.",
+    "payload": {
+      "type": "organiser_registration",
+      "eventId": "event_dance_night",
+      "eventTitle": "Inter-College Dance Night",
+      "attendeeName": "TANISH SARKAR",
+      "attendeeEmail": "sarkartanish2802@gmail.com",
+      "ticketCode": "EVT-ight-0048-09LJ"
+    },
+    "sentAt": "2026-11-23T13:23:48.598Z",
+    "status": "Sent"
+  },
+  {
+    "id": "push_1795440228597_5q9yx",
+    "notificationId": "notif_1795440228595_yvg1u",
+    "userId": "1795433570048",
+    "title": "🎟️ Registration Confirmed: Inter-College Dance Night",
+    "body": "You're all set! Your registration for \"Inter-College Dance Night\" is confirmed. Ticket Code: EVT-ight-0048-09LJ. Venue: Open Amphitheatre on 2026-11-25 at 18:00.",
+    "payload": {
+      "type": "registration_confirmation",
+      "eventId": "event_dance_night",
+      "eventTitle": "Inter-College Dance Night",
+      "ticketCode": "EVT-ight-0048-09LJ",
+      "venue": "Open Amphitheatre",
+      "date": "2026-11-25",
+      "startTime": "18:00"
+    },
+    "sentAt": "2026-11-23T13:23:48.595Z",
+    "status": "Sent"
+  }
+]

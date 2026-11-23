@@ -539,6 +539,11 @@ export default function EventDetailPage({ params }) {
 
         {user && !regData.isRegistered && (
           <div>
+            {user.role === 'organiser' && user.id !== event.organiserId && (
+              <div style={{ padding: '8px 12px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '13px', color: '#475569', marginBottom: '12px' }}>
+                👋 Booking ticket as: <strong>{user.name}</strong> ({user.clubName || 'Organiser'})
+              </div>
+            )}
             <p>
               Join <strong>{event.title}</strong> by completing the quick registration below.
             </p>
@@ -621,7 +626,7 @@ export default function EventDetailPage({ params }) {
                     cursor: event.status === 'Published' ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  {isSubmitting ? 'Processing...' : '⚡ One-Click Register Now'}
+                  {isSubmitting ? 'Processing...' : '⚡ One-Click Book Ticket Now'}
                 </button>
               </div>
 

@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": "reg_1795440526855_lud9",
+    "eventId": "event_dance_night",
+    "eventTitle": "Inter-College Dance Night",
+    "userId": "1795433570048",
+    "userName": "TANISH SARKAR",
+    "userEmail": "sarkartanish2802@gmail.com",
+    "ticketId": "tkt_1795440526874_j1sy",
+    "ticketCode": "EVT-ight-0048-4LKP",
+    "status": "Confirmed",
+    "teamSize": 1,
+    "teamMembers": [],
+    "answers": {},
+    "registeredAt": "2026-11-23T13:28:46.875Z",
+    "cancelledAt": null
+  }
+]
