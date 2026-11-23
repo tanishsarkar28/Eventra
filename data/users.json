@@ -78,5 +78,17 @@
     ],
     "clubName": "Infinite",
     "isVerified": true
+  },
+  {
+    "id": "1795452976828",
+    "name": "Tanish Sarkar",
+    "email": "tanish@lpu.in",
+    "password": "$2a$10$YuLr6bojlBUAzX9KZhN1Q.0wsH5TZ8bWqWPE4byXmyR5grPNYCc0S",
+    "role": "student",
+    "branch": "",
+    "year": "",
+    "interests": [],
+    "clubName": "",
+    "isVerified": true
   }
 ]
