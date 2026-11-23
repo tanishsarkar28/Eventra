@@ -17,7 +17,7 @@
     "id": "admin_default",
     "name": "Administrator",
     "email": "admin@eventra.edu",
-    "password": "$2a$10$hZYkGZYzqDv4V3rX0Km8y.9gaaadnWTcJn7gNYZo7Z8POGwXr5VAG",
+    "password": "$2a$10$YtQ5mgCX88OudJBkbB.t1OW6q2QltItFaZn3uRLLx6MGMn8Ub7unS",
     "role": "admin",
     "branch": "Admin",
     "year": "N/A",
