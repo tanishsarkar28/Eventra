@@ -97,79 +97,23 @@ body {
 }
 
 /* ==========================================================================
-   LPU INSTITUTIONAL TOP BAR & NAVBAR
+   LPU THEMED NAVBAR
    ========================================================================== */
 
 .site-header {
   position: sticky;
-  top: 10px;
+  top: 12px;
   z-index: 50;
   background-color: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
+  border-top: 3px solid #f15a24;
   border-radius: var(--radius);
-  padding: 0 18px 12px 18px;
+  padding: 10px 18px;
   margin-bottom: 24px;
   box-shadow: 0 4px 12px -2px rgba(241, 90, 36, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: var(--transition);
-  overflow: hidden;
-}
-
-.lpu-top-bar {
-  background: #182230;
-  border-top: 3.5px solid #f15a24;
-  color: #f1f5f9;
-  padding: 7px 18px;
-  font-size: 11.5px;
-  margin: 0 -18px 10px -18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.lpu-top-bar-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.lpu-brand-text {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.lpu-badge-pill {
-  background: linear-gradient(135deg, #f15a24 0%, #ea580c 100%);
-  color: #ffffff;
-  font-weight: 800;
-  padding: 1.5px 6.5px;
-  border-radius: 4px;
-  font-size: 10.5px;
-  letter-spacing: 0.05em;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.lpu-uni-name {
-  font-weight: 600;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-}
-
-.lpu-sep {
-  color: #475569;
-}
-
-.lpu-motto {
-  color: #cbd5e1;
-  font-style: normal;
-}
-
-.lpu-campus-tag {
-  color: #fde68a;
-  font-weight: 500;
-  font-size: 11px;
 }
 
 .header-inner {
