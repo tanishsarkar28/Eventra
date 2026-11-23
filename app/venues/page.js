@@ -282,11 +282,45 @@ export default function VenuesDashboardPage() {
                         <Link href={`/venues/${venue.id}`}>
                           <strong>{venue.name}</strong>
                         </Link>
-                        {venue.requiresApproval && (
-                          <span style={{ display: 'block', fontSize: '11px', color: '#d97706' }}>
-                            (Requires Approval)
-                          </span>
-                        )}
+                        <div style={{ marginTop: '4px' }}>
+                          {venue.requiresApproval ? (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                color: '#c2410c',
+                                background: '#fff7ed',
+                                border: '1px solid #fed7aa',
+                                padding: '1px 6px',
+                                borderRadius: '4px',
+                              }}
+                              title="Organiser reservations for this venue require admin approval before confirmation"
+                            >
+                              🔒 Policy: Requires Approval
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '11px',
+                                fontWeight: 600,
+                                color: '#15803d',
+                                background: '#f0fdf4',
+                                border: '1px solid #bbf7d0',
+                                padding: '1px 6px',
+                                borderRadius: '4px',
+                              }}
+                              title="Bookings for this venue are automatically confirmed instantly"
+                            >
+                              ⚡ Policy: Instant Booking
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td>{venue.type}</td>
                       <td><strong>{venue.capacity}</strong></td>
@@ -516,50 +550,76 @@ export default function VenuesDashboardPage() {
 
       {/* Admin Pending Bookings Approval Section */}
       {isAdmin && (
-        <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '20px', background: '#ffffff' }}>
-          <h3 style={{ marginTop: 0 }}>Pending Venue Booking Requests</h3>
-          <p style={{ color: '#64748b', fontSize: '14px' }}>
-            Review, approve, or reject club venue reservation requests before events are finalized.
+        <div style={{ border: '1px solid #fed7aa', borderRadius: '12px', padding: '24px', background: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', borderTop: '4px solid #ea580c' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap', gap: '8px' }}>
+            <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', color: '#1e293b' }}>
+              <span>🛡️</span> Pending Venue Booking Requests
+              {pendingBookings.length > 0 && (
+                <span style={{ fontSize: '12px', background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                  {pendingBookings.length} Awaiting Decision
+                </span>
+              )}
+            </h3>
+          </div>
+          <p style={{ color: '#64748b', fontSize: '14px', marginTop: '4px', marginBottom: '16px' }}>
+            When organisers request reservations for venues with a <em>&quot;Requires Approval&quot;</em> policy, their booking requests appear here for your administrative review (<strong>Approve</strong> or <strong>Reject</strong>).
           </p>
 
           {pendingBookings.length === 0 ? (
-            <p><small>No booking requests currently awaiting approval.</small></p>
+            <div style={{ padding: '28px', background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '8px', textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', marginBottom: '8px' }}>✅</div>
+              <div style={{ fontWeight: 600, color: '#334155', fontSize: '15px' }}>No booking requests currently awaiting approval</div>
+              <p style={{ color: '#64748b', fontSize: '13px', margin: '6px 0 0 0' }}>
+                All organizer requests have been processed. New booking submissions for approval-required halls will display here with instant Approve/Reject controls.
+              </p>
+            </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
-              <table border="1" cellPadding="8" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+              <table border="1" cellPadding="10" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                 <thead>
-                  <tr style={{ background: '#f8fafc' }}>
-                    <th>Venue</th>
-                    <th>Event / Activity</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Requested By</th>
-                    <th>Actions</th>
+                  <tr style={{ background: '#fff7ed', color: '#9a3412', borderBottom: '2px solid #fed7aa' }}>
+                    <th style={{ textAlign: 'left' }}>Venue</th>
+                    <th style={{ textAlign: 'left' }}>Event / Activity</th>
+                    <th style={{ textAlign: 'left' }}>Date</th>
+                    <th style={{ textAlign: 'left' }}>Time</th>
+                    <th style={{ textAlign: 'left' }}>Requested By</th>
+                    <th style={{ textAlign: 'center' }}>Decisions &amp; Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pendingBookings.map((b) => (
-                    <tr key={b.id}>
-                      <td><strong>{b.venueName}</strong></td>
-                      <td>{b.title}</td>
-                      <td>{b.date}</td>
-                      <td>{b.startTime} - {b.endTime}</td>
-                      <td>{b.requestedByName || b.requestedBy}</td>
+                    <tr key={b.id} style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <strong>{b.venueName}</strong>
+                        {b.note && <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{b.note}</div>}
+                      </td>
+                      <td>
+                        <span style={{ fontWeight: 600, color: '#0f172a' }}>{b.title}</span>
+                      </td>
+                      <td>{b.date}</td>
+                      <td><code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{b.startTime} - {b.endTime}</code></td>
+                      <td>
+                        <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 500 }}>
+                          {b.requestedByName || b.requestedBy}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'inline-flex', gap: '8px' }}>
                           <button
                             onClick={() => handleBookingAction(b.venueId, b.id, 'approve')}
                             style={{
                               background: '#16a34a',
                               color: '#ffffff',
                               border: 'none',
-                              padding: '4px 10px',
-                              borderRadius: '4px',
+                              padding: '6px 14px',
+                              borderRadius: '6px',
                               cursor: 'pointer',
                               fontWeight: 600,
+                              fontSize: '13px',
+                              boxShadow: '0 1px 2px rgba(22, 163, 74, 0.2)',
                             }}
                           >
-                            Approve
+                            ✓ Approve
                           </button>
                           <button
                             onClick={() => handleBookingAction(b.venueId, b.id, 'reject')}
@@ -567,13 +627,15 @@ export default function VenuesDashboardPage() {
                               background: '#dc2626',
                               color: '#ffffff',
                               border: 'none',
-                              padding: '4px 10px',
-                              borderRadius: '4px',
+                              padding: '6px 14px',
+                              borderRadius: '6px',
                               cursor: 'pointer',
                               fontWeight: 600,
+                              fontSize: '13px',
+                              boxShadow: '0 1px 2px rgba(220, 38, 38, 0.2)',
                             }}
                           >
-                            Reject
+                            ✕ Reject
                           </button>
                         </div>
                       </td>
