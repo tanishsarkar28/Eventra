@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "1795451292144",
+    "userId": "admin_default",
+    "eventId": "event_dance_night",
+    "createdAt": "2026-11-23T16:28:12.144Z"
+  },
+  {
+    "id": "1795451298004",
+    "userId": "admin_default",
+    "eventId": "event_sunburn_music_fest",
+    "createdAt": "2026-11-23T16:28:18.004Z"
+  }
+]

@@ -1,5 +1,55 @@
 [
   {
+    "id": "snap_1795451730649",
+    "timestamp": "2026-11-23T16:35:30.648Z",
+    "overview": {
+      "totalEvents": 7,
+      "publishedEvents": 6,
+      "pendingApprovals": 0,
+      "draftEvents": 1,
+      "cancelledEvents": 0,
+      "totalUsers": 6,
+      "studentsCount": 3,
+      "organisersCount": 2,
+      "unverifiedOrganisers": 0,
+      "totalVenues": 4,
+      "activeVenues": 4,
+      "totalRegistrations": 1,
+      "totalAttendance": 0,
+      "overallAttendanceRate": 0,
+      "campusVenueUtilisationRate": 3.3,
+      "totalReports": 0,
+      "pendingReports": 0,
+      "totalAuditLogs": 0,
+      "generatedAt": "2026-11-23T16:35:30.648Z"
+    }
+  },
+  {
+    "id": "snap_1795451730498",
+    "timestamp": "2026-11-23T16:35:30.498Z",
+    "overview": {
+      "totalEvents": 7,
+      "publishedEvents": 6,
+      "pendingApprovals": 0,
+      "draftEvents": 1,
+      "cancelledEvents": 0,
+      "totalUsers": 6,
+      "studentsCount": 3,
+      "organisersCount": 2,
+      "unverifiedOrganisers": 0,
+      "totalVenues": 4,
+      "activeVenues": 4,
+      "totalRegistrations": 1,
+      "totalAttendance": 0,
+      "overallAttendanceRate": 0,
+      "campusVenueUtilisationRate": 3.3,
+      "totalReports": 0,
+      "pendingReports": 0,
+      "totalAuditLogs": 0,
+      "generatedAt": "2026-11-23T16:35:30.498Z"
+    }
+  },
+  {
     "id": "snap_1795445631664",
     "timestamp": "2026-11-23T14:53:51.663Z",
     "overview": {
