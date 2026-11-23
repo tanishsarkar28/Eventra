@@ -249,13 +249,28 @@ export default function DiscoverPage() {
               {events.map((ev) => (
                 <tr key={ev.id}>
                   <td>
-                    <Link href={`/events/${ev.id}`} style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                      {ev.title}
-                    </Link>
-                    <br />
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                      {ev.clubName || ev.organiserName}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      {(ev.poster || ev.posterUrl) ? (
+                        <img
+                          src={ev.poster || ev.posterUrl}
+                          alt={ev.title}
+                          style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border)', flexShrink: 0 }}
+                        />
+                      ) : (
+                        <div style={{ width: '40px', height: '40px', borderRadius: '6px', background: 'var(--surface-muted)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>
+                          ⚡
+                        </div>
+                      )}
+                      <div>
+                        <Link href={`/events/${ev.id}`} style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {ev.title}
+                        </Link>
+                        <br />
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                          {ev.clubName || ev.organiserName}
+                        </span>
+                      </div>
+                    </div>
                   </td>
                   <td>
                     <Badge variant="info" size="sm">

@@ -314,12 +314,12 @@ export default function EventDetailPage({ params }) {
       )}
 
       {/* Poster preview if available */}
-      {event.poster && (
-        <div style={{ marginBottom: '15px' }}>
+      {(event.poster || event.posterUrl) && (
+        <div style={{ marginBottom: '20px', borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--border)', maxWidth: '520px', boxShadow: 'var(--shadow-xs)' }}>
           <img
-            src={event.poster}
+            src={event.poster || event.posterUrl}
             alt={event.title}
-            style={{ maxWidth: '300px', maxHeight: '200px', border: '1px solid #ccc', borderRadius: '4px' }}
+            style={{ width: '100%', maxHeight: '280px', objectFit: 'cover', display: 'block' }}
           />
         </div>
       )}

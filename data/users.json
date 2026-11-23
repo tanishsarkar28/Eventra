@@ -64,5 +64,19 @@
     "interests": [],
     "clubName": "",
     "isVerified": true
+  },
+  {
+    "id": "1795433570048",
+    "name": "TANISH SARKAR",
+    "email": "sarkartanish2802@gmail.com",
+    "password": "$2a$10$l8V.jiWmcuJD3QMgS276PeUpwHn6bIT020QS86ulqlSf1FJdoKUoC",
+    "role": "organiser",
+    "branch": "Computer Science",
+    "year": "3rd Year",
+    "interests": [
+      "Gaming"
+    ],
+    "clubName": "Infinite",
+    "isVerified": false
   }
 ]

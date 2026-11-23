@@ -179,9 +179,9 @@ export default function MyEventsPage() {
             {events.map((event) => (
               <tr key={event.id}>
                 <td style={{ textAlign: 'center' }}>
-                  {event.poster ? (
+                  {(event.poster || event.posterUrl) ? (
                     <img
-                      src={event.poster}
+                      src={event.poster || event.posterUrl}
                       alt={event.title}
                       style={{ width: '60px', height: '40px', objectFit: 'cover' }}
                     />
