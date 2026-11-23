@@ -577,25 +577,27 @@ export default function HomePage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                 <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a' }}>{venue.name}</h4>
-                <span
-                  title={
-                    venue.requiresApproval
-                      ? 'Booking Policy: Club reservations for this venue require administrator clearance before confirmation.'
-                      : 'Booking Policy: Reservations for this lab are auto-confirmed instantly.'
-                  }
-                  style={{
-                    fontSize: '11px',
-                    background: venue.requiresApproval ? '#fff7ed' : '#f0fdf4',
-                    color: venue.requiresApproval ? '#c2410c' : '#15803d',
-                    border: venue.requiresApproval ? '1px solid #fed7aa' : '1px solid #bbf7d0',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontWeight: 600,
-                    cursor: 'help',
-                  }}
-                >
-                  {venue.requiresApproval ? '🔒 Booking: Approval Req' : '⚡ Booking: Instant'}
-                </span>
+                {(isOrganiser || isAdmin) && (
+                  <span
+                    title={
+                      venue.requiresApproval
+                        ? 'Booking Policy: Club reservations for this venue require administrator clearance before confirmation.'
+                        : 'Booking Policy: Reservations for this lab are auto-confirmed instantly.'
+                    }
+                    style={{
+                      fontSize: '11px',
+                      background: venue.requiresApproval ? '#fff7ed' : '#f0fdf4',
+                      color: venue.requiresApproval ? '#c2410c' : '#15803d',
+                      border: venue.requiresApproval ? '1px solid #fed7aa' : '1px solid #bbf7d0',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      fontWeight: 600,
+                      cursor: 'help',
+                    }}
+                  >
+                    {venue.requiresApproval ? '🔒 Approval Req' : '⚡ Instant'}
+                  </span>
+                )}
               </div>
 
               <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px' }}>
@@ -630,7 +632,7 @@ export default function HomePage() {
                   textDecoration: 'none',
                 }}
               >
-                View Schedule &amp; Book &rarr;
+                {(isOrganiser || isAdmin) ? 'View Schedule & Book →' : 'View Venue & Schedule →'}
               </Link>
             </div>
           ))}

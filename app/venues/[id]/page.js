@@ -256,6 +256,8 @@ export default function VenueDetailPage({ params }) {
   }
 
   const isAdmin = user && user.role === 'admin';
+  const isOrganiser = user && user.role === 'organiser';
+  const canBook = isAdmin || isOrganiser;
 
   return (
     <div>
@@ -299,9 +301,11 @@ export default function VenueDetailPage({ params }) {
               {venue.isActive !== false ? 'Active' : 'Inactive'}
             </span>
           </div>
-          <div>
-            <strong>Approval:</strong> {venue.requiresApproval ? 'Admin Approval Required' : 'Instant Confirmation'}
-          </div>
+          {canBook && (
+            <div>
+              <strong>Booking Policy:</strong> {venue.requiresApproval ? 'Admin Approval Required' : 'Instant Confirmation'}
+            </div>
+          )}
         </div>
 
         <div style={{ marginTop: '12px' }}>
@@ -472,75 +476,77 @@ export default function VenueDetailPage({ params }) {
       )}
 
       {/* Book Venue Section */}
-      <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
-        <h3>Request Venue Booking</h3>
-        <p><small>Book this venue for an upcoming club activity, workshop, or rehearsal.</small></p>
+      {canBook && (
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
+          <h3>Request Venue Booking</h3>
+          <p><small>Book this venue for an upcoming club activity, workshop, or rehearsal.</small></p>
 
-        <form onSubmit={handleCreateBooking} style={{ maxWidth: '500px' }}>
-          <div style={{ marginBottom: '10px' }}>
-            <label><strong>Event / Booking Title *:</strong></label>
-            <br />
-            <input
-              type="text"
-              required
-              style={{ width: '100%' }}
-              value={bookTitle}
-              onChange={(e) => setBookTitle(e.target.value)}
-              placeholder="e.g. Robotics Club Practice Session"
-            />
-          </div>
-
-          <div style={{ marginBottom: '10px' }}>
-            <label><strong>Booking Date *:</strong></label>
-            <br />
-            <input
-              type="date"
-              required
-              value={bookDate}
-              onChange={(e) => setBookDate(e.target.value)}
-            />
-          </div>
-
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '10px' }}>
-            <div>
-              <label><strong>Start Time *:</strong></label>
+          <form onSubmit={handleCreateBooking} style={{ maxWidth: '500px' }}>
+            <div style={{ marginBottom: '10px' }}>
+              <label><strong>Event / Booking Title *:</strong></label>
               <br />
               <input
-                type="time"
+                type="text"
                 required
-                value={bookStart}
-                onChange={(e) => setBookStart(e.target.value)}
+                style={{ width: '100%' }}
+                value={bookTitle}
+                onChange={(e) => setBookTitle(e.target.value)}
+                placeholder="e.g. Robotics Club Practice Session"
               />
             </div>
-            <div>
-              <label><strong>End Time *:</strong></label>
+
+            <div style={{ marginBottom: '10px' }}>
+              <label><strong>Booking Date *:</strong></label>
               <br />
               <input
-                type="time"
+                type="date"
                 required
-                value={bookEnd}
-                onChange={(e) => setBookEnd(e.target.value)}
+                value={bookDate}
+                onChange={(e) => setBookDate(e.target.value)}
               />
             </div>
-          </div>
 
-          <div style={{ marginBottom: '12px' }}>
-            <label><strong>Note / Purpose:</strong></label>
-            <br />
-            <textarea
-              rows="2"
-              style={{ width: '100%' }}
-              value={bookNote}
-              onChange={(e) => setBookNote(e.target.value)}
-              placeholder="Any special requirements..."
-            />
-          </div>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '10px' }}>
+              <div>
+                <label><strong>Start Time *:</strong></label>
+                <br />
+                <input
+                  type="time"
+                  required
+                  value={bookStart}
+                  onChange={(e) => setBookStart(e.target.value)}
+                />
+              </div>
+              <div>
+                <label><strong>End Time *:</strong></label>
+                <br />
+                <input
+                  type="time"
+                  required
+                  value={bookEnd}
+                  onChange={(e) => setBookEnd(e.target.value)}
+                />
+              </div>
+            </div>
 
-          <button type="submit" disabled={isSubmittingBooking}>
-            {isSubmittingBooking ? 'Submitting...' : 'Submit Booking Request'}
-          </button>
-        </form>
-      </div>
+            <div style={{ marginBottom: '12px' }}>
+              <label><strong>Note / Purpose:</strong></label>
+              <br />
+              <textarea
+                rows="2"
+                style={{ width: '100%' }}
+                value={bookNote}
+                onChange={(e) => setBookNote(e.target.value)}
+                placeholder="Any special requirements..."
+              />
+            </div>
+
+            <button type="submit" disabled={isSubmittingBooking}>
+              {isSubmittingBooking ? 'Submitting...' : 'Submit Booking Request'}
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* Bookings List Section */}
       <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>

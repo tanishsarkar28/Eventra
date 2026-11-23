@@ -181,6 +181,8 @@ export default function VenuesDashboardPage() {
   }
 
   const isAdmin = user && user.role === 'admin';
+  const isOrganiser = user && user.role === 'organiser';
+  const canBook = isAdmin || isOrganiser;
   const totalVenues = venues.length;
   const activeVenuesCount = venues.filter((v) => v.isActive !== false).length;
   const totalCapacity = venues.reduce((sum, v) => sum + (Number(v.capacity) || 0), 0);
@@ -282,45 +284,47 @@ export default function VenuesDashboardPage() {
                         <Link href={`/venues/${venue.id}`}>
                           <strong>{venue.name}</strong>
                         </Link>
-                        <div style={{ marginTop: '4px' }}>
-                          {venue.requiresApproval ? (
-                            <span
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                fontSize: '11px',
-                                fontWeight: 600,
-                                color: '#c2410c',
-                                background: '#fff7ed',
-                                border: '1px solid #fed7aa',
-                                padding: '1px 6px',
-                                borderRadius: '4px',
-                              }}
-                              title="Organiser reservations for this venue require admin approval before confirmation"
-                            >
-                              🔒 Policy: Requires Approval
-                            </span>
-                          ) : (
-                            <span
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                fontSize: '11px',
-                                fontWeight: 600,
-                                color: '#15803d',
-                                background: '#f0fdf4',
-                                border: '1px solid #bbf7d0',
-                                padding: '1px 6px',
-                                borderRadius: '4px',
-                              }}
-                              title="Bookings for this venue are automatically confirmed instantly"
-                            >
-                              ⚡ Policy: Instant Booking
-                            </span>
-                          )}
-                        </div>
+                        {canBook && (
+                          <div style={{ marginTop: '4px' }}>
+                            {venue.requiresApproval ? (
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  fontSize: '11px',
+                                  fontWeight: 600,
+                                  color: '#c2410c',
+                                  background: '#fff7ed',
+                                  border: '1px solid #fed7aa',
+                                  padding: '1px 6px',
+                                  borderRadius: '4px',
+                                }}
+                                title="Organiser reservations for this venue require admin approval before confirmation"
+                              >
+                                🔒 Policy: Requires Approval
+                              </span>
+                            ) : (
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  fontSize: '11px',
+                                  fontWeight: 600,
+                                  color: '#15803d',
+                                  background: '#f0fdf4',
+                                  border: '1px solid #bbf7d0',
+                                  padding: '1px 6px',
+                                  borderRadius: '4px',
+                                }}
+                                title="Bookings for this venue are automatically confirmed instantly"
+                              >
+                                ⚡ Policy: Instant Booking
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td>{venue.type}</td>
                       <td><strong>{venue.capacity}</strong></td>
@@ -356,7 +360,7 @@ export default function VenuesDashboardPage() {
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '90px' }}>
                           <Link href={`/venues/${venue.id}`} style={{ fontSize: '13px' }}>
-                            View &amp; Book
+                            {canBook ? 'View & Book' : 'View Schedule'}
                           </Link>
                           {isAdmin && (
                             <>
