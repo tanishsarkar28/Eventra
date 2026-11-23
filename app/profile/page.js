@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
 import Button from '@/components/Button';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 /**
- * Minimalist Profile Page
+ * Minimalist Profile Page with Role-Aware Presentation
  * Next.js Unit IV: Session management & RBAC profile viewing
  * React Unit II: Component composition with Card & Badge
  * React Unit IV: Form handling & controlled inputs
@@ -66,9 +67,9 @@ export default function ProfilePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
-          branch,
-          year,
-          interests,
+          branch: user?.role === 'admin' ? '' : branch,
+          year: user?.role === 'admin' ? '' : year,
+          interests: user?.role === 'admin' ? '' : interests,
         }),
       });
 
@@ -105,15 +106,20 @@ export default function ProfilePage() {
 
   if (!user) return null;
 
+  const isAdmin = user.role === 'admin';
+  const isOrganiser = user.role === 'organiser';
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div>
           <h2 style={{ border: 'none', margin: '0 0 4px 0', padding: 0 }}>
-            User Profile
+            {isAdmin ? 'Administrator Profile' : 'User Profile'}
           </h2>
-          <p style={{ margin: 0 }}>
-            Manage your campus identity, preferences, and club affiliation.
+          <p style={{ margin: 0, color: 'var(--text-secondary)' }}>
+            {isAdmin
+              ? 'Manage your campus administrative identity and credentials.'
+              : 'Manage your campus identity, preferences, and club affiliation.'}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -125,7 +131,7 @@ export default function ProfilePage() {
         {/* Account Details Card */}
         <Card
           title="Account Details"
-          subtitle="Your verified campus identity records"
+          subtitle={isAdmin ? 'Verified administrative identity & security clearance' : 'Your verified campus identity records'}
           padding="normal"
         >
           <table>
@@ -145,57 +151,84 @@ export default function ProfilePage() {
               <tr>
                 <td style={{ fontWeight: 600 }}>Role:</td>
                 <td>
-                  <Badge variant="neutral" dot size="sm">
-                    {user.role}
+                  <Badge variant={isAdmin ? 'danger' : 'neutral'} dot size="sm">
+                    {isAdmin ? 'Administrator (Full Access)' : user.role}
                   </Badge>
                 </td>
               </tr>
-              {user.role === 'organiser' && (
+
+              {isOrganiser && (
                 <tr>
                   <td style={{ fontWeight: 600 }}>Club Name:</td>
                   <td><strong>{user.clubName || 'N/A'}</strong></td>
                 </tr>
               )}
-              <tr>
-                <td style={{ fontWeight: 600 }}>Verification Status:</td>
-                <td>
-                  <Badge variant={user.isVerified ? 'success' : 'warning'} dot size="sm">
-                    {user.isVerified ? 'Verified' : 'Pending Admin Verification'}
-                  </Badge>
-                </td>
-              </tr>
-              <tr>
-                <td style={{ fontWeight: 600 }}>Branch:</td>
-                <td>{user.branch || '(not set)'}</td>
-              </tr>
-              <tr>
-                <td style={{ fontWeight: 600 }}>Year:</td>
-                <td>{user.year || '(not set)'}</td>
-              </tr>
-              <tr>
-                <td style={{ fontWeight: 600 }}>Interests:</td>
-                <td>
-                  {user.interests && user.interests.length > 0 ? (
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                      {user.interests.map((tag) => (
-                        <Badge key={tag} variant="info" size="sm">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    <span style={{ color: 'var(--text-muted)' }}>(none)</span>
-                  )}
-                </td>
-              </tr>
+
+              {isAdmin ? (
+                <>
+                  <tr>
+                    <td style={{ fontWeight: 600 }}>Privilege Level:</td>
+                    <td>
+                      <span style={{ fontSize: '13px', color: '#16a34a', fontWeight: 600 }}>
+                        ● Central University Authority
+                      </span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 600 }}>Access Scope:</td>
+                    <td style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+                      Event Approval, Clash Overrides, Blackout Scheduling &amp; Audit Logs
+                    </td>
+                  </tr>
+                </>
+              ) : (
+                <>
+                  <tr>
+                    <td style={{ fontWeight: 600 }}>Verification Status:</td>
+                    <td>
+                      <Badge variant={user.isVerified ? 'success' : 'warning'} dot size="sm">
+                        {user.isVerified ? 'Verified' : 'Pending Admin Verification'}
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 600 }}>Branch:</td>
+                    <td>{user.branch || '(not set)'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 600 }}>Year:</td>
+                    <td>{user.year || '(not set)'}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ fontWeight: 600 }}>Interests:</td>
+                    <td>
+                      {user.interests && user.interests.length > 0 ? (
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          {user.interests.map((tag) => (
+                            <Badge key={tag} variant="info" size="sm">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)' }}>(none)</span>
+                      )}
+                    </td>
+                  </tr>
+                </>
+              )}
             </tbody>
           </table>
         </Card>
 
         {/* Edit Profile Card */}
         <Card
-          title="Edit Profile"
-          subtitle="Update student details and event interest tags"
+          title={isAdmin ? 'Administrator Settings' : 'Edit Profile'}
+          subtitle={
+            isAdmin
+              ? 'Update administrator display name and contact profile'
+              : 'Update student details and event interest tags'
+          }
           padding="normal"
         >
           {message && (
@@ -207,7 +240,7 @@ export default function ProfilePage() {
 
           <form onSubmit={handleUpdate}>
             <div className="form-group">
-              <label htmlFor="edit-name">Name</label>
+              <label htmlFor="edit-name">{isAdmin ? 'Administrator Display Name' : 'Name'}</label>
               <input
                 id="edit-name"
                 type="text"
@@ -217,35 +250,39 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="edit-branch">Branch (e.g., Computer Science)</label>
-              <input
-                id="edit-branch"
-                type="text"
-                value={branch}
-                onChange={(e) => setBranch(e.target.value)}
-              />
-            </div>
+            {!isAdmin && (
+              <>
+                <div className="form-group">
+                  <label htmlFor="edit-branch">Branch (e.g., Computer Science)</label>
+                  <input
+                    id="edit-branch"
+                    type="text"
+                    value={branch}
+                    onChange={(e) => setBranch(e.target.value)}
+                  />
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="edit-year">Year (e.g., 3rd Year)</label>
-              <input
-                id="edit-year"
-                type="text"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-              />
-            </div>
+                <div className="form-group">
+                  <label htmlFor="edit-year">Year (e.g., 3rd Year)</label>
+                  <input
+                    id="edit-year"
+                    type="text"
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                  />
+                </div>
 
-            <div className="form-group">
-              <label htmlFor="edit-interests">Interests (comma separated, e.g. AI, Music, Sports)</label>
-              <input
-                id="edit-interests"
-                type="text"
-                value={interests}
-                onChange={(e) => setInterests(e.target.value)}
-              />
-            </div>
+                <div className="form-group">
+                  <label htmlFor="edit-interests">Interests (comma separated, e.g. AI, Music, Sports)</label>
+                  <input
+                    id="edit-interests"
+                    type="text"
+                    value={interests}
+                    onChange={(e) => setInterests(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
 
             <Button
               type="submit"
@@ -256,6 +293,21 @@ export default function ProfilePage() {
               Save Changes
             </Button>
           </form>
+
+          {isAdmin && (
+            <div style={{ marginTop: '20px', padding: '14px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <span style={{ fontSize: '18px' }}>🛡️</span>
+                <strong style={{ color: '#9a3412', fontSize: '13.5px' }}>Central Admin Console</strong>
+              </div>
+              <p style={{ margin: '0 0 10px 0', fontSize: '12.5px', color: '#7c2d12', lineHeight: '1.5' }}>
+                Manage campus events, approve or reject pending submissions, set exam blackout dates, and inspect audit logs.
+              </p>
+              <Link href="/admin" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
+                Open Admin Command Center &rarr;
+              </Link>
+            </div>
+          )}
         </Card>
       </div>
     </div>

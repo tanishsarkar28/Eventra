@@ -83,7 +83,7 @@ export default function Navbar() {
             Clashes
           </Link>
 
-          {user && (user.role === 'organiser' || user.role === 'admin') && (
+          {user && user.role === 'organiser' && (
             <Link
               href="/my-events"
               className={`nav-link ${isActive('/my-events') ? 'active' : ''}`}

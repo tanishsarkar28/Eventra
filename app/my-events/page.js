@@ -132,6 +132,29 @@ export default function MyEventsPage() {
     );
   }
 
+  // 8. admin gateway redirection
+  if (user && user.role === 'admin') {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px 20px', maxWidth: '600px', margin: '0 auto' }}>
+        <div style={{ fontSize: '42px', marginBottom: '12px' }}>🛡️</div>
+        <h2 style={{ border: 'none', margin: '0 0 8px 0', padding: 0 }}>
+          Administrator Command Center
+        </h2>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
+          You are signed in as a <strong>University Administrator</strong>. Club organisers manage their individual club events here, while university-wide event approvals, clash overrides, and venue moderation are handled in the Admin Command Center.
+        </p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link href="/admin" className="btn btn-primary btn-lg" style={{ textDecoration: 'none' }}>
+            🛡️ Open Admin Command Center &rarr;
+          </Link>
+          <Link href="/discover" className="btn btn-outline btn-lg" style={{ textDecoration: 'none' }}>
+            Browse Campus Events
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>

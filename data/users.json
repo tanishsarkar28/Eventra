@@ -19,8 +19,8 @@
     "email": "admin@eventra.edu",
     "password": "$2a$10$YtQ5mgCX88OudJBkbB.t1OW6q2QltItFaZn3uRLLx6MGMn8Ub7unS",
     "role": "admin",
-    "branch": "Admin",
-    "year": "N/A",
+    "branch": "",
+    "year": "",
     "interests": [],
     "clubName": "",
     "isVerified": true
