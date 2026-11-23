@@ -22,7 +22,7 @@ The repository is built following a clean, modular structure with zero complex a
 
 - **Frontend Framework:** Next.js 14 (App Router) + React 18
 - **Language:** Plain JavaScript (`.js` files, beginner-friendly, zero TypeScript overhead)
-- **Styling:** Custom lightweight CSS (`app/globals.css`) with clean card containers, modern pill navigation, responsive tables, and status badges. Zero heavy UI frameworks (no Tailwind/Bootstrap required).
+- **Styling:** Tailwind CSS + Custom minimal CSS design system (`app/globals.css`, `tailwind.config.js`, `postcss.config.js`) with utility-first classes, modern pill navigation, responsive tables, and status badges.
 - **Backend & APIs:** Next.js Route Handlers (`app/api/...`) with seamless dual-path compatibility (`/events/...`, `/venues/...`, and `/admin/...`) powered by `middleware.js`.
 - **Database System:** File-based JSON storage inside `data/` (`users.json`, `events.json`, `categories.json`, `tags.json`, `venues.json`, `bookings.json`, `registrations.json`, `waitlist.json`, `tickets.json`, `attendance.json`, `notifications.json`, `notification_preferences.json`, `email_outbox.json`, `push_outbox.json`, `timetable.json`, `audit_logs.json`, `reports.json`, `analytics_snapshots.json`), accessed via safe atomic read/write functions in `lib/db.js`.
 - **Authentication & Security:** 

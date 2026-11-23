@@ -29,8 +29,8 @@ function Badge({
   }
 
   return (
-    <span className={`badge badge-${resolvedVariant} badge-${size} ${className}`}>
-      {dot && <span className={`badge-dot badge-dot-${resolvedVariant}`} />}
+    <span className={`badge badge-${resolvedVariant} badge-${size} inline-flex items-center gap-1.5 font-medium rounded-full ${className}`}>
+      {dot && <span className={`badge-dot badge-dot-${resolvedVariant} w-1.5 h-1.5 rounded-full inline-block`} />}
       {children}
     </span>
   );

@@ -128,6 +128,7 @@ Use this document to prepare for evaluations, practical vivas, and project prese
 | **Component Composition Patterns** | Flexible container components accepting `children` and named slots (`title`, `subtitle`, `footer`). | `components/Card.js`, `components/Modal.js` |
 | **Conditional Rendering** | Short-circuit evaluation (`{user && ...}`) and ternary operators for clean UI branching. | `app/page.js`, `components/Navbar.js` |
 | **Minimalist Styling in React** | Modern, clean CSS design system in `app/globals.css` with subtle slate borders, soft shadows, responsive typography, and minimal cards. | `app/globals.css` |
+| **Tailwind CSS & Utility-First Methodology** | Configured via `tailwind.config.js` and `postcss.config.js`. Uses Tailwind utility classes (`flex`, `items-center`, `justify-between`, `text-slate-900`, `rounded-lg`, `border-slate-200`) across reusable components alongside custom minimal design system tokens. | `tailwind.config.js`, `postcss.config.js`, `app/globals.css`, `components/` |
 | **Accessibility (a11y) & Semantic HTML** | Semantic elements (`<header>`, `<nav>`, `<main>`, `<table>`), `role="dialog"`, `aria-modal="true"`, and `role="alert"`. | `components/Modal.js`, `components/Navbar.js` |
 
 ---
