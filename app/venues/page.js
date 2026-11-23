@@ -183,6 +183,50 @@ export default function VenuesDashboardPage() {
   const isAdmin = user && user.role === 'admin';
   const isOrganiser = user && user.role === 'organiser';
   const canBook = isAdmin || isOrganiser;
+
+  if (!canBook) {
+    return (
+      <div style={{ maxWidth: '600px', margin: '48px auto', textAlign: 'center', padding: '36px 28px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.05)' }}>
+        <div style={{ fontSize: '48px', marginBottom: '14px' }}>🔒</div>
+        <h2 style={{ margin: '0 0 10px 0', fontSize: '22px', color: '#0f172a' }}>Organiser &amp; Faculty Access Only</h2>
+        <p style={{ color: '#64748b', fontSize: '14.5px', lineHeight: 1.6, marginBottom: '24px' }}>
+          Campus venue management, hall reservations, and conflict monitoring are reserved for registered student club organisers and university administrators.
+        </p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+          <Link
+            href="/discover"
+            style={{
+              padding: '10px 20px',
+              background: '#f15a24',
+              color: '#ffffff',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: 600,
+              fontSize: '14px',
+            }}
+          >
+            Explore Campus Events &rarr;
+          </Link>
+          <Link
+            href="/"
+            style={{
+              padding: '10px 20px',
+              background: '#f1f5f9',
+              color: '#334155',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: 600,
+              fontSize: '14px',
+              border: '1px solid #cbd5e1',
+            }}
+          >
+            Go Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const totalVenues = venues.length;
   const activeVenuesCount = venues.filter((v) => v.isActive !== false).length;
   const totalCapacity = venues.reduce((sum, v) => sum + (Number(v.capacity) || 0), 0);

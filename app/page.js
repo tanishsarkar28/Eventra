@@ -147,24 +147,45 @@ export default function HomePage() {
               <span>🔍</span> Explore LPU Events Feed
             </Link>
 
-            <Link
-              href="/venues"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 20px',
-                background: 'rgba(255, 255, 255, 0.08)',
-                color: '#ffffff',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                fontWeight: 600,
-                fontSize: '14px',
-                textDecoration: 'none',
-              }}
-            >
-              <span>🏛️</span> Campus Venues &amp; Auditoriums
-            </Link>
+            {(isOrganiser || isAdmin) ? (
+              <Link
+                href="/venues"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 20px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  color: '#ffffff',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                }}
+              >
+                <span>🏛️</span> Manage Campus Venues
+              </Link>
+            ) : (
+              <Link
+                href="/calendar"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 20px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  color: '#ffffff',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                }}
+              >
+                <span>📅</span> Student Schedule &amp; Timetable
+              </Link>
+            )}
 
             {!user && (
               <Link
@@ -522,62 +543,62 @@ export default function HomePage() {
       </section>
 
       {/* ============================================================
-          4. LPU CAMPUS VENUES & LANDMARK SHOWCASE
+          4. LPU CAMPUS VENUES & LANDMARK SHOWCASE (ORGANISER / ADMIN ONLY)
           ============================================================ */}
-      <section
-        style={{
-          background: '#ffffff',
-          borderRadius: '16px',
-          border: '1px solid #e2e8f0',
-          padding: '32px 24px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-          <div>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#f15a24', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-              📍 Campus Infrastructure
-            </div>
-            <h2 style={{ margin: 0, fontSize: '24px', color: '#0f172a' }}>
-              Premier Event Venues at Lovely Professional University
-            </h2>
-          </div>
-
-          <Link
-            href="/venues"
-            style={{
-              color: '#f15a24',
-              fontWeight: 700,
-              fontSize: '13.5px',
-              textDecoration: 'none',
-            }}
-          >
-            Inspect All Venues &amp; Timings &rarr;
-          </Link>
-        </div>
-
-        <div
+      {(isOrganiser || isAdmin) && (
+        <section
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-            gap: '16px',
+            background: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            padding: '32px 24px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
           }}
         >
-          {venues.map((venue) => (
-            <div
-              key={venue.id}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#f15a24', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+                📍 Campus Infrastructure
+              </div>
+              <h2 style={{ margin: 0, fontSize: '24px', color: '#0f172a' }}>
+                Premier Event Venues at Lovely Professional University
+              </h2>
+            </div>
+
+            <Link
+              href="/venues"
               style={{
-                border: '1px solid #e2e8f0',
-                borderRadius: '10px',
-                padding: '16px',
-                background: '#f8fafc',
-                display: 'flex',
-                flexDirection: 'column',
+                color: '#f15a24',
+                fontWeight: 700,
+                fontSize: '13.5px',
+                textDecoration: 'none',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a' }}>{venue.name}</h4>
-                {(isOrganiser || isAdmin) && (
+              Inspect All Venues &amp; Timings &rarr;
+            </Link>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+              gap: '16px',
+            }}
+          >
+            {venues.map((venue) => (
+              <div
+                key={venue.id}
+                style={{
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  padding: '16px',
+                  background: '#f8fafc',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                  <h4 style={{ margin: 0, fontSize: '15px', color: '#0f172a' }}>{venue.name}</h4>
                   <span
                     title={
                       venue.requiresApproval
@@ -597,47 +618,47 @@ export default function HomePage() {
                   >
                     {venue.requiresApproval ? '🔒 Approval Req' : '⚡ Instant'}
                   </span>
-                )}
-              </div>
+                </div>
 
-              <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px' }}>
-                {venue.location}
-              </div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px' }}>
+                  {venue.location}
+                </div>
 
-              <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#334155', marginBottom: '12px', background: '#ffffff', padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                <div>👥 Capacity: <strong>{venue.capacity}</strong></div>
-                <div>🕒 <strong>{venue.availableFrom} - {venue.availableTo}</strong></div>
-              </div>
+                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#334155', marginBottom: '12px', background: '#ffffff', padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                  <div>👥 Capacity: <strong>{venue.capacity}</strong></div>
+                  <div>🕒 <strong>{venue.availableFrom} - {venue.availableTo}</strong></div>
+                </div>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '14px', flex: 1 }}>
-                {(venue.facilities || []).slice(0, 4).map((f) => (
-                  <span key={f} style={{ background: '#f1f5f9', fontSize: '11px', color: '#475569', padding: '2px 6px', borderRadius: '4px' }}>
-                    {f}
-                  </span>
-                ))}
-              </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '14px', flex: 1 }}>
+                  {(venue.facilities || []).slice(0, 4).map((f) => (
+                    <span key={f} style={{ background: '#f1f5f9', fontSize: '11px', color: '#475569', padding: '2px 6px', borderRadius: '4px' }}>
+                      {f}
+                    </span>
+                  ))}
+                </div>
 
-              <Link
-                href={`/venues/${venue.id}`}
-                style={{
-                  display: 'inline-block',
-                  textAlign: 'center',
-                  padding: '6px 12px',
-                  background: '#ffffff',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '6px',
-                  fontSize: '12.5px',
-                  fontWeight: 600,
-                  color: '#1e293b',
-                  textDecoration: 'none',
-                }}
-              >
-                {(isOrganiser || isAdmin) ? 'View Schedule & Book →' : 'View Venue & Schedule →'}
-              </Link>
-            </div>
-          ))}
-        </div>
-      </section>
+                <Link
+                  href={`/venues/${venue.id}`}
+                  style={{
+                    display: 'inline-block',
+                    textAlign: 'center',
+                    padding: '6px 12px',
+                    background: '#ffffff',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '6px',
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    color: '#1e293b',
+                    textDecoration: 'none',
+                  }}
+                >
+                  View Schedule &amp; Book &rarr;
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ============================================================
           5. CAMPUS CLUBS & ZERO-CLASH SYSTEM HIGHLIGHTS

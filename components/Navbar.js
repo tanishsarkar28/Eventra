@@ -70,12 +70,14 @@ export default function Navbar() {
           >
             Calendar
           </Link>
-          <Link
-            href="/venues"
-            className={`nav-link ${isActive('/venues') ? 'active' : ''}`}
-          >
-            Venues
-          </Link>
+          {(isOrganiser || isAdmin) && (
+            <Link
+              href="/venues"
+              className={`nav-link ${isActive('/venues') ? 'active' : ''}`}
+            >
+              Venues
+            </Link>
+          )}
           <Link
             href="/clash/report"
             className={`nav-link ${isActive('/clash/report') ? 'active' : ''}`}
