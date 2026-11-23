@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="50%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#1f2937" />
+    </linearGradient>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f15a24" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#bgGrad)" />
+
+  <!-- Grid Pattern -->
+  <g stroke="#ffffff" stroke-width="0.5" opacity="0.08">
+    <path d="M0,50 H800 M0,100 H800 M0,150 H800 M0,200 H800 M0,250 H800 M0,300 H800 M0,350 H800 M0,400 H800" />
+    <path d="M100,0 V450 M200,0 V450 M300,0 V450 M400,0 V450 M500,0 V450 M600,0 V450 M700,0 V450" />
+  </g>
+
+  <!-- Glowing background circles -->
+  <circle cx="700" cy="80" r="140" fill="#f15a24" opacity="0.18" filter="blur(40px)" />
+  <circle cx="120" cy="380" r="120" fill="#06b6d4" opacity="0.15" filter="blur(40px)" />
+
+  <!-- LPU Campus Top Tag -->
+  <rect x="50" y="38" width="85" height="26" rx="5" fill="url(#orangeGrad)" />
+  <text x="92" y="55" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="12" font-weight="900" text-anchor="middle" letter-spacing="1">LPU TECH</text>
+  <text x="148" y="55" fill="#9ca3af" font-family="-apple-system, Segoe UI, sans-serif" font-size="13" font-weight="600">SCHOOL OF COMPUTER SCIENCE &amp; TECH</text>
+
+  <!-- Title Section -->
+  <text x="50" y="130" fill="#06b6d4" font-family="-apple-system, Segoe UI, sans-serif" font-size="15" font-weight="800" letter-spacing="2">ANNUAL INTER-COLLEGE CODING FEST</text>
+  <text x="50" y="190" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="44" font-weight="900" letter-spacing="-1">NATIONAL AI &amp;</text>
+  <text x="50" y="240" fill="url(#orangeGrad)" font-family="-apple-system, Segoe UI, sans-serif" font-size="44" font-weight="900" letter-spacing="-1">WEB3 HACKATHON 2026</text>
+
+  <!-- Subtitle -->
+  <text x="50" y="285" fill="#cbd5e1" font-family="-apple-system, Segoe UI, sans-serif" font-size="15" font-weight="400">
+    24-Hour Non-Stop Building Challenge: Generative AI, Smart Campus Agents &amp; Cloud Systems
+  </text>
+
+  <!-- Divider Line -->
+  <line x1="50" y1="315" x2="750" y2="315" stroke="#374151" stroke-width="1.5" />
+
+  <!-- Event Details Pills -->
+  <g transform="translate(50, 345)">
+    <!-- Date Badge -->
+    <rect x="0" y="0" width="170" height="55" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1" />
+    <text x="15" y="24" fill="#94a3b8" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="600">DATE &amp; TIME</text>
+    <text x="15" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">Nov 30 • 10:00 AM</text>
+
+    <!-- Venue Badge -->
+    <rect x="185" y="0" width="240" height="55" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1" />
+    <text x="200" y="24" fill="#94a3b8" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="600">CAMPUS VENUE</text>
+    <text x="200" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">Block 34 CS Lab &amp; Tech Center</text>
+
+    <!-- Prize Pool -->
+    <rect x="440" y="0" width="140" height="55" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1" />
+    <text x="455" y="24" fill="#f59e0b" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="700">PRIZE POOL</text>
+    <text x="455" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="800">₹1,50,000</text>
+
+    <!-- Registration Status -->
+    <rect x="595" y="0" width="105" height="55" rx="8" fill="#f15a24" />
+    <text x="647" y="24" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="700" text-anchor="middle">ENTRY</text>
+    <text x="647" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="900" text-anchor="middle">FREE</text>
+  </g>
+</svg>

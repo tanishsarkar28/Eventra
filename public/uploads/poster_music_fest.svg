@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="sunsetBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#180b24" />
+      <stop offset="40%" stop-color="#2c0e3a" />
+      <stop offset="70%" stop-color="#4c1434" />
+      <stop offset="100%" stop-color="#150520" />
+    </linearGradient>
+    <linearGradient id="sunburnGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="50%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+    <linearGradient id="lpuBrand" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f15a24" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#sunsetBg)" />
+
+  <!-- Sunburn festival sun rays & laser lights -->
+  <circle cx="680" cy="120" r="150" fill="#f59e0b" opacity="0.25" />
+  <circle cx="200" cy="80" r="180" fill="#ec4899" opacity="0.18" />
+  <line x1="0" y1="450" x2="680" y2="120" stroke="#f97316" stroke-width="1.5" opacity="0.2" />
+  <line x1="200" y1="450" x2="680" y2="120" stroke="#ec4899" stroke-width="1.5" opacity="0.2" />
+  <line x1="500" y1="450" x2="680" y2="120" stroke="#f59e0b" stroke-width="1.5" opacity="0.2" />
+
+  <!-- LPU Header -->
+  <rect x="50" y="38" width="85" height="26" rx="5" fill="url(#lpuBrand)" />
+  <text x="92" y="55" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="12" font-weight="900" text-anchor="middle" letter-spacing="1">LPU FEST</text>
+  <text x="148" y="55" fill="#fed7aa" font-family="-apple-system, Segoe UI, sans-serif" font-size="13" font-weight="600">STUDENT ENTERTAINMENT COUNCIL</text>
+
+  <!-- Title -->
+  <text x="50" y="130" fill="#f59e0b" font-family="-apple-system, Segoe UI, sans-serif" font-size="15" font-weight="800" letter-spacing="2">ANNUAL CAMPUS MUSIC FESTIVAL 2026</text>
+  <text x="50" y="190" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="44" font-weight="900" letter-spacing="-1">SUNBURN YOUTH</text>
+  <text x="50" y="240" fill="url(#sunburnGrad)" font-family="-apple-system, Segoe UI, sans-serif" font-size="44" font-weight="900" letter-spacing="-1">MEGA MUSIC NIGHT</text>
+
+  <text x="50" y="285" fill="#fbcfe8" font-family="-apple-system, Segoe UI, sans-serif" font-size="15" font-weight="400">
+    Featuring Headline Electronic Artists, Campus Rock Bands &amp; World-Class Pyrotechnics
+  </text>
+
+  <!-- Divider -->
+  <line x1="50" y1="315" x2="750" y2="315" stroke="#701a75" stroke-width="1.5" />
+
+  <!-- Details Row -->
+  <g transform="translate(50, 345)">
+    <rect x="0" y="0" width="170" height="55" rx="8" fill="#3b0764" stroke="#581c87" stroke-width="1" />
+    <text x="15" y="24" fill="#d8b4fe" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="600">DATE &amp; TIME</text>
+    <text x="15" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">Dec 15 • 05:00 PM</text>
+
+    <rect x="185" y="0" width="260" height="55" rx="8" fill="#3b0764" stroke="#581c87" stroke-width="1" />
+    <text x="200" y="24" fill="#d8b4fe" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="600">CAMPUS VENUE</text>
+    <text x="200" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">Open Air Theatre (OAT)</text>
+
+    <rect x="460" y="0" width="120" height="55" rx="8" fill="#3b0764" stroke="#581c87" stroke-width="1" />
+    <text x="475" y="24" fill="#f472b6" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="700">PASS PRICE</text>
+    <text x="475" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="800">₹299</text>
+
+    <rect x="595" y="0" width="105" height="55" rx="8" fill="#f97316" />
+    <text x="647" y="24" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="700" text-anchor="middle">BOOKING</text>
+    <text x="647" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="900" text-anchor="middle">FAST-FILLING</text>
+  </g>
+</svg>

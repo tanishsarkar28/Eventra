@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="tedxBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141414" />
+      <stop offset="50%" stop-color="#1c1c1c" />
+      <stop offset="100%" stop-color="#0a0a0a" />
+    </linearGradient>
+    <linearGradient id="tedxRed" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e62b1e" />
+      <stop offset="100%" stop-color="#ff4438" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#tedxBg)" />
+
+  <!-- The Iconic TEDx Red Spotlight Circle -->
+  <circle cx="400" cy="420" r="220" fill="#e62b1e" opacity="0.12" filter="blur(30px)" />
+  <ellipse cx="400" cy="440" rx="300" ry="60" fill="#e62b1e" opacity="0.3" />
+
+  <!-- LPU Header -->
+  <text x="50" y="55" fill="#e62b1e" font-family="-apple-system, Segoe UI, sans-serif" font-size="20" font-weight="900" letter-spacing="1">TEDx<tspan fill="#ffffff">LPU</tspan></text>
+  <text x="145" y="55" fill="#737373" font-family="-apple-system, Segoe UI, sans-serif" font-size="12" font-weight="600">x = independently organized TED event</text>
+
+  <!-- Title -->
+  <text x="50" y="130" fill="#a3a3a3" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700" letter-spacing="3">IDEAS WORTH SPREADING • ANNUAL CONCLAVE</text>
+  <text x="50" y="190" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="46" font-weight="900" letter-spacing="-1">BEYOND THE</text>
+  <text x="50" y="240" fill="url(#tedxRed)" font-family="-apple-system, Segoe UI, sans-serif" font-size="46" font-weight="900" letter-spacing="-1">HORIZON 2026</text>
+
+  <text x="50" y="285" fill="#d4d4d4" font-family="-apple-system, Segoe UI, sans-serif" font-size="15" font-weight="400">
+    8 Visionary Speakers on Space Science, AI Ethics, Creative Entrepreneurship &amp; Humanity
+  </text>
+
+  <!-- Divider -->
+  <line x1="50" y1="315" x2="750" y2="315" stroke="#262626" stroke-width="1.5" />
+
+  <!-- Details Row -->
+  <g transform="translate(50, 345)">
+    <rect x="0" y="0" width="170" height="55" rx="8" fill="#171717" stroke="#262626" stroke-width="1" />
+    <text x="15" y="24" fill="#a3a3a3" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="600">DATE &amp; TIME</text>
+    <text x="15" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">Dec 12 • 09:30 AM</text>
+
+    <rect x="185" y="0" width="260" height="55" rx="8" fill="#171717" stroke="#262626" stroke-width="1" />
+    <text x="200" y="24" fill="#a3a3a3" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="600">VENUE</text>
+    <text x="200" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">Shanti Devi Mittal Audi (SDM)</text>
+
+    <rect x="460" y="0" width="120" height="55" rx="8" fill="#171717" stroke="#262626" stroke-width="1" />
+    <text x="475" y="24" fill="#e62b1e" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="700">SEATS</text>
+    <text x="475" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="800">400 Only</text>
+
+    <rect x="595" y="0" width="105" height="55" rx="8" fill="#e62b1e" />
+    <text x="647" y="24" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="700" text-anchor="middle">PASS</text>
+    <text x="647" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="900" text-anchor="middle">RESERVE</text>
+  </g>
+</svg>

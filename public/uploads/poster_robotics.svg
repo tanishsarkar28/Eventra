@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="roboBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#051923" />
+      <stop offset="50%" stop-color="#003554" />
+      <stop offset="100%" stop-color="#001824" />
+    </linearGradient>
+    <linearGradient id="neonElectric" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f5d4" />
+      <stop offset="50%" stop-color="#00bbf9" />
+      <stop offset="100%" stop-color="#fee440" />
+    </linearGradient>
+    <linearGradient id="lpuBadge" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f15a24" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#roboBg)" />
+
+  <!-- Circuit lines & tech hexagons -->
+  <g stroke="#00bbf9" stroke-width="1" opacity="0.15">
+    <polygon points="700,50 740,75 740,125 700,150 660,125 660,75" />
+    <polygon points="620,120 660,145 660,195 620,220 580,195 580,145" />
+    <line x1="50" y1="200" x2="250" y2="200" />
+    <line x1="250" y1="200" x2="300" y2="150" />
+    <circle cx="300" cy="150" r="4" fill="#00f5d4" />
+  </g>
+
+  <!-- Glow circles -->
+  <circle cx="700" cy="100" r="140" fill="#00f5d4" opacity="0.12" filter="blur(35px)" />
+  <circle cx="100" cy="350" r="140" fill="#f15a24" opacity="0.1" filter="blur(35px)" />
+
+  <!-- LPU Brand Header -->
+  <rect x="50" y="38" width="105" height="26" rx="5" fill="url(#lpuBadge)" />
+  <text x="102" y="55" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="12" font-weight="900" text-anchor="middle" letter-spacing="1">LPU ROBOTICS</text>
+  <text x="170" y="55" fill="#7dd3fc" font-family="-apple-system, Segoe UI, sans-serif" font-size="13" font-weight="600">CENTRE FOR ADVANCED MECHATRONICS</text>
+
+  <!-- Title -->
+  <text x="50" y="130" fill="#00f5d4" font-family="-apple-system, Segoe UI, sans-serif" font-size="15" font-weight="800" letter-spacing="2">CAMPUS INNOVATION EXPO 2026</text>
+  <text x="50" y="190" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="44" font-weight="900" letter-spacing="-1">AERO-BOTICS &amp;</text>
+  <text x="50" y="240" fill="url(#neonElectric)" font-family="-apple-system, Segoe UI, sans-serif" font-size="44" font-weight="900" letter-spacing="-1">AUTONOMOUS DRONES</text>
+
+  <text x="50" y="285" fill="#bae6fd" font-family="-apple-system, Segoe UI, sans-serif" font-size="15" font-weight="400">
+    FPV Obstacle Arena, Autonomous Battle-Bots &amp; Industry Mechatronics Demonstrations
+  </text>
+
+  <!-- Divider -->
+  <line x1="50" y1="315" x2="750" y2="315" stroke="#0369a1" stroke-width="1.5" />
+
+  <!-- Details Row -->
+  <g transform="translate(50, 345)">
+    <rect x="0" y="0" width="170" height="55" rx="8" fill="#082f49" stroke="#075985" stroke-width="1" />
+    <text x="15" y="24" fill="#38bdf8" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="600">DATE &amp; TIME</text>
+    <text x="15" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">Dec 18 • 10:00 AM</text>
+
+    <rect x="185" y="0" width="260" height="55" rx="8" fill="#082f49" stroke="#075985" stroke-width="1" />
+    <text x="200" y="24" fill="#38bdf8" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="600">CAMPUS VENUE</text>
+    <text x="200" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="700">Block 34 CS Lab &amp; Tech Center</text>
+
+    <rect x="460" y="0" width="120" height="55" rx="8" fill="#082f49" stroke="#075985" stroke-width="1" />
+    <text x="475" y="24" fill="#00f5d4" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="700">AWARDS</text>
+    <text x="475" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="800">₹1,00,000</text>
+
+    <rect x="595" y="0" width="105" height="55" rx="8" fill="#0284c7" />
+    <text x="647" y="24" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="11" font-weight="700" text-anchor="middle">EXPO</text>
+    <text x="647" y="44" fill="#ffffff" font-family="-apple-system, Segoe UI, sans-serif" font-size="14" font-weight="900" text-anchor="middle">REGISTER</text>
+  </g>
+</svg>
