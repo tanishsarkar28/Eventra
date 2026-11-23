@@ -83,12 +83,6 @@ export default function Navbar() {
           >
             Clashes
           </Link>
-          <Link
-            href="/ssr-demo"
-            className={`nav-link ${isActive('/ssr-demo') ? 'active' : ''}`}
-          >
-            SSR Demo
-          </Link>
 
           {user && (user.role === 'organiser' || user.role === 'admin') && (
             <Link
