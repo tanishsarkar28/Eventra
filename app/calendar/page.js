@@ -41,11 +41,37 @@ export default function CalendarPage() {
   const [freeSlots, setFreeSlots] = useState([]);
   const [loadingFreeSlots, setLoadingFreeSlots] = useState(false);
 
+  // Admin Master Calendar State
+  const [venues, setVenues] = useState([]);
+  const [allBookings, setAllBookings] = useState([]);
+  const [adminCategoryFilter, setAdminCategoryFilter] = useState('All');
+  const [adminVenueFilter, setAdminVenueFilter] = useState('All');
+
   // 1. Fetch Calendar Data on Load
   useEffect(() => {
     fetchCalendarData();
     fetchPublishedEvents();
+    fetchVenuesAndBookings();
   }, []);
+
+  async function fetchVenuesAndBookings() {
+    try {
+      const [vRes, bRes] = await Promise.all([
+        fetch('/api/venues?all=true'),
+        fetch('/api/venues/bookings'),
+      ]);
+      if (vRes.ok) {
+        const vData = await vRes.json();
+        setVenues(Array.isArray(vData) ? vData : vData.venues || []);
+      }
+      if (bRes.ok) {
+        const bData = await bRes.json();
+        setAllBookings(bData.bookings || []);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
 
   async function fetchCalendarData(dateFilter = '') {
     setLoading(true);
@@ -282,13 +308,443 @@ export default function CalendarPage() {
   }
 
   const daysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const isAdmin = user && user.role === 'admin';
 
+  function getDayFromDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    if (isNaN(d.getTime())) return '';
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[d.getDay()];
+  }
+
+  // Filter published events for Admin Master Schedule
+  const filteredEventsForAdmin = allEvents.filter((ev) => {
+    if (adminCategoryFilter !== 'All' && ev.category !== adminCategoryFilter) return false;
+    if (
+      adminVenueFilter !== 'All' &&
+      (!ev.venue || !ev.venue.toLowerCase().includes(adminVenueFilter.toLowerCase()))
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  const adminEventsByDay = {};
+  for (const day of daysList) {
+    adminEventsByDay[day] = [];
+  }
+  for (const ev of filteredEventsForAdmin) {
+    const day = getDayFromDate(ev.date);
+    if (adminEventsByDay[day]) {
+      adminEventsByDay[day].push(ev);
+    }
+  }
+  for (const day of daysList) {
+    adminEventsByDay[day].sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+  }
+
+  // ============================================================
+  // ADMINISTRATOR INSTITUTIONAL MASTER CALENDAR VIEW
+  // ============================================================
+  if (isAdmin) {
+    const adminTab = activeTab === 'weekly' ? 'master' : activeTab;
+
+    return (
+      <div>
+        {/* Header bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h2 style={{ margin: '0 0 4px 0' }}>🏛️ Institution Master Calendar &amp; Schedule</h2>
+              <span style={{ fontSize: '11px', background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                ADMINISTRATOR
+              </span>
+            </div>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>
+              Welcome, <strong>Administrator</strong>! Oversee all campus-wide events, venue occupancies, and schedule timelines.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <Link
+              href="/venues"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                fontSize: '13px',
+                color: '#334155',
+                textDecoration: 'none',
+                fontWeight: 600,
+              }}
+            >
+              📍 Manage Venues
+            </Link>
+            <Link
+              href="/clash/report"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                fontSize: '13px',
+                color: '#334155',
+                textDecoration: 'none',
+                fontWeight: 600,
+              }}
+            >
+              ⚡ Clash Matrix
+            </Link>
+            <Link
+              href="/events/create"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: '#ea580c',
+                color: '#ffffff',
+                borderRadius: '6px',
+                fontSize: '13px',
+                textDecoration: 'none',
+                fontWeight: 600,
+              }}
+            >
+              + Create Event
+            </Link>
+          </div>
+        </div>
+
+        {/* Admin Navigation Tabs */}
+        <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setActiveTab('master')}
+            style={{
+              padding: '10px 18px',
+              background: adminTab === 'master' ? '#ea580c' : '#f1f5f9',
+              color: adminTab === 'master' ? '#ffffff' : '#334155',
+              border: 'none',
+              borderRadius: '6px 6px 0 0',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            📆 Master Campus Schedule ({filteredEventsForAdmin.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('venues')}
+            style={{
+              padding: '10px 18px',
+              background: adminTab === 'venues' ? '#ea580c' : '#f1f5f9',
+              color: adminTab === 'venues' ? '#ffffff' : '#334155',
+              border: 'none',
+              borderRadius: '6px 6px 0 0',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            📍 Venue Occupancy &amp; Reservations ({venues.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('clash-radar')}
+            style={{
+              padding: '10px 18px',
+              background: adminTab === 'clash-radar' ? '#ea580c' : '#f1f5f9',
+              color: adminTab === 'clash-radar' ? '#ffffff' : '#334155',
+              border: 'none',
+              borderRadius: '6px 6px 0 0',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            ⚠️ Institutional Clash Radar
+          </button>
+        </div>
+
+        {/* TAB 1: MASTER CAMPUS SCHEDULE */}
+        {adminTab === 'master' && (
+          <div>
+            {/* Filter Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', marginRight: '6px' }}>Category:</label>
+                  <select
+                    value={adminCategoryFilter}
+                    onChange={(e) => setAdminCategoryFilter(e.target.value)}
+                    style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  >
+                    <option value="All">All Categories</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Cultural">Cultural</option>
+                    <option value="Gaming">Gaming / Esports</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Academic">Academic</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', marginRight: '6px' }}>Venue:</label>
+                  <select
+                    value={adminVenueFilter}
+                    onChange={(e) => setAdminVenueFilter(e.target.value)}
+                    style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  >
+                    <option value="All">All Venues</option>
+                    <option value="Auditorium">Main Auditorium</option>
+                    <option value="Seminar">Seminar Hall 1</option>
+                    <option value="Computer Science">CS Lab 1</option>
+                    <option value="Sports">Main Sports Ground</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>
+                Showing <strong>{filteredEventsForAdmin.length}</strong> published campus event{filteredEventsForAdmin.length !== 1 ? 's' : ''}
+              </div>
+            </div>
+
+            {/* 7-Day Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+              {daysList.map((day) => {
+                const dayEvents = adminEventsByDay[day] || [];
+                return (
+                  <div key={day} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #fed7aa', paddingBottom: '8px', marginBottom: '12px' }}>
+                      <span style={{ fontWeight: 700, fontSize: '15px', color: '#1e293b' }}>{day}</span>
+                      <span style={{ fontSize: '12px', background: dayEvents.length > 0 ? '#fff7ed' : '#f1f5f9', color: dayEvents.length > 0 ? '#ea580c' : '#94a3b8', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                        {dayEvents.length} event{dayEvents.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+
+                    {dayEvents.length === 0 ? (
+                      <div style={{ color: '#94a3b8', fontSize: '13px', fontStyle: 'italic', padding: '16px 0', textAlign: 'center' }}>
+                        No campus events scheduled.
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {dayEvents.map((ev) => (
+                          <div
+                            key={ev.id}
+                            style={{
+                              padding: '10px 12px',
+                              borderRadius: '8px',
+                              border: '1px solid #fed7aa',
+                              background: '#fffaf5',
+                              borderLeft: '4px solid #ea580c',
+                            }}
+                          >
+                            <Link href={`/events/${ev.id}`} style={{ fontWeight: 700, color: '#0f172a', textDecoration: 'none', fontSize: '14px', display: 'block' }}>
+                              {ev.title}
+                            </Link>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#c2410c', fontSize: '12.5px', marginTop: '4px', fontWeight: 600 }}>
+                              <span>⏰ {ev.startTime} - {ev.endTime}</span>
+                              <span>•</span>
+                              <span>📅 {ev.date}</span>
+                            </div>
+
+                            <div style={{ color: '#475569', fontSize: '12px', marginTop: '4px' }}>
+                              📍 {ev.venue}
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', paddingTop: '6px', borderTop: '1px solid #fde68a', fontSize: '11.5px' }}>
+                              <span style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', color: '#475569', fontWeight: 500 }}>
+                                🏷️ {ev.category}
+                              </span>
+                              <span style={{ color: '#64748b' }}>
+                                👥 {ev.clubName || ev.organiserName}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: VENUE OCCUPANCY & BOOKINGS */}
+        {adminTab === 'venues' && (
+          <div>
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <div>
+                <h3 style={{ margin: '0 0 4px 0' }}>Campus Venues Schedule &amp; Occupancy</h3>
+                <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>
+                  Monitor facility utilization, reserved time slots, and pending reservation requests.
+                </p>
+              </div>
+              <Link
+                href="/venues"
+                style={{
+                  display: 'inline-block',
+                  padding: '8px 16px',
+                  background: '#ea580c',
+                  color: '#ffffff',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                }}
+              >
+                Go to Venue Directory &rarr;
+              </Link>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+              {venues.map((v) => {
+                const venueBookings = allBookings.filter((b) => b.venueId === v.id);
+                const venueEvents = allEvents.filter(
+                  (e) => e.venue && e.venue.toLowerCase().includes(v.name.toLowerCase())
+                );
+                const pendingCount = venueBookings.filter((b) => b.status === 'Pending').length;
+
+                return (
+                  <div key={v.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '16px' }}>
+                          <Link href={`/venues/${v.id}`} style={{ color: '#0f172a', textDecoration: 'none' }}>
+                            {v.name}
+                          </Link>
+                        </h4>
+                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{v.location}</div>
+                      </div>
+                      <span style={{ fontSize: '11px', background: v.requiresApproval ? '#fff7ed' : '#f0fdf4', color: v.requiresApproval ? '#c2410c' : '#15803d', border: v.requiresApproval ? '1px solid #fed7aa' : '1px solid #bbf7d0', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                        {v.requiresApproval ? '🔒 Clearance Required' : '⚡ Instant'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#475569', marginBottom: '12px', background: '#f8fafc', padding: '8px', borderRadius: '6px' }}>
+                      <div>👥 Capacity: <strong>{v.capacity}</strong></div>
+                      <div>🕒 Hours: <strong>{v.availableFrom} - {v.availableTo}</strong></div>
+                    </div>
+
+                    {pendingCount > 0 && (
+                      <div style={{ padding: '8px 12px', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '6px', marginBottom: '10px', fontSize: '12px', color: '#92400e', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>⚠️ <strong>{pendingCount}</strong> booking request awaiting your approval</span>
+                        <Link href="/venues" style={{ color: '#b45309', fontWeight: 700, textDecoration: 'underline' }}>
+                          Review
+                        </Link>
+                      </div>
+                    )}
+
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                      Upcoming Scheduled Usage ({venueEvents.length + venueBookings.filter((b) => b.status === 'Approved').length}):
+                    </div>
+
+                    {venueEvents.length === 0 && venueBookings.length === 0 ? (
+                      <div style={{ color: '#94a3b8', fontSize: '12px', fontStyle: 'italic' }}>
+                        No events currently booked for this facility.
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {venueEvents.slice(0, 3).map((e) => (
+                          <div key={e.id} style={{ fontSize: '12px', padding: '6px 8px', background: '#f1f5f9', borderRadius: '4px' }}>
+                            <strong>{e.title}</strong>
+                            <div style={{ color: '#64748b' }}>📅 {e.date} | ⏰ {e.startTime} - {e.endTime}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: INSTITUTIONAL CLASH RADAR */}
+        {adminTab === 'clash-radar' && (
+          <div style={{ border: '1px solid #fed7aa', borderRadius: '12px', padding: '24px', background: '#ffffff', borderTop: '4px solid #ea580c' }}>
+            <h3 style={{ margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⚠️</span> Institutional Campus Clash Monitor
+            </h3>
+            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>
+              Eventra automatically monitors scheduling overlaps across all campus clubs, venues, and student cohorts to prevent conflicting events.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ padding: '16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>PUBLISHED EVENTS MONITORED</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#0f172a', marginTop: '4px' }}>{allEvents.length}</div>
+              </div>
+              <div style={{ padding: '16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>FACILITIES CHECKED</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ea580c', marginTop: '4px' }}>{venues.length}</div>
+              </div>
+              <div style={{ padding: '16px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#166534', fontWeight: 600 }}>SCHEDULING HEALTH</div>
+                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#16a34a', marginTop: '4px' }}>All Clear</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <Link
+                href="/clash/report"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '10px 18px',
+                  background: '#ea580c',
+                  color: '#ffffff',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                }}
+              >
+                Open Full Campus Clash Matrix &amp; Report &rarr;
+              </Link>
+              <Link
+                href="/clash/check"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '10px 18px',
+                  background: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#334155',
+                  textDecoration: 'none',
+                }}
+              >
+                Run Manual Clash Check
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ============================================================
+  // STUDENT / ORGANISER PERSONAL CALENDAR VIEW
+  // ============================================================
   return (
     <div>
       {/* Header bar with title and ICS Export button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
         <div>
-          <h2 style={{ margin: '0 0 4px 0' }}>📅 Personal Calendar & Schedule</h2>
+          <h2 style={{ margin: '0 0 4px 0' }}>📅 Personal Calendar &amp; Schedule</h2>
           <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>
             Welcome, <strong>{user?.name}</strong>! Keep track of your lectures, registered events, and free slots.
           </p>
