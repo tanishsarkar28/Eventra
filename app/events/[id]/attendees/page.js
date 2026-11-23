@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import QRCameraScanner from '@/components/QRCameraScanner';
 
 export default function AttendeesManagementPage({ params }) {
   const { id } = params;
@@ -155,85 +156,116 @@ export default function AttendeesManagementPage({ params }) {
       {/* QR Ticket Scanner / Code Check-in Box */}
       <div
         style={{
-          border: '2px solid #28a745',
-          borderRadius: '8px',
-          padding: '20px',
-          background: '#f6fff8',
+          border: '2px solid #ea580c',
+          borderRadius: '12px',
+          padding: '24px',
+          background: '#fffaf5',
           marginBottom: '25px',
+          boxShadow: '0 2px 8px rgba(234, 88, 12, 0.08)',
         }}
       >
-        <h3 style={{ marginTop: 0, color: '#1e7e34' }}>📱 QR Ticket Scanner & Check-In</h3>
-        <p style={{ fontSize: '14px', color: '#444' }}>
-          Scan the student's QR code pass with a handheld barcode scanner, or type/paste their Ticket Code below:
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+          <h3 style={{ margin: 0, color: '#c2410c', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>📱</span> Live QR Ticket Scanner &amp; Check-In
+          </h3>
+          <span style={{ fontSize: '11px', background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', padding: '3px 8px', borderRadius: '12px', fontWeight: 600 }}>
+            PHONE CAMERA &amp; WEBCAM READY
+          </span>
+        </div>
+
+        <p style={{ fontSize: '14px', color: '#475569', marginTop: '2px', marginBottom: '16px' }}>
+          Scan student ticket QR codes instantly using your mobile phone camera or webcam, snap a photo of their pass, or type/paste their ticket code:
         </p>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleCheckIn();
-          }}
-          style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}
-        >
-          <input
-            type="text"
-            value={ticketInput}
-            onChange={(e) => setTicketInput(e.target.value)}
-            placeholder="e.g. EVT-1004-6058-AB3F"
-            style={{
-              padding: '10px 14px',
-              fontSize: '16px',
-              border: '2px solid #ccc',
-              borderRadius: '4px',
-              minWidth: '260px',
-              letterSpacing: '1px',
+        {/* Live Camera Scanner Component */}
+        <QRCameraScanner onScan={(code) => handleCheckIn(code)} isProcessing={isScanning} />
+
+        {/* Manual Input or Handheld USB Barcode Scanner */}
+        <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px dashed #fed7aa' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
+            Or Type / Paste Ticket Code Manually (or use USB Handheld Scanner):
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleCheckIn();
             }}
-            autoFocus
-          />
-          <button
-            type="submit"
-            disabled={isScanning}
-            style={{
-              padding: '10px 20px',
-              background: '#28a745',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '15px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-            }}
+            style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}
           >
-            {isScanning ? 'Verifying...' : '✓ Verify & Check In'}
-          </button>
-        </form>
+            <input
+              type="text"
+              value={ticketInput}
+              onChange={(e) => setTicketInput(e.target.value)}
+              placeholder="e.g. EVT-1004-6058-AB3F"
+              style={{
+                padding: '10px 14px',
+                fontSize: '15px',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: '6px',
+                minWidth: '280px',
+                letterSpacing: '1px',
+                background: '#ffffff',
+              }}
+            />
+            <button
+              type="submit"
+              disabled={isScanning}
+              style={{
+                padding: '10px 22px',
+                background: '#ea580c',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14.5px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(234, 88, 12, 0.3)',
+              }}
+            >
+              {isScanning ? 'Verifying...' : '✓ Verify & Check In'}
+            </button>
+          </form>
+        </div>
 
         {scanMessage && (
           <div
             style={{
-              marginTop: '15px',
-              padding: '10px',
-              background: '#d4edda',
-              color: '#155724',
-              borderRadius: '4px',
-              fontWeight: 'bold',
+              marginTop: '16px',
+              padding: '12px 16px',
+              background: '#dcfce7',
+              border: '1px solid #86efac',
+              color: '#15803d',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
             }}
           >
-            ✅ {scanMessage}
+            <span style={{ fontSize: '18px' }}>✅</span>
+            <span>{scanMessage}</span>
           </div>
         )}
 
         {scanError && (
           <div
             style={{
-              marginTop: '15px',
-              padding: '10px',
-              background: '#f8d7da',
-              color: '#721c24',
-              borderRadius: '4px',
-              fontWeight: 'bold',
+              marginTop: '16px',
+              padding: '12px 16px',
+              background: '#fee2e2',
+              border: '1px solid #fca5a5',
+              color: '#b91c1c',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
             }}
           >
-            ❌ {scanError}
+            <span style={{ fontSize: '18px' }}>❌</span>
+            <span>{scanError}</span>
           </div>
         )}
       </div>
