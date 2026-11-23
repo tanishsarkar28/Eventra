@@ -8,6 +8,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        lpu: {
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f15a24', // iconic LPU orange
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+          navy: '#182230',
+          charcoal: '#0f172a',
+          gold: '#f59e0b',
+        },
         slate: {
           50: '#f8fafc',
           100: '#f1f5f9',

@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 /**
- * Minimalist Navigation Bar Component
+ * LPU-Themed Navigation Bar Component
  * Next.js Unit I: Routing & Navigation (usePathname, Link)
  * React Unit II: Functional component design & composition
  * React Unit VI: Global State Management (useAuth Context)
@@ -48,9 +48,24 @@ export default function Navbar() {
 
   return (
     <header className="site-header">
+      {/* LPU Institutional Top Strip */}
+      <div className="lpu-top-bar">
+        <div className="lpu-top-bar-inner">
+          <div className="lpu-brand-text">
+            <span className="lpu-badge-pill">LPU</span>
+            <span className="lpu-uni-name">Lovely Professional University</span>
+            <span className="lpu-sep">|</span>
+            <span className="lpu-motto">Transforming Education, Transforming India</span>
+          </div>
+          <div className="lpu-campus-tag">
+            <span>📍 Main Campus • Phagwara, Punjab</span>
+          </div>
+        </div>
+      </div>
+
       <div className="header-inner">
         <Link href="/" className="brand-logo">
-          <span className="brand-icon">⚡</span>
+          <span className="lpu-logo-icon">LPU</span>
           <span className="brand-name">Eventra</span>
           <span className="brand-badge">Campus</span>
         </Link>

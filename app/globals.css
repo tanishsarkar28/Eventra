@@ -3,24 +3,35 @@
 @tailwind utilities;
 
 /* ============================================================================
-   EVENTRA MINIMAL DESIGN SYSTEM
-   Modern, sleek, minimalist aesthetic for campus event management.
+   EVENTRA @ LPU - LOVELY PROFESSIONAL UNIVERSITY CAMPUS DESIGN SYSTEM
+   Modern, academic, vibrant institutional theme inspired by LPU's signature
+   vermillion-orange, deep university slate, and warm amber visual identity.
    ============================================================================ */
 
 :root {
-  --bg: #f8fafc;
+  --bg: #f9fafb;
   --surface: #ffffff;
-  --surface-subtle: #f8fafc;
-  --surface-muted: #f1f5f9;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --primary: #0f172a;
-  --primary-hover: #1e293b;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
+  --surface-subtle: #fcfcfd;
+  --surface-muted: #f3f4f6;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+
+  /* LPU Signature Institutional Palette */
+  --primary: #f15a24; /* Iconic LPU Vermillion Orange */
+  --primary-hover: #d84315;
+  --lpu-orange: #f15a24;
+  --lpu-orange-dark: #d84315;
+  --lpu-orange-light: #fff7ed;
+  --lpu-orange-border: #fed7aa;
+  --lpu-amber: #f59e0b;
+  --lpu-navy: #182230;
+  --lpu-charcoal: #0f172a;
+
+  --accent: #f15a24;
+  --accent-hover: #d84315;
   --success: #10b981;
   --success-bg: #ecfdf5;
   --success-border: #a7f3d0;
@@ -33,12 +44,12 @@
   --radius-sm: 6px;
   --radius: 10px;
   --radius-lg: 14px;
-  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
-  --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(241, 90, 36, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(241, 90, 36, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
   --transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
@@ -48,18 +59,18 @@
 body {
   font-family: var(--font-sans);
   background-color: var(--bg);
-  background: radial-gradient(circle at 50% 0%, #f1f5f9 0%, #f8fafc 45%, #f8fafc 100%);
+  background: radial-gradient(circle at 50% 0%, #fff7ed 0%, #f9fafb 42%, #f9fafb 100%);
   color: var(--text-primary);
   line-height: 1.5;
   margin: 0;
-  padding: 20px 16px 40px 16px;
+  padding: 14px 16px 40px 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
-  background: #e0e7ff;
-  color: #1e1b4b;
+  background: #ffedd5;
+  color: #9a3412;
 }
 
 ::-webkit-scrollbar {
@@ -72,12 +83,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #fed7aa;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #f15a24;
 }
 
 .app-container {
@@ -86,22 +97,79 @@ body {
 }
 
 /* ==========================================================================
-   MINIMAL NAVBAR & HEADER
+   LPU INSTITUTIONAL TOP BAR & NAVBAR
    ========================================================================== */
 
 .site-header {
   position: sticky;
-  top: 12px;
+  top: 10px;
   z-index: 50;
-  background-color: rgba(255, 255, 255, 0.94);
+  background-color: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px 18px;
+  padding: 0 18px 12px 18px;
   margin-bottom: 24px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px -2px rgba(241, 90, 36, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: var(--transition);
+  overflow: hidden;
+}
+
+.lpu-top-bar {
+  background: #182230;
+  border-top: 3.5px solid #f15a24;
+  color: #f1f5f9;
+  padding: 7px 18px;
+  font-size: 11.5px;
+  margin: 0 -18px 10px -18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lpu-top-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lpu-brand-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lpu-badge-pill {
+  background: linear-gradient(135deg, #f15a24 0%, #ea580c 100%);
+  color: #ffffff;
+  font-weight: 800;
+  padding: 1.5px 6.5px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.lpu-uni-name {
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.lpu-sep {
+  color: #475569;
+}
+
+.lpu-motto {
+  color: #cbd5e1;
+  font-style: normal;
+}
+
+.lpu-campus-tag {
+  color: #fde68a;
+  font-weight: 500;
+  font-size: 11px;
 }
 
 .header-inner {
@@ -110,6 +178,7 @@ body {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
+  padding-top: 2px;
 }
 
 .brand-logo {
@@ -123,20 +192,36 @@ body {
   letter-spacing: -0.02em;
 }
 
-.brand-icon {
-  font-size: 20px;
+.lpu-logo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f15a24 0%, #ea580c 100%);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.06em;
+  box-shadow: 0 2px 5px rgba(241, 90, 36, 0.4);
+}
+
+.brand-name {
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.02em;
 }
 
 .brand-badge {
   font-size: 10.5px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 2px 7px;
-  background-color: var(--surface-muted);
-  color: var(--text-secondary);
+  background-color: #fff7ed;
+  color: #c2410c;
   border-radius: 9999px;
-  border: 1px solid var(--border);
+  border: 1px solid #fed7aa;
 }
 
 .site-nav {
@@ -159,16 +244,16 @@ body {
 }
 
 .nav-link:hover {
-  color: var(--text-primary);
-  background-color: var(--surface-muted);
+  color: #c2410c;
+  background-color: #fff7ed;
   text-decoration: none;
 }
 
 .nav-link.active {
-  color: var(--text-primary);
-  background-color: #f1f5f9;
+  color: #c2410c;
+  background-color: #ffedd5;
   font-weight: 600;
-  box-shadow: inset 0 0 0 1px var(--border);
+  box-shadow: inset 0 0 0 1px #fed7aa;
 }
 
 .nav-link-admin {
@@ -212,8 +297,8 @@ body {
 }
 
 .user-profile-pill:hover {
-  border-color: var(--border-strong);
-  background-color: #f8fafc;
+  border-color: #fed7aa;
+  background-color: #fff7ed;
   text-decoration: none;
 }
 
@@ -224,7 +309,7 @@ body {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background-color: var(--primary);
+  background-color: #f15a24;
   color: #ffffff;
   font-size: 11px;
   font-weight: 700;
@@ -254,8 +339,8 @@ body {
 }
 
 .notif-btn:hover {
-  background-color: #f8fafc;
-  border-color: var(--border-strong);
+  background-color: #fff7ed;
+  border-color: #fed7aa;
   text-decoration: none;
 }
 
@@ -276,12 +361,13 @@ body {
 }
 
 /* ==========================================================================
-   MAIN CONTENT WRAPPER & CARDS
+   MAIN CONTENT WRAPPER & LPU CARDS
    ========================================================================== */
 
 main {
   background-color: var(--surface);
   border: 1px solid var(--border);
+  border-top: 4px solid #f15a24;
   border-radius: var(--radius);
   padding: 28px 32px;
   min-height: 480px;
@@ -291,6 +377,7 @@ main {
 .card {
   background-color: var(--surface);
   border: 1px solid var(--border);
+  border-top: 3px solid #f15a24;
   border-radius: var(--radius);
   margin-bottom: 20px;
   box-shadow: var(--shadow-xs);
@@ -298,7 +385,9 @@ main {
 }
 
 .card:hover {
-  border-color: var(--border-strong);
+  border-color: #fed7aa;
+  border-top-color: #ea580c;
+  box-shadow: 0 6px 14px rgba(241, 90, 36, 0.08);
 }
 
 .card-padding-normal {
@@ -351,7 +440,7 @@ main {
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
   letter-spacing: -0.015em;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 h2 {
@@ -379,14 +468,14 @@ code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12.5px;
   padding: 2px 6px;
-  background-color: var(--surface-muted);
-  border: 1px solid var(--border);
+  background-color: #fff7ed;
+  border: 1px solid #fed7aa;
   border-radius: 4px;
-  color: var(--text-primary);
+  color: #9a3412;
 }
 
 /* ==========================================================================
-   MINIMAL BUTTONS
+   LPU THEMED BUTTONS
    ========================================================================== */
 
 .btn {
@@ -396,7 +485,7 @@ code {
   gap: 6px;
   font-family: inherit;
   font-size: 13.5px;
-  font-weight: 500;
+  font-weight: 600;
   padding: 7px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
@@ -416,29 +505,28 @@ code {
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background: linear-gradient(135deg, #f15a24 0%, #ea580c 100%);
   color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.12);
+  border-color: #ea580c;
+  box-shadow: 0 2px 6px rgba(241, 90, 36, 0.35);
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-hover);
-  border-color: var(--primary-hover);
-  box-shadow: 0 2px 4px 0 rgba(15, 23, 42, 0.16);
+  background: linear-gradient(135deg, #d84315 0%, #c2410c 100%);
+  border-color: #c2410c;
+  box-shadow: 0 4px 10px rgba(241, 90, 36, 0.45);
 }
 
 .btn-secondary {
-  background-color: var(--accent);
+  background-color: #182230;
   color: #ffffff;
-  border-color: var(--accent);
-  box-shadow: 0 1px 2px 0 rgba(37, 99, 235, 0.16);
+  border-color: #182230;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary:hover {
-  background-color: var(--accent-hover);
-  border-color: var(--accent-hover);
-  box-shadow: 0 2px 4px 0 rgba(37, 99, 235, 0.22);
+  background-color: #0f172a;
+  border-color: #0f172a;
 }
 
 .btn-outline {
@@ -449,8 +537,9 @@ code {
 }
 
 .btn-outline:hover {
-  background-color: var(--surface-muted);
-  border-color: var(--text-muted);
+  background-color: #fff7ed;
+  border-color: #f15a24;
+  color: #c2410c;
 }
 
 .btn-ghost {
@@ -460,8 +549,8 @@ code {
 }
 
 .btn-ghost:hover {
-  background-color: var(--surface-muted);
-  color: var(--text-primary);
+  background-color: #fff7ed;
+  color: #c2410c;
 }
 
 .btn-danger {
@@ -492,7 +581,7 @@ code {
 }
 
 /* ==========================================================================
-   MINIMAL STATUS BADGES
+   STATUS BADGES
    ========================================================================== */
 
 .badge {
@@ -531,10 +620,11 @@ code {
   border: 1px solid var(--danger-border);
 }
 
-.badge-info {
-  background-color: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
+.badge-info,
+.badge-primary {
+  background-color: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
 }
 
 .badge-dot {
@@ -547,10 +637,11 @@ code {
 .badge-dot-warning { background-color: var(--warning); }
 .badge-dot-danger { background-color: var(--danger); }
 .badge-dot-neutral { background-color: var(--text-muted); }
-.badge-dot-info { background-color: var(--accent); }
+.badge-dot-info,
+.badge-dot-primary { background-color: #f15a24; }
 
 /* ==========================================================================
-   MINIMAL FORM INPUTS
+   FORM INPUTS
    ========================================================================== */
 
 .form-group {
@@ -588,18 +679,18 @@ textarea {
 input:hover,
 select:hover,
 textarea:hover {
-  border-color: #94a3b8;
+  border-color: #fb923c;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+  border-color: #f15a24;
+  box-shadow: 0 0 0 3px rgba(241, 90, 36, 0.16);
 }
 
 /* ==========================================================================
-   MINIMAL TABLES
+   TABLES
    ========================================================================== */
 
 table {
@@ -615,10 +706,10 @@ table {
 }
 
 th {
-  background-color: var(--surface-muted);
+  background-color: #f8fafc;
   color: var(--text-secondary);
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-align: left;
@@ -640,11 +731,11 @@ tbody tr:last-child td {
 }
 
 tbody tr:hover td {
-  background-color: #f8fafc;
+  background-color: #fffaf5;
 }
 
 /* ==========================================================================
-   MINIMAL ALERTS
+   ALERTS
    ========================================================================== */
 
 .alert {
@@ -676,13 +767,13 @@ tbody tr:hover td {
 }
 
 .alert-info {
-  background-color: #eff6ff;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
+  background-color: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
 }
 
 /* ==========================================================================
-   MINIMAL EMPTY STATE & SPINNERS
+   EMPTY STATE & SPINNERS
    ========================================================================== */
 
 .empty-state {
@@ -719,7 +810,7 @@ tbody tr:hover td {
 .spinner {
   border-style: solid;
   border-color: var(--border-strong);
-  border-top-color: var(--primary);
+  border-top-color: #f15a24;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -751,7 +842,7 @@ tbody tr:hover td {
 }
 
 /* ==========================================================================
-   MINIMAL MODAL
+   MODAL
    ========================================================================== */
 
 .modal-backdrop {
@@ -760,8 +851,8 @@ tbody tr:hover td {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(2px);
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -772,9 +863,10 @@ tbody tr:hover td {
 .modal-container {
   background-color: var(--surface);
   border: 1px solid var(--border);
+  border-top: 4px solid #f15a24;
   border-radius: var(--radius);
   width: 100%;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 
@@ -789,7 +881,7 @@ tbody tr:hover td {
 .modal-title {
   margin: 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .modal-close-btn {
@@ -803,7 +895,7 @@ tbody tr:hover td {
 }
 
 .modal-close-btn:hover {
-  color: var(--text-primary);
+  color: #f15a24;
 }
 
 .modal-body {
@@ -821,52 +913,24 @@ tbody tr:hover td {
 }
 
 /* ==========================================================================
-   ERROR & NOT FOUND CARDS
+   LPU INSTITUTIONAL FOOTER
    ========================================================================== */
 
-.error-boundary-card,
-.not-found-card {
+.lpu-footer {
+  margin-top: 40px;
+  padding: 24px 16px;
   text-align: center;
-  padding: 60px 20px;
-  max-width: 480px;
-  margin: 0 auto;
-}
-
-.error-icon {
-  font-size: 40px;
-  margin-bottom: 12px;
-}
-
-.error-title,
-.not-found-title {
-  font-size: 22px;
-  margin-bottom: 8px;
-}
-
-.error-message,
-.not-found-description {
-  font-size: 14px;
+  border-top: 1px solid var(--border);
   color: var(--text-secondary);
-  margin-bottom: 24px;
+  font-size: 13px;
 }
 
-.error-actions,
-.not-found-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.not-found-code {
-  font-size: 72px;
-  font-weight: 800;
-  color: var(--text-muted);
-  line-height: 1;
-  margin-bottom: 12px;
+.lpu-footer strong {
+  color: #111827;
 }
 
 /* ==========================================================================
-   MINIMAL GRID UTILITIES
+   GRID UTILITIES
    ========================================================================== */
 
 .grid-2 {
