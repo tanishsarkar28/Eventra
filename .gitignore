@@ -37,3 +37,9 @@ next-env.d.ts
 __pycache__/
 *.py[cod]
 diagrams_temp/
+
+# generated binary artifacts and presentation scripts
+presentation_script.html
+Eventra_Presentation_Script_3Members.pdf
+Eventra_SRS_INT252.docx
+Eventra_SRS_INT252.pdf
