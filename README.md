@@ -10,7 +10,6 @@
 
 🔗 **Production Live URL:** [https://eventra-fchm.onrender.com/](https://eventra-fchm.onrender.com/)  
 📦 **GitHub Repository:** [https://github.com/tanishsarkar28/Eventra](https://github.com/tanishsarkar28/Eventra)  
-📚 **Academic Course:** INT252 — Web App Development with ReactJS (Continuous Assessment 3 • Autumn 2026)
 
 ---
 
