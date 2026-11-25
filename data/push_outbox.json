@@ -1,5 +1,18 @@
 [
   {
+    "id": "push_1795531652006_5vxyv",
+    "notificationId": "notif_1795531651995_wqvlm",
+    "userId": "1795531619886",
+    "title": "🎉 Organiser Account Verified!",
+    "body": "Your club organiser account (LPU Robotics Club) has been verified by the administrator. You can now create events and book campus venues!",
+    "payload": {
+      "type": "organiser_verified",
+      "clubName": "LPU Robotics Club"
+    },
+    "sentAt": "2026-11-24T14:47:31.995Z",
+    "status": "Sent"
+  },
+  {
     "id": "push_1795440526887_k5o1y",
     "notificationId": "notif_1795440526882_pb6kc",
     "userId": "org_cultural",

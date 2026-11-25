@@ -81,27 +81,6 @@ export default function HomePage() {
         />
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: '820px' }}>
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '4px 12px',
-              borderRadius: '9999px',
-              background: 'rgba(241, 90, 36, 0.18)',
-              border: '1px solid rgba(241, 90, 36, 0.45)',
-              fontSize: '12px',
-              fontWeight: 700,
-              color: '#ffedd5',
-              letterSpacing: '0.05em',
-              marginBottom: '16px',
-              textTransform: 'uppercase',
-            }}
-          >
-            <span style={{ background: '#f15a24', color: '#fff', padding: '1px 6px', borderRadius: '4px', fontSize: '11px', fontWeight: 800 }}>LPU</span>
-            <span>Lovely Professional University • Eventra Hub</span>
-          </div>
-
           <h1
             style={{
               fontSize: 'clamp(28px, 4vw, 42px)',
@@ -660,40 +639,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ============================================================
-          5. CAMPUS CLUBS & ZERO-CLASH SYSTEM HIGHLIGHTS
-          ============================================================ */}
-      <section
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '20px',
-        }}
-      >
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', borderTop: '3.5px solid #f15a24' }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🛡️</div>
-          <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#0f172a' }}>Zero Venue &amp; Time Clashes</h4>
-          <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: 1.5 }}>
-            Automated conflict radar cross-checks time slots across all LPU student clubs to ensure no two major fests compete for the same venue or student cohort.
-          </p>
-        </div>
 
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', borderTop: '3.5px solid #16a34a' }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>📱</div>
-          <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#0f172a' }}>Live Phone QR Gate Scanner</h4>
-          <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: 1.5 }}>
-            Organisers can point their mobile phone camera at attendee tickets for instant 1-second check-ins, eliminating queues at SDM Auditorium and Unipolis gates.
-          </p>
-        </div>
-
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', borderTop: '3.5px solid #2563eb' }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🎓</div>
-          <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#0f172a' }}>Academic Timetable Harmony</h4>
-          <p style={{ margin: 0, fontSize: '13px', color: '#64748b', lineHeight: 1.5 }}>
-            Students can sync their college lecture schedule with event timelines, automatically alerting them if an event overlaps with an important lab or class.
-          </p>
-        </div>
-      </section>
     </div>
   );
 }

@@ -1,5 +1,23 @@
 [
   {
+    "id": "notif_1795531651995_wqvlm",
+    "userId": "1795531619886",
+    "title": "🎉 Organiser Account Verified!",
+    "message": "Your club organiser account (LPU Robotics Club) has been verified by the administrator. You can now create events and book campus venues!",
+    "type": "organiser_verified",
+    "channels": [
+      "in_app",
+      "email",
+      "push"
+    ],
+    "isRead": false,
+    "readAt": null,
+    "metadata": {
+      "clubName": "LPU Robotics Club"
+    },
+    "createdAt": "2026-11-24T14:47:31.995Z"
+  },
+  {
     "id": "notif_1795440526882_pb6kc",
     "userId": "org_cultural",
     "title": "👤 New Attendee Registered: Inter-College Dance Night",

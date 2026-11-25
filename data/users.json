@@ -85,10 +85,38 @@
     "email": "tanish@lpu.in",
     "password": "$2a$10$YuLr6bojlBUAzX9KZhN1Q.0wsH5TZ8bWqWPE4byXmyR5grPNYCc0S",
     "role": "student",
+    "branch": "Computer Science",
+    "year": "3rd Year",
+    "interests": [
+      "Sports",
+      "Gaming",
+      "dancing"
+    ],
+    "clubName": "",
+    "isVerified": true
+  },
+  {
+    "id": "1795531619886",
+    "name": "Alex Rivera",
+    "email": "robotics.lead@eventra.edu",
+    "password": "$2a$10$mtzwdKnKwo2hNvgtrVlxYOA3sCpZA3GoEOtAW66bLzHzhBCRRARx.",
+    "role": "organiser",
     "branch": "",
     "year": "",
     "interests": [],
-    "clubName": "",
+    "clubName": "LPU Robotics Club",
     "isVerified": true
+  },
+  {
+    "id": "1795531920408",
+    "name": "Sarah Jenkins",
+    "email": "gdsc@lpu.edu",
+    "password": "$2a$10$1zXxaNf1CQMIQnJmls/TCeDvnSaP2MTJHhD.nmCj0kAMeUz/uznsu",
+    "role": "organiser",
+    "branch": "",
+    "year": "",
+    "interests": [],
+    "clubName": "Google Developer Student Club (GDSC LPU)",
+    "isVerified": false
   }
 ]

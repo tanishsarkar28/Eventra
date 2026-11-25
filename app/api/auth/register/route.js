@@ -20,6 +20,14 @@ export async function POST(request) {
       );
     }
 
+    // 2b. check password length (minimum 6 characters)
+    if (password.length < 6) {
+      return NextResponse.json(
+        { message: 'Password must be at least 6 characters' },
+        { status: 400 }
+      );
+    }
+
     // 3. allow only student or organiser role during registration
     if (role !== 'student' && role !== 'organiser') {
       return NextResponse.json(

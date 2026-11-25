@@ -180,5 +180,33 @@
     "organiserId": "org_1",
     "createdAt": "2026-11-10T04:32:35.084Z",
     "updatedAt": "2026-11-10T04:32:35.084Z"
+  },
+  {
+    "id": "1795531711663",
+    "title": "LPU Autonomous Drone Challenge 2026",
+    "description": "Join the premier inter-university autonomous drone navigation and precision landing competition organized by LPU Robotics Club.",
+    "poster": "",
+    "category": "Technical",
+    "tags": [
+      "robotics",
+      "drone",
+      "ai",
+      "competition"
+    ],
+    "date": "2026-12-15",
+    "startTime": "10:00",
+    "endTime": "16:00",
+    "venue": "Seminar Hall 1",
+    "capacity": 150,
+    "targetAudience": "All Students",
+    "registrationDeadline": "2026-12-14",
+    "isPaid": false,
+    "ticketPrice": 0,
+    "status": "Pending Approval",
+    "organiserId": "admin_default",
+    "organiserName": "Administrator",
+    "clubName": "",
+    "createdAt": "2026-11-24T14:48:31.663Z",
+    "updatedAt": "2026-11-24T14:48:31.663Z"
   }
 ]

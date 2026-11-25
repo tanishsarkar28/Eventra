@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
+import { registerSchema, validateForm } from '@/lib/schemas';
 
 /**
  * Minimalist Registration Page
@@ -25,6 +26,23 @@ export default function RegisterPage() {
     e.preventDefault();
     setMessage('');
     setLoading(true);
+
+    // INT252 Unit IV: Schema validation using Zod
+    const validation = validateForm(registerSchema, {
+      name,
+      email,
+      password,
+      role,
+      clubName,
+    });
+
+    if (!validation.success) {
+      const firstError = Object.values(validation.errors)[0];
+      setIsSuccess(false);
+      setMessage(firstError);
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/auth/register', {

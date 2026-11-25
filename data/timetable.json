@@ -1,1 +1,277 @@
-[]
+[
+  {
+    "id": "slot_1795452976828_1_mon_1020",
+    "userId": "1795452976828",
+    "subject": "INT257 (Lecture)",
+    "dayOfWeek": "Monday",
+    "startTime": "10:20",
+    "endTime": "11:10",
+    "room": "33-612",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_2_mon_1110",
+    "userId": "1795452976828",
+    "subject": "INT257 (Lecture)",
+    "dayOfWeek": "Monday",
+    "startTime": "11:10",
+    "endTime": "12:00",
+    "room": "33-612",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_3_mon_1340",
+    "userId": "1795452976828",
+    "subject": "CSE408 (Lecture)",
+    "dayOfWeek": "Monday",
+    "startTime": "13:40",
+    "endTime": "14:30",
+    "room": "33-608",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_4_mon_1430",
+    "userId": "1795452976828",
+    "subject": "CSE408 (Lecture)",
+    "dayOfWeek": "Monday",
+    "startTime": "14:30",
+    "endTime": "15:20",
+    "room": "33-608",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_5_tue_1340",
+    "userId": "1795452976828",
+    "subject": "INT257 (Practical)",
+    "dayOfWeek": "Tuesday",
+    "startTime": "13:40",
+    "endTime": "14:30",
+    "room": "33-508",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_6_tue_1430",
+    "userId": "1795452976828",
+    "subject": "INT257 (Practical)",
+    "dayOfWeek": "Tuesday",
+    "startTime": "14:30",
+    "endTime": "15:20",
+    "room": "33-508",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_7_tue_1520",
+    "userId": "1795452976828",
+    "subject": "PEA306 (Tutorial)",
+    "dayOfWeek": "Tuesday",
+    "startTime": "15:20",
+    "endTime": "16:10",
+    "room": "34-604",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_8_wed_1020",
+    "userId": "1795452976828",
+    "subject": "INT252 (Lecture)",
+    "dayOfWeek": "Wednesday",
+    "startTime": "10:20",
+    "endTime": "11:10",
+    "room": "34-101",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_9_wed_1110",
+    "userId": "1795452976828",
+    "subject": "INT252 (Lecture)",
+    "dayOfWeek": "Wednesday",
+    "startTime": "11:10",
+    "endTime": "12:00",
+    "room": "34-101",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_10_wed_1250",
+    "userId": "1795452976828",
+    "subject": "MKT311 (Practical)",
+    "dayOfWeek": "Wednesday",
+    "startTime": "12:50",
+    "endTime": "13:40",
+    "room": "37-905",
+    "instructor": "K3O2408",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_11_wed_1340",
+    "userId": "1795452976828",
+    "subject": "PES390 (Lecture)",
+    "dayOfWeek": "Wednesday",
+    "startTime": "13:40",
+    "endTime": "14:30",
+    "room": "34-110",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_12_wed_1430",
+    "userId": "1795452976828",
+    "subject": "PEA306 (Lecture)",
+    "dayOfWeek": "Wednesday",
+    "startTime": "14:30",
+    "endTime": "15:20",
+    "room": "34-110",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_13_thu_1020",
+    "userId": "1795452976828",
+    "subject": "INT252 (Practical)",
+    "dayOfWeek": "Thursday",
+    "startTime": "10:20",
+    "endTime": "11:10",
+    "room": "33-507Y",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_14_thu_1110",
+    "userId": "1795452976828",
+    "subject": "INT252 (Practical)",
+    "dayOfWeek": "Thursday",
+    "startTime": "11:10",
+    "endTime": "12:00",
+    "room": "33-507Y",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_15_thu_1250",
+    "userId": "1795452976828",
+    "subject": "MKT311 (Practical)",
+    "dayOfWeek": "Thursday",
+    "startTime": "12:50",
+    "endTime": "13:40",
+    "room": "37-905",
+    "instructor": "K3O2408",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_16_thu_1340",
+    "userId": "1795452976828",
+    "subject": "CSE408 (Lecture)",
+    "dayOfWeek": "Thursday",
+    "startTime": "13:40",
+    "endTime": "14:30",
+    "room": "34-101",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_17_thu_1610",
+    "userId": "1795452976828",
+    "subject": "PEA306 (Lecture)",
+    "dayOfWeek": "Thursday",
+    "startTime": "16:10",
+    "endTime": "17:00",
+    "room": "34-101",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_18_fri_1020",
+    "userId": "1795452976828",
+    "subject": "CSE408 (Practical)",
+    "dayOfWeek": "Friday",
+    "startTime": "10:20",
+    "endTime": "11:10",
+    "room": "33-603",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_19_fri_1110",
+    "userId": "1795452976828",
+    "subject": "CSE408 (Practical)",
+    "dayOfWeek": "Friday",
+    "startTime": "11:10",
+    "endTime": "12:00",
+    "room": "33-603",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_20_fri_1250",
+    "userId": "1795452976828",
+    "subject": "MKT311 (Practical)",
+    "dayOfWeek": "Friday",
+    "startTime": "12:50",
+    "endTime": "13:40",
+    "room": "37-905",
+    "instructor": "K3O2408",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_21_fri_1340",
+    "userId": "1795452976828",
+    "subject": "PES390 (Lecture)",
+    "dayOfWeek": "Friday",
+    "startTime": "13:40",
+    "endTime": "14:30",
+    "room": "33-501",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_22_fri_1430",
+    "userId": "1795452976828",
+    "subject": "PES390 (Tutorial)",
+    "dayOfWeek": "Friday",
+    "startTime": "14:30",
+    "endTime": "15:20",
+    "room": "34-704",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_23_fri_1520",
+    "userId": "1795452976828",
+    "subject": "PES390 (Tutorial)",
+    "dayOfWeek": "Friday",
+    "startTime": "15:20",
+    "endTime": "16:10",
+    "room": "34-704",
+    "instructor": "K2P24RL",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_24_sat_0930",
+    "userId": "1795452976828",
+    "subject": "PEAS01 (Lecture)",
+    "dayOfWeek": "Saturday",
+    "startTime": "09:30",
+    "endTime": "10:20",
+    "room": "33-510",
+    "instructor": "9R042",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  },
+  {
+    "id": "slot_1795452976828_25_sat_1020",
+    "userId": "1795452976828",
+    "subject": "PEVS01 (Lecture)",
+    "dayOfWeek": "Saturday",
+    "startTime": "10:20",
+    "endTime": "11:10",
+    "room": "33-510",
+    "instructor": "9R042",
+    "createdAt": "2026-11-25T05:27:42.000Z"
+  }
+]
